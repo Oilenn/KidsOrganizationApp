@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace KidsOrganizationApp.Domain
 {
-    public class Parent
+    public class Child
     {
         public Guid Id { get; private set; }
         public string Name { get; private set; } = string.Empty;
         public string Surname { get; private set; } = string.Empty;
         public string Patronomic { get; private set; } = string.Empty;
         public DateTime DateBirth { get; private set; } = DateTime.MinValue;
-        public ICollection<Child> Children { get; private set; } = [];
-        protected Parent() { } // для EF
 
-        public Parent(string name,
+        public List<Parent> Parents { get; set; } = [];
+
+        public Child(string name,
                       string surname,
                       string patronomic,
                       DateTime dateBirth)
