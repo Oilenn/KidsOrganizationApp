@@ -11,7 +11,7 @@ namespace KidsOrganizationApp.Domain
         public Guid Id { get; private set; }
         public string Name { get; private set; } = string.Empty;
         public string Surname { get; private set; } = string.Empty;
-        public string Patronomic { get; private set; } = string.Empty;
+        public string Patronymic { get; private set; } = string.Empty;
         public DateTime DateBirth { get; private set; } = DateTime.MinValue;
         public ICollection<Child> Children { get; private set; } = [];
         protected Parent() { } // для EF
@@ -26,16 +26,16 @@ namespace KidsOrganizationApp.Domain
             Id = Guid.NewGuid();
         }
 
-        public void ChangeName(string name, string surname, string patronomic)
+        public void ChangeName(string name, string surname, string patronymic)
         {
             if (string.IsNullOrWhiteSpace(name) || 
                 string.IsNullOrWhiteSpace(surname) ||
-                string.IsNullOrWhiteSpace(patronomic))
+                string.IsNullOrWhiteSpace(patronymic))
                 throw new ArgumentException("Имя не может быть пустым");
 
             Name = name;
             Surname = surname;
-            Patronomic = patronomic;
+            Patronymic = patronymic;
         }
     }
 

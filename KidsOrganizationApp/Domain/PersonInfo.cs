@@ -9,13 +9,13 @@ namespace KidsOrganizationApp.Domain
         public Guid Id { get; set; }
 
         public Guid ContactId { get; set; }
-        public Contact? Contact { get; set; }  // навигационное свойство
+        public Contact? Contact { get; set; }
 
         public Guid PassportId { get; set; }
-        public Document? Passport { get; set; } // навигационное свойство
+        public Document? Passport { get; set; }
 
         public Guid SNILSId { get; set; }
-        public Document? SNILS { get; set; } // навигационное свойство
+        public Document? SNILS { get; set; }
 
         public Guid DiagnosisFileId { get; set; }
         public Document? DiagnosisFile { get; set; } 
