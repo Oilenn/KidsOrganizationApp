@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Configuration;
 using System.Data;
 using System.Windows;
 
@@ -9,6 +10,16 @@ namespace KidsOrganizationApp
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            using var db = new AppDbContext();
+            db.Database.EnsureCreated();
+
+            var services = new ServiceCollection();
+            services.AddDbContext<AppDbContext>();
+        }
     }
 
 }
