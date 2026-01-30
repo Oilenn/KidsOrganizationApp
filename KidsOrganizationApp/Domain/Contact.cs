@@ -8,7 +8,7 @@ namespace KidsOrganizationApp.Domain
 {
     public class Contact
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string MobileNumber { get; private set; } = string.Empty;
         public string LivingPlace { get; private set; } = string.Empty;
     }

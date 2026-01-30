@@ -10,6 +10,7 @@ namespace KidsOrganizationApp.Domain
     {
         public Guid Id { get; set; }    
         public string Name { get; set; } = string.Empty;
+        public DateTime Date { get; private set; } = DateTime.MinValue;
         public List<Document> Document { get; set; } = new List<Document>();
     }
 }
