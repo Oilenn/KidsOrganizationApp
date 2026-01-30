@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace KidsOrganizationApp.UI.ViewModels
 {
     using KidsOrganizationApp.Domain;
+    using KidsOrganizationApp.Service;
     using System.Collections.ObjectModel;
 
     public class MainViewModel
@@ -14,24 +15,45 @@ namespace KidsOrganizationApp.UI.ViewModels
         public ObservableCollection<ParentViewModel> Parents { get; }
         public ObservableCollection<ChildViewModel> Children { get; }
 
-        public MainViewModel()
+        public IChildService ChildService { get; set; }
+        public IParentService ParentService { get; set; }
+
+        public MainViewModel(IChildService childService, IParentService parentService)
         {
             Parents = new ObservableCollection<ParentViewModel>();
             Children = new ObservableCollection<ChildViewModel>();
+
+            ChildService = childService;
+            ParentService = parentService;
 
             LoadTestData(); // пока тест
         }
 
         private void LoadTestData()
         {
-            var parent = new Parent("Иван", "Иванов", "Иванович", new DateTime(1980, 1, 1));
-            var child = new Child("Петя", "Иванов", "Иванович", new DateTime(2010, 5, 12));
+            ChildService.AddChild("Настя", "Копшева", "Ивановна", new DateTime());
 
-            parent.Children.Add(child);
-            child.Parents.Add(parent);
+            List<Parent> parents = ParentService.GetAllParents();
 
-            Parents.Add(new ParentViewModel(parent));
-            Children.Add(new ChildViewModel(child));
+            var parentViewModels = parents
+                .Select(p => new ParentViewModel(p))
+                .ToList();
+
+            foreach (var viewModel in parentViewModels)
+            {
+                Parents.Add(viewModel);
+            }
+
+            List<Child> children = ChildService.GetAllChildren();
+
+            var childrentViewModel = children
+                .Select(p => new ChildViewModel(p))
+                .ToList();
+
+            foreach (var viewModel in childrentViewModel)
+            {
+                Children.Add(viewModel);
+            }
         }
     }
 
