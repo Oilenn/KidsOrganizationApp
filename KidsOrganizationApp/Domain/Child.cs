@@ -26,6 +26,28 @@ namespace KidsOrganizationApp.Domain
             Id = Guid.NewGuid();
         }
 
+        public Child(string name,
+              string surname,
+              string patronymic,
+              DateTime dateBirth,
+              Parent parent)
+        {
+            ChangeName(name, surname, patronymic);
+            DateBirth = dateBirth;
+            Id = Guid.NewGuid();
+        }
+
+        public Child(string name,
+              string surname,
+              string patronymic,
+              DateTime dateBirth,
+              List<Parent> parents)
+        {
+            ChangeName(name, surname, patronymic);
+            DateBirth = dateBirth;
+            Id = Guid.NewGuid();
+        }
+
         public void ChangeName(string name, string surname, string patronymic)
         {
             if (string.IsNullOrWhiteSpace(name) || 
