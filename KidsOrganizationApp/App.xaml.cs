@@ -1,4 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using KidsOrganizationApp.Service;
+using KidsOrganizationApp.UI.View;
+using KidsOrganizationApp.UI.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
+using System.Configuration;
+﻿using KidsOrganizationApp.Service;
+using KidsOrganizationApp.UI.View;
+using KidsOrganizationApp.UI.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 using System.Configuration;
 using System.Data;
 using System.Windows;
@@ -19,6 +27,22 @@ namespace KidsOrganizationApp
 
             var services = new ServiceCollection();
             services.AddDbContext<AppDbContext>();
+
+            services.AddScoped<IParentService, ParentService>();
+            services.AddScoped<IChildService, ChildService>();
+            services.AddScoped<WindowService>();
+
+
+            services.AddTransient<MainViewModel>();
+            services.AddTransient<ParentViewModel>();
+
+            services.AddTransient<ParentChildView>();
+
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            var window = serviceProvider.GetRequiredService<WindowService>();
+            window.ShowParentChildWindow();
         }
     }
 
