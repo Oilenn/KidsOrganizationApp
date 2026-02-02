@@ -37,6 +37,14 @@ namespace KidsOrganizationApp.Domain
             Surname = surname;
             Patronymic = patronymic;
         }
+
+        public void AddChild(Child child)
+        {
+            if(child.Parents.Contains(this)) throw new ArgumentException("Родитель уже является родителем!");
+            
+            Children.Add(child);
+            child.AddParent(this);
+        }
     }
 
 }
