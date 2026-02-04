@@ -12,7 +12,7 @@ namespace KidsOrganizationApp.Service
 {
     public interface IChildService
     {
-        void AddChild(ChildDTO dto);
+        ChildDTO AddChild(ChildDTO dto);
         ChildDTO GetChildById(Guid id);
 
         void DeleteChild(ChildDTO dto);
@@ -33,11 +33,12 @@ namespace KidsOrganizationApp.Service
             _childRepository = childRepository;
         }
 
-        public void AddChild(ChildDTO dto)
+        public ChildDTO AddChild(ChildDTO dto)
         {
             Child child = ConvertToNewDomain(dto);
-
             _childRepository.Add(child);
+
+            return ConvertToDTO(child);
         }
 
         public List<ChildDTO> GetAllChildren()
