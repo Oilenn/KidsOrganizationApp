@@ -14,5 +14,16 @@ namespace KidsOrganizationApp.Service.DTO
         public string Patronymic { get; set; } = string.Empty;
         public DateTime DateBirth { get; set; } = DateTime.MinValue;
         public List<ParentDTO> Parents { get; set; } = [];
+        
+        public ChildDTO() { }
+        public ChildDTO(Guid id, string name, string surname, string patronymic, DateTime dateBirth, List<ParentDTO> parents) 
+        {
+            Id = id;
+            Name = name;
+            Surname = surname;
+            Patronymic = patronymic;
+            DateBirth = dateBirth;
+            Parents = parents;
+        }
     }
 }
