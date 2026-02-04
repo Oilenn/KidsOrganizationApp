@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace KidsOrganizationApp.Repository
 {
@@ -30,6 +31,27 @@ namespace KidsOrganizationApp.Repository
         public Child GetById(Guid id)
         {
             return _context.Children.Find(id);
+        }
+
+        public List<Child> GetByName(string name)
+        {
+            return _context.Children
+                .Where(c => c.Name == name)
+                .ToList();
+        }
+
+        public List<Child> GetByPatronymic(string patronymic)
+        {
+            return _context.Children
+                .Where(c => c.Patronymic == patronymic)
+                .ToList();
+        }
+
+        public List<Child> GetBySurname(string surname)
+        {
+            return _context.Children
+                .Where(c => c.Surname == surname)
+                .ToList();
         }
 
         public void Remove(Child child)

@@ -9,5 +9,8 @@ namespace KidsOrganizationApp.Repository
         void Add(Parent parent);
         void Remove(Parent parent);
         void Update(Parent parent);
+        List<Parent> GetByName(string name);
+        List<Parent> GetBySurname(string surname);
+        List<Parent> GetByPatronymic(string patronymic);
     }
 }
