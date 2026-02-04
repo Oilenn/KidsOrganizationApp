@@ -11,7 +11,7 @@ namespace KidsOrganizationApp.Service
 {
     public interface IParentService
     {
-        void AddParent(ParentDTO dto);
+        ParentDTO AddParent(ParentDTO dto);
         void UpdateParent(ParentDTO dto);
         void DeleteParent(ParentDTO dto);
 
@@ -31,10 +31,12 @@ namespace KidsOrganizationApp.Service
             _parentRepository = parentRepository;
         }
 
-        public void AddParent(ParentDTO dto)
+        public ParentDTO AddParent(ParentDTO dto)
         {
             Parent parent = ConvertToNewDomain(dto);
             _parentRepository.Add(parent);
+
+            return ConvertToDTO(parent);
         }
 
         public void UpdateParent(ParentDTO dto)

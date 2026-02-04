@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Configuration;
 using System.Data;
 using System.Windows;
+using KidsOrganizationApp.Repository;
 
 namespace KidsOrganizationApp
 {
@@ -32,6 +33,8 @@ namespace KidsOrganizationApp
             services.AddScoped<IChildService, ChildService>();
             services.AddScoped<WindowService>();
 
+            services.AddScoped<IChildRepository, ChildRepository>();
+            services.AddScoped<IParentRepository, ParentRepository>();
 
             services.AddTransient<MainViewModel>();
             services.AddTransient<ParentViewModel>();
