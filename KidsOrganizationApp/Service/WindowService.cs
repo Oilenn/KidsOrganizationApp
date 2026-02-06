@@ -1,13 +1,11 @@
 ﻿using KidsOrganizationApp.UI.View;
 using KidsOrganizationApp.UI.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KidsOrganizationApp.Service
 {
+    /// <summary>
+    /// Сервис для контроля за окнами и их состоянием
+    /// </summary>
     public class WindowService
     {
         private readonly ParentChildView _parentChildView;
