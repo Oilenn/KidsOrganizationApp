@@ -1,6 +1,7 @@
 ﻿
 
 using KidsOrganizationApp.Domain;
+using KidsOrganizationApp.Repository.Interface;
 using System.Xml.Linq;
 
 namespace KidsOrganizationApp.Repository

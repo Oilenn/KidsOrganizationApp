@@ -1,4 +1,5 @@
 ﻿using KidsOrganizationApp.Domain;
+using KidsOrganizationApp.Repository.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,11 +58,13 @@ namespace KidsOrganizationApp.Repository
         public void Remove(Child child)
         {
             _context.Remove(child);
+            _context.SaveChanges();
         }
 
         public void Update(Child child)
         {
             _context.Update(child);
+            _context.SaveChanges();
         }
     }
 }

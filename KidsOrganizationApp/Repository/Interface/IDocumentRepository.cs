@@ -1,6 +1,6 @@
 ﻿using KidsOrganizationApp.Domain;
 
-namespace KidsOrganizationApp.Repository
+namespace KidsOrganizationApp.Repository.Interface
 {
     public interface IDocumentRepository
     {
