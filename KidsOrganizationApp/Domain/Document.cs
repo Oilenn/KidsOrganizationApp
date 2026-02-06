@@ -8,8 +8,10 @@ namespace KidsOrganizationApp.Domain
 {
     public class Document
     {
-        public Guid Id { get; set; }
-        public string DocumentType { get; set; } = string.Empty;
-        public string Path { get; set; } = string.Empty;
+        public Guid Id { get; private set; }
+        public string DocumentType { get; private set; } = string.Empty;
+        public string Path { get; private set; } = string.Empty;
+
+        protected Document() { }
     }
 }

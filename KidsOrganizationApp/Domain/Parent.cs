@@ -13,8 +13,9 @@ namespace KidsOrganizationApp.Domain
         public string Surname { get; private set; } = string.Empty;
         public string Patronymic { get; private set; } = string.Empty;
         public DateTime DateBirth { get; private set; } = DateTime.MinValue;
-        public ICollection<Child> Children { get; private set; } = [];
-        protected Parent() { } // для EF
+        public ICollection<Child> Children { get; private set; } = [];  
+
+        protected Parent() { }
 
         public Parent(string name,
                       string surname,
@@ -24,6 +25,19 @@ namespace KidsOrganizationApp.Domain
             ChangeName(name, surname, patronomic);
             DateBirth = dateBirth;
             Id = Guid.NewGuid();
+        }
+
+        public Parent(string name,
+              string surname,
+              string patronomic,
+              DateTime dateBirth,
+              List<Child> children)
+        {
+            ChangeName(name, surname, patronomic);
+            DateBirth = dateBirth;
+            Id = Guid.NewGuid();
+
+            Children = children;
         }
 
         public void ChangeName(string name, string surname, string patronymic)

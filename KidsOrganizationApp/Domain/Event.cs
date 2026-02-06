@@ -8,9 +8,11 @@ namespace KidsOrganizationApp.Domain
 {
     public class Event
     {
-        public Guid Id { get; set; }    
-        public string Name { get; set; } = string.Empty;
+        public Guid Id { get; private set; }    
+        public string Name { get; private set; } = string.Empty;
         public DateTime Date { get; private set; } = DateTime.MinValue;
-        public List<Document> Document { get; set; } = new List<Document>();
+        public List<Document> Document { get; private set; } = new List<Document>();
+
+        protected Event() { }
     }
 }
