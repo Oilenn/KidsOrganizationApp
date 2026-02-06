@@ -11,6 +11,7 @@ using System.Configuration;
 using System.Data;
 using System.Windows;
 using KidsOrganizationApp.Repository;
+using KidsOrganizationApp.Repository.Interface;
 
 namespace KidsOrganizationApp
 {

@@ -1,4 +1,5 @@
-﻿using KidsOrganizationApp.Repository.Interface;
+﻿using KidsOrganizationApp.Domain;
+using KidsOrganizationApp.Repository.Interface;
 using KidsOrganizationApp.Service.DTO;
 
 namespace KidsOrganizationApp.Service
