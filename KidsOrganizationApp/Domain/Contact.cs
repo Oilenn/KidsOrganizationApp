@@ -12,6 +12,20 @@ namespace KidsOrganizationApp.Domain
         public string MobileNumber { get; private set; } = string.Empty;
         public string LivingPlace { get; private set; } = string.Empty;
 
+        private const int _maxLenghtNumber = 11;
+
         protected Contact() { }
+
+        public Contact(string mobileNumber, string livingPlace)
+        {
+            Id = Guid.NewGuid();
+            AddMobileNumber(mobileNumber);
+            LivingPlace = livingPlace;
+        }
+
+        public void AddMobileNumber(string mobileNumber)
+        {
+            MobileNumber = mobileNumber.Trim().Remove(_maxLenghtNumber - 1);
+        }
     }
 }

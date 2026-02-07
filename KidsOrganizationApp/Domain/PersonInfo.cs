@@ -23,5 +23,14 @@ namespace KidsOrganizationApp.Domain
         public string MembershipStatus { get; private set; } = string.Empty;
 
         protected PersonInfo() { }
+
+        public PersonInfo(Contact contact, Document passport, Document SNILs, Document diagnosis, string membershipStatus)
+        {
+            Contact = contact;
+            Passport = passport;
+            SNILS = SNILs;
+            DiagnosisFile = diagnosis;
+            MembershipStatus = membershipStatus;
+        }
     }
 }
