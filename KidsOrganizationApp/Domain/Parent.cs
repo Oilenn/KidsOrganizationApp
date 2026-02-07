@@ -13,19 +13,24 @@ namespace KidsOrganizationApp.Domain
         public string Surname { get; private set; } = string.Empty;
         public string Patronymic { get; private set; } = string.Empty;
         public DateTime DateBirth { get; private set; } = DateTime.MinValue;
-        public ICollection<Child> Children { get; private set; } = [];  
+        public List<Child> Children { get; private set; } = [];
+
+        private const int MinAge = 14;
 
         protected Parent() { }
 
         public Parent(string name,
-                      string surname,
-                      string patronomic,
-                      DateTime dateBirth)
-        {
-            ChangeName(name, surname, patronomic);
-            DateBirth = dateBirth;
-            Id = Guid.NewGuid();
-        }
+              string surname,
+              string patronomic,
+              DateTime dateBirth) 
+            : this(name, surname, patronomic, dateBirth, []) { }
+
+        public Parent(string name,
+              string surname,
+              string patronomic,
+              DateTime dateBirth,
+              Child child)
+            : this(name, surname, patronomic, dateBirth, [child]) { }
 
         public Parent(string name,
               string surname,
@@ -34,15 +39,16 @@ namespace KidsOrganizationApp.Domain
               List<Child> children)
         {
             ChangeName(name, surname, patronomic);
-            DateBirth = dateBirth;
-            Id = Guid.NewGuid();
+            ChangeDateBirth(dateBirth);
+            AddChildren(children);
 
-            Children = children;
+            Id = Guid.NewGuid();
         }
 
+        //todo: сделать инвариант для изменения каждого ФИО(для ребенка также)
         public void ChangeName(string name, string surname, string patronymic)
         {
-            if (string.IsNullOrWhiteSpace(name) || 
+            if (string.IsNullOrWhiteSpace(name) ||
                 string.IsNullOrWhiteSpace(surname) ||
                 string.IsNullOrWhiteSpace(patronymic))
                 throw new ArgumentException("Имя не может быть пустым");
@@ -52,17 +58,21 @@ namespace KidsOrganizationApp.Domain
             Patronymic = patronymic;
         }
 
-        public void AddChild(Child child)
+        public void AddChildren(List<Child> childen)
         {
-            if(child.Parents.Contains(this)) throw new ArgumentException("Родитель уже является родителем!");
-            
-            Children.Add(child);
-            child.AddParent(this);
+            foreach (var child in childen)
+            {
+                if (child.Parents.Contains(this)) throw new ArgumentException("Родитель уже является родителем!");
+
+                Children.Add(child);
+                child.AddParents([this]);
+            }
         }
 
-        public void AddDateBirth(DateTime dateBirth)
+        public void ChangeDateBirth(DateTime dateBirth)
         {
-            if(dateBirth > DateTime.Now) throw new ArgumentException("Дата рождения не может превышать сегодняшний день!");
+            if (MinAge < DateTime.Now.Year - dateBirth.Year)
+                throw new ArgumentException("Дата рождения не может превышать 14 лет!");
 
             DateBirth = dateBirth;
         }

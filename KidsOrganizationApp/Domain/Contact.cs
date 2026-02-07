@@ -18,14 +18,20 @@ namespace KidsOrganizationApp.Domain
 
         public Contact(string mobileNumber, string livingPlace)
         {
+            ChangeMobileNumber(mobileNumber);
+            ChangeLivingPlace(livingPlace);
+
             Id = Guid.NewGuid();
-            AddMobileNumber(mobileNumber);
-            LivingPlace = livingPlace;
         }
 
-        public void AddMobileNumber(string mobileNumber)
+        public void ChangeMobileNumber(string mobileNumber)
         {
             MobileNumber = mobileNumber.Trim().Remove(_maxLenghtNumber - 1);
+        }
+
+        public void ChangeLivingPlace(string livingPlace)
+        {
+            LivingPlace = livingPlace;
         }
     }
 }

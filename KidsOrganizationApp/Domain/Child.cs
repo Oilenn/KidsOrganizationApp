@@ -16,28 +16,20 @@ namespace KidsOrganizationApp.Domain
 
         public List<Parent> Parents { get; set; } = [];
 
+        private const int MaxParents = 2;
+
         protected Child() { }
 
         public Child(string name,
                       string surname,
                       string patronymic,
-                      DateTime dateBirth)
-        {
-            ChangeName(name, surname, patronymic);
-            DateBirth = dateBirth;
-            Id = Guid.NewGuid();
-        }
+                      DateTime dateBirth) : this(name, surname, patronymic, dateBirth, []) { }
 
         public Child(string name,
               string surname,
               string patronymic,
               DateTime dateBirth,
-              Parent parent)
-        {
-            ChangeName(name, surname, patronymic);
-            DateBirth = dateBirth;
-            Id = Guid.NewGuid();
-        }
+              Parent parent) : this(name, surname, patronymic, dateBirth, [parent]) { }
 
         public Child(string name,
               string surname,
@@ -46,7 +38,9 @@ namespace KidsOrganizationApp.Domain
               List<Parent> parents)
         {
             ChangeName(name, surname, patronymic);
-            DateBirth = dateBirth;
+            ChangeDateBirth(dateBirth);
+            AddParents(parents);
+
             Id = Guid.NewGuid();
         }
 
@@ -62,12 +56,24 @@ namespace KidsOrganizationApp.Domain
             Patronymic = patronymic;
         }
 
-        public void AddParent(Parent parent)
+        public void ChangeDateBirth(DateTime dateBirth)
         {
-            if (parent.Children.Contains(this)) throw new ArgumentException("Родитель уже является родителем!");
+            if (dateBirth > DateTime.Now) 
+                throw new ArgumentException("Дата рождения не может превышать сегодняшний день!");
 
-            Parents.Add(parent);
-            parent.AddChild(this);
+            DateBirth = dateBirth;
+        }
+
+        public void AddParents(List<Parent> parents)
+        {
+            if (Parents.Count > MaxParents) throw new ArgumentException("Родителей не может быть больше 2!");
+            foreach (Parent parent in parents)
+            {
+                if (parent.Children.Contains(this)) throw new ArgumentException("Ребенок уже является ребенком!");
+
+                Parents.Add(parent);
+                parent.AddChildren([this]);
+            }
         }
     }
 }
