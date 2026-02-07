@@ -24,11 +24,7 @@ namespace KidsOrganizationApp.Service
 
         public DocumentDTO Add(DocumentDTO dto)
         {
-            var document = new Document
-            {
-                DocumentType = dto.DocumentType,
-                Path = dto.Path
-            };
+            var document = new Document(dto.DocumentType, dto.Path);
 
             _documentRepository.Add(document);
             return ConvertToDTO(document);
@@ -62,7 +58,7 @@ namespace KidsOrganizationApp.Service
             return new DocumentDTO
             {
                 Id = document.Id,
-                DocumentType = document.DocumentType,
+                DocumentType = document.Type,
                 Path = document.Path
             };
         }

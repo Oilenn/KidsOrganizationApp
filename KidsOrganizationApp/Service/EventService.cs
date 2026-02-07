@@ -24,15 +24,12 @@ namespace KidsOrganizationApp.Service
 
         public EventDTO Add(EventDTO dto)
         {
-            var ev = new Event
-            {
-                Name = dto.Name,
-                Document = dto.Documents.Select(d => new Document
-                {
-                    DocumentType = d.DocumentType,
-                    Path = d.Path
-                }).ToList()
-            };
+            var ev = new Event(
+                dto.Name,
+                dto.Date,
+                dto.Documents.Select(
+                    d => new Document(d.DocumentType, d.Path)).ToList()
+            );
 
             _eventRepository.Add(ev);
             return ConvertToDTO(ev);
@@ -67,10 +64,10 @@ namespace KidsOrganizationApp.Service
                 Id = ev.Id,
                 Name = ev.Name,
                 Date = ev.Date,
-                Documents = ev.Document.Select(d => new DocumentDTO
+                Documents = ev.Documents.Select(d => new DocumentDTO
                 {
                     Id = d.Id,
-                    DocumentType = d.DocumentType,
+                    DocumentType = d.Type,
                     Path = d.Path
                 }).ToList()
             };

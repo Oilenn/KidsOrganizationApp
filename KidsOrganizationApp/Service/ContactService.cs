@@ -24,7 +24,7 @@ namespace KidsOrganizationApp.Service
 
         public ContactDTO Add(ContactDTO dto)
         {
-            var contact = new Contact();
+            var contact = new Contact(dto.MobileNumber, dto.LivingPlace);
             _contactRepository.Add(contact);
             return ConvertToDTO(contact);
         }

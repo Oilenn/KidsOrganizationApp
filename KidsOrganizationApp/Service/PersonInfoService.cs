@@ -1,4 +1,5 @@
 ﻿using KidsOrganizationApp.Domain;
+using KidsOrganizationApp.Repository;
 using KidsOrganizationApp.Repository.Interface;
 using KidsOrganizationApp.Service.DTO;
 
@@ -16,22 +17,28 @@ namespace KidsOrganizationApp.Service
     public class PersonInfoService : IPersonInfoService
     {
         private readonly IPersonInfoRepository _personInfoRepository;
+        private readonly IDocumentRepository _documentRepository;
+        private readonly IContactRepository _contactRepository;
 
-        public PersonInfoService(IPersonInfoRepository personInfoRepository)
+        public PersonInfoService(IPersonInfoRepository personInfoRepository,
+                                IDocumentRepository documentRepository,
+                                IContactRepository contactRepository)
         {
             _personInfoRepository = personInfoRepository;
+            _documentRepository = documentRepository;
+            _contactRepository = contactRepository;
         }
 
         public PersonInfoDTO Add(PersonInfoDTO dto)
         {
             var person = new PersonInfo
-            {
-                ContactId = dto.ContactId,
-                PassportId = dto.PassportId,
-                SNILSId = dto.SNILSId,
-                DiagnosisFileId = dto.DiagnosisFileId,
-                MembershipStatus = dto.MembershipStatus
-            };
+            (
+                _contactRepository.GetById(dto.ContactId),
+                _documentRepository.GetById(dto.PassportId),
+                _documentRepository.GetById(dto.SNILSId),
+                _documentRepository.GetById(dto.DiagnosisFileId),
+                dto.MembershipStatus
+            );
 
             _personInfoRepository.Add(person);
             return ConvertToDTO(person);
@@ -69,6 +76,16 @@ namespace KidsOrganizationApp.Service
             _personInfoRepository.Remove(person);
         }
 
+        private PersonInfo ConvertToNewDomain(PersonInfoDTO dto)
+        {
+
+        }
+
+        private PersonInfo ConvertToDomain(PersonInfoDTO dto)
+        {
+            return _personInfoRepository.GetById(dto.Id);
+        }
+
         private PersonInfoDTO ConvertToDTO(PersonInfo person)
         {
             return new PersonInfoDTO
@@ -86,7 +103,7 @@ namespace KidsOrganizationApp.Service
                 Passport = person.Passport != null ? new DocumentDTO
                 {
                     Id = person.Passport.Id,
-                    DocumentType = person.Passport.DocumentType,
+                    DocumentType = person.Passport.Type,
                     Path = person.Passport.Path
                 } : null,
 
@@ -94,7 +111,7 @@ namespace KidsOrganizationApp.Service
                 SNILS = person.SNILS != null ? new DocumentDTO
                 {
                     Id = person.SNILS.Id,
-                    DocumentType = person.SNILS.DocumentType,
+                    DocumentType = person.SNILS.Type,
                     Path = person.SNILS.Path
                 } : null,
 
@@ -102,7 +119,7 @@ namespace KidsOrganizationApp.Service
                 DiagnosisFile = person.DiagnosisFile != null ? new DocumentDTO
                 {
                     Id = person.DiagnosisFile.Id,
-                    DocumentType = person.DiagnosisFile.DocumentType,
+                    DocumentType = person.DiagnosisFile.Type,
                     Path = person.DiagnosisFile.Path
                 } : null,
 

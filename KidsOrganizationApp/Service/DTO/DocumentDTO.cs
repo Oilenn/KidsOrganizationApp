@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KidsOrganizationApp.Domain;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace KidsOrganizationApp.Service.DTO
     public class DocumentDTO
     {
         public Guid Id { get; set; }
-        public string DocumentType { get; set; }
+        public Document.DocumentType DocumentType { get; set; }
         public string Path { get; set; }
     }
 

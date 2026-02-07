@@ -72,13 +72,27 @@ namespace KidsOrganizationApp.Service
             return ConvertToDTO(_parentRepository.GetByPatronymic(patronymic));
         }
 
+        //Маппинг в НОВЫЙ домен
         private Parent ConvertToNewDomain(ParentDTO dto)
         {
             return new Parent(dto.Name, dto.Surname,dto.Patronymic,dto.DateBirth);
         }
 
+        //Маппинг в уже существующий домен
         private Parent ConvertToDomain(ParentDTO dto)
         {
+            Parent parent = new Parent(
+                    dto.Name,
+                    dto.Surname,
+                    dto.Patronymic,
+                    dto.DateBirth,
+                    dto.Children
+                    .Select(c => new Child(c.Name,
+                        c.Surname,
+                        c.Patronymic,
+                        c.DateBirth
+                    )).ToList()
+                );
             return _parentRepository.GetById(dto.Id);
         }
 
