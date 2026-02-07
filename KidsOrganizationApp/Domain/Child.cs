@@ -16,6 +16,8 @@ namespace KidsOrganizationApp.Domain
 
         public List<Parent> Parents { get; set; } = [];
 
+        protected Child() { }
+
         public Child(string name,
                       string surname,
                       string patronymic,
@@ -59,6 +61,13 @@ namespace KidsOrganizationApp.Domain
             Surname = surname;
             Patronymic = patronymic;
         }
-    }
 
+        public void AddParent(Parent parent)
+        {
+            if (parent.Children.Contains(this)) throw new ArgumentException("Родитель уже является родителем!");
+
+            Parents.Add(parent);
+            parent.AddChild(this);
+        }
+    }
 }
