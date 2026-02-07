@@ -16,10 +16,34 @@ namespace KidsOrganizationApp.Domain
 
         public List<Parent> Parents { get; set; } = [];
 
+        protected Child() { }
+
         public Child(string name,
                       string surname,
                       string patronymic,
                       DateTime dateBirth)
+        {
+            ChangeName(name, surname, patronymic);
+            DateBirth = dateBirth;
+            Id = Guid.NewGuid();
+        }
+
+        public Child(string name,
+              string surname,
+              string patronymic,
+              DateTime dateBirth,
+              Parent parent)
+        {
+            ChangeName(name, surname, patronymic);
+            DateBirth = dateBirth;
+            Id = Guid.NewGuid();
+        }
+
+        public Child(string name,
+              string surname,
+              string patronymic,
+              DateTime dateBirth,
+              List<Parent> parents)
         {
             ChangeName(name, surname, patronymic);
             DateBirth = dateBirth;
@@ -37,6 +61,13 @@ namespace KidsOrganizationApp.Domain
             Surname = surname;
             Patronymic = patronymic;
         }
-    }
 
+        public void AddParent(Parent parent)
+        {
+            if (parent.Children.Contains(this)) throw new ArgumentException("Родитель уже является родителем!");
+
+            Parents.Add(parent);
+            parent.AddChild(this);
+        }
+    }
 }

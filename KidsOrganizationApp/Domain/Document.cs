@@ -8,8 +8,27 @@ namespace KidsOrganizationApp.Domain
 {
     public class Document
     {
-        public Guid Id { get; set; }
-        public string DocumentType { get; set; } = string.Empty;
-        public string Path { get; set; } = string.Empty;
+        public Guid Id { get; private set; }
+        public DocumentType Type { get; private set; } = DocumentType.Unknown;
+        public string Path { get; private set; } = string.Empty;
+
+        protected Document() { }
+
+        public Document(DocumentType documentType, string path)
+        {
+            Id = Guid.NewGuid();
+            Path = path; //todo: сделать инвариант пути
+        }
+
+        public enum DocumentType
+        {
+            Unknown = 0,
+            Passport = 1,
+            SNILS = 2,
+            Diagnosis = 3,
+            
+            Letter = 4,
+            Order = 5
+        }
     }
 }

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "KidsOrganizationApp": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
