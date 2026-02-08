@@ -1,6 +1,6 @@
 ﻿namespace KidsOrganizationApp.Service.DTO
 {
-    public class ChildShowDTO
+    public class ChildShowDTO : IDTO
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;

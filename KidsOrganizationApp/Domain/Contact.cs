@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KidsOrganizationApp.Domain
 {
-    public class Contact
+    public class Contact : IDomain
     {
         public Guid Id { get; private set; }
         public string MobileNumber { get; private set; } = string.Empty;

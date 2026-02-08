@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KidsOrganizationApp.Domain
 {
-    public class PersonInfo
+    public class PersonInfo : IDomain
     {
         public Guid Id { get; private set; }
 

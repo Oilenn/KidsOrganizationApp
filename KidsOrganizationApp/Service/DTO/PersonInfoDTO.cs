@@ -2,7 +2,7 @@
 
 namespace KidsOrganizationApp.Service.DTO
 {
-    public class PersonInfoDTO
+    public class PersonInfoDTO : IDTO
     {
         public Guid Id { get; set; }
 

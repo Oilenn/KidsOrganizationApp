@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KidsOrganizationApp.Service.DTO
 {
-    public class ParentDTO
+    public class ParentDTO : IDTO
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;

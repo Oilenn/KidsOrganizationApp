@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KidsOrganizationApp.Service.DTO
 {
-    public class ContactDTO
+    public class ContactDTO : IDTO
     {
         public Guid Id { get; set; }
         public string MobileNumber { get; set; }

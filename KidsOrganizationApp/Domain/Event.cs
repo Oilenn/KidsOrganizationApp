@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KidsOrganizationApp.Domain
 {
-    public class Event
+    public class Event : IDomain
     {
         public Guid Id { get; private set; }    
         public string Name { get; private set; } = string.Empty;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KidsOrganizationApp.Domain
 {
-    public class Document
+    public class Document : IDomain
     {
         public Guid Id { get; private set; }
         public DocumentType Type { get; private set; } = DocumentType.Unknown;

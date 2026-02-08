@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace KidsOrganizationApp.Service.DTO
 {
-    public class DocumentDTO
+    public class DocumentDTO : IDTO
     {
         public Guid Id { get; set; }
         public Document.DocumentType DocumentType { get; set; }
