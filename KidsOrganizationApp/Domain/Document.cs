@@ -17,7 +17,9 @@ namespace KidsOrganizationApp.Domain
         public Document(DocumentType documentType, string path)
         {
             Id = Guid.NewGuid();
-            Path = path;
+
+            ChangeType(documentType);
+            ChangePath(path);
         }
 
         public void ChangePath(string path)

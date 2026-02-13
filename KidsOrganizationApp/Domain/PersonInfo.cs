@@ -26,6 +26,8 @@ namespace KidsOrganizationApp.Domain
 
         public PersonInfo(Contact contact, Document passport, Document SNILs, Document diagnosis, MembershipStatus status)
         {
+            Id = Guid.NewGuid();
+
             Contact = contact;
             Passport = passport;
             SNILS = SNILs;

@@ -43,7 +43,16 @@ namespace KidsOrganizationApp.Domain
 
         public void ChangeName(string name)
         {
-            Name = name.Remove(NameLenght);
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Имя не может быть пустым!");
+
+            name = name.Trim();
+
+            if (name.Length > NameLenght)
+                name = name.Substring(0, NameLenght);
+
+            Name = name;
         }
+
     }
 }
