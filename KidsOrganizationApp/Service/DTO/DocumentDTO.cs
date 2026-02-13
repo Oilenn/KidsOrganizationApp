@@ -10,8 +10,7 @@ namespace KidsOrganizationApp.Service.DTO
     public class DocumentDTO : IDTO
     {
         public Guid Id { get; set; }
-        public Document.DocumentType DocumentType { get; set; }
+        public Document.DocumentType Type { get; set; }
         public string Path { get; set; }
     }
-
 }

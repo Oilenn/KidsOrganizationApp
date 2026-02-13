@@ -2,6 +2,7 @@
 using KidsOrganizationApp.Repository;
 using KidsOrganizationApp.Repository.Interface;
 using KidsOrganizationApp.Service.DTO;
+using KidsOrganizationApp.Service.Mapper;
 
 namespace KidsOrganizationApp.Service
 {
@@ -19,54 +20,43 @@ namespace KidsOrganizationApp.Service
         private readonly IPersonInfoRepository _personInfoRepository;
         private readonly IDocumentRepository _documentRepository;
         private readonly IContactRepository _contactRepository;
+        private readonly IMapper<PersonInfoDTO, PersonInfo> _mapper;
 
         public PersonInfoService(IPersonInfoRepository personInfoRepository,
                                 IDocumentRepository documentRepository,
-                                IContactRepository contactRepository)
+                                IContactRepository contactRepository,
+                                PersonInfoMapper mapper)
         {
             _personInfoRepository = personInfoRepository;
             _documentRepository = documentRepository;
             _contactRepository = contactRepository;
+            _mapper = mapper;
         }
 
         public PersonInfoDTO Add(PersonInfoDTO dto)
         {
-            var person = new PersonInfo
-            (
-                _contactRepository.GetById(dto.ContactId),
-                _documentRepository.GetById(dto.PassportId),
-                _documentRepository.GetById(dto.SNILSId),
-                _documentRepository.GetById(dto.DiagnosisFileId),
-                dto.MembershipStatus
-            );
+            var person = _mapper.ToNewDomain(dto);
 
             _personInfoRepository.Add(person);
-            return ConvertToDTO(person);
+            return _mapper.ToDTO(person);
         }
 
         public List<PersonInfoDTO> GetAll()
         {
             return _personInfoRepository.GetAll()
-                .Select(ConvertToDTO)
+                .Select(_mapper.ToDTO)
                 .ToList();
         }
 
         public PersonInfoDTO GetById(Guid id)
         {
             var person = _personInfoRepository.GetById(id);
-            return ConvertToDTO(person);
+            return _mapper.ToDTO(person);
         }
 
         public void Update(PersonInfoDTO dto)
         {
             var person = _personInfoRepository.GetById(dto.Id);
-
-            person.ContactId = dto.ContactId;
-            person.PassportId = dto.PassportId;
-            person.SNILSId = dto.SNILSId;
-            person.DiagnosisFileId = dto.DiagnosisFileId;
-            person.MembershipStatus = dto.MembershipStatus;
-
             _personInfoRepository.Update(person);
         }
 
@@ -74,57 +64,6 @@ namespace KidsOrganizationApp.Service
         {
             var person = _personInfoRepository.GetById(dto.Id);
             _personInfoRepository.Remove(person);
-        }
-
-        private PersonInfo ConvertToNewDomain(PersonInfoDTO dto)
-        {
-
-        }
-
-        private PersonInfo ConvertToDomain(PersonInfoDTO dto)
-        {
-            return _personInfoRepository.GetById(dto.Id);
-        }
-
-        private PersonInfoDTO ConvertToDTO(PersonInfo person)
-        {
-            return new PersonInfoDTO
-            {
-                Id = person.Id,
-                ContactId = person.ContactId,
-                Contact = person.Contact != null ? new ContactDTO
-                {
-                    Id = person.Contact.Id,
-                    MobileNumber = person.Contact.MobileNumber,
-                    LivingPlace = person.Contact.LivingPlace
-                } : null,
-
-                PassportId = person.PassportId,
-                Passport = person.Passport != null ? new DocumentDTO
-                {
-                    Id = person.Passport.Id,
-                    DocumentType = person.Passport.Type,
-                    Path = person.Passport.Path
-                } : null,
-
-                SNILSId = person.SNILSId,
-                SNILS = person.SNILS != null ? new DocumentDTO
-                {
-                    Id = person.SNILS.Id,
-                    DocumentType = person.SNILS.Type,
-                    Path = person.SNILS.Path
-                } : null,
-
-                DiagnosisFileId = person.DiagnosisFileId,
-                DiagnosisFile = person.DiagnosisFile != null ? new DocumentDTO
-                {
-                    Id = person.DiagnosisFile.Id,
-                    DocumentType = person.DiagnosisFile.Type,
-                    Path = person.DiagnosisFile.Path
-                } : null,
-
-                MembershipStatus = person.MembershipStatus
-            };
         }
     }
 }

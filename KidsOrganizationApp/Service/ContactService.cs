@@ -1,6 +1,7 @@
 ﻿using KidsOrganizationApp.Domain;
 using KidsOrganizationApp.Repository.Interface;
 using KidsOrganizationApp.Service.DTO;
+using KidsOrganizationApp.Service.Mapper;
 
 namespace KidsOrganizationApp.Service
 {
@@ -16,29 +17,29 @@ namespace KidsOrganizationApp.Service
     public class ContactService : IContactService
     {
         private readonly IContactRepository _contactRepository;
-
-        public ContactService(IContactRepository contactRepository)
+        private readonly IMapper<ContactDTO, Contact> _mapper;
+        public ContactService(IContactRepository contactRepository, ContactMapper contactMapper)
         {
             _contactRepository = contactRepository;
+            _mapper = contactMapper;
         }
 
         public ContactDTO Add(ContactDTO dto)
         {
-            var contact = new Contact(dto.MobileNumber, dto.LivingPlace);
-            _contactRepository.Add(contact);
-            return ConvertToDTO(contact);
+            _contactRepository.Add(_mapper.ToNewDomain(dto));
+            return dto;
         }
 
         public List<ContactDTO> GetAll()
         {
             return _contactRepository.GetAll()
-                .Select(ConvertToDTO)
+                .Select(_mapper.ToDTO)
                 .ToList();
         }
 
         public ContactDTO GetById(Guid id)
         {
-            return ConvertToDTO(_contactRepository.GetById(id));
+            return _mapper.ToDTO(_contactRepository.GetById(id));
         }
 
         public void Update(ContactDTO dto)
@@ -50,16 +51,6 @@ namespace KidsOrganizationApp.Service
         public void Delete(ContactDTO dto)
         {
             _contactRepository.Remove(_contactRepository.GetById(dto.Id));
-        }
-
-        private ContactDTO ConvertToDTO(Contact contact)
-        {
-            return new ContactDTO
-            {
-                Id = contact.Id,
-                MobileNumber = contact.MobileNumber,
-                LivingPlace = contact.LivingPlace
-            };
         }
     }
 }

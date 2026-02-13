@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace KidsOrganizationApp.Service.Mapper
 {
-    public interface IMapper<IDTO, IDomain>
+    public interface IMapper<TDto, TDomain>
     {
-        //todo доделать абстракцию
-        public IDTO ConvertToDTO();
+        public TDto ToDTO(TDomain domain);
+        public List<TDto> ToDTO(List<TDomain> domain);
 
+        public TDomain ToNewDomain(TDto dto);
     }
 }
+

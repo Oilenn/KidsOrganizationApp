@@ -1,6 +1,7 @@
 ﻿using KidsOrganizationApp.Domain;
 using KidsOrganizationApp.Repository.Interface;
 using KidsOrganizationApp.Service.DTO;
+using KidsOrganizationApp.Service.Mapper;
 
 namespace KidsOrganizationApp.Service
 {
@@ -16,35 +17,32 @@ namespace KidsOrganizationApp.Service
     public class EventService : IEventService
     {
         private readonly IEventRepository _eventRepository;
+        private readonly IMapper<EventDTO, Event> _mapper;
 
-        public EventService(IEventRepository eventRepository)
+        public EventService(IEventRepository eventRepository, EventMapper mapper)
         {
             _eventRepository = eventRepository;
+            _mapper = mapper;
         }
 
         public EventDTO Add(EventDTO dto)
         {
-            var ev = new Event(
-                dto.Name,
-                dto.Date,
-                dto.Documents.Select(
-                    d => new Document(d.DocumentType, d.Path)).ToList()
-            );
+            var ev = _mapper.ToNewDomain(dto);
 
             _eventRepository.Add(ev);
-            return ConvertToDTO(ev);
+            return _mapper.ToDTO(ev);
         }
 
         public List<EventDTO> GetAll()
         {
             return _eventRepository.GetAll()
-                .Select(ConvertToDTO)
+                .Select(_mapper.ToDTO)
                 .ToList();
         }
 
         public EventDTO GetById(Guid id)
         {
-            return ConvertToDTO(_eventRepository.GetById(id));
+            return _mapper.ToDTO(_eventRepository.GetById(id));
         }
 
         public void Update(EventDTO dto)
@@ -55,22 +53,6 @@ namespace KidsOrganizationApp.Service
         public void Delete(EventDTO dto)
         {
             _eventRepository.Remove(_eventRepository.GetById(dto.Id));
-        }
-
-        private EventDTO ConvertToDTO(Event ev)
-        {
-            return new EventDTO
-            {
-                Id = ev.Id,
-                Name = ev.Name,
-                Date = ev.Date,
-                Documents = ev.Documents.Select(d => new DocumentDTO
-                {
-                    Id = d.Id,
-                    DocumentType = d.Type,
-                    Path = d.Path
-                }).ToList()
-            };
         }
     }
 }

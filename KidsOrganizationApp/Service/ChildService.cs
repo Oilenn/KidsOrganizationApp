@@ -1,6 +1,7 @@
 ﻿using KidsOrganizationApp.Domain;
 using KidsOrganizationApp.Repository.Interface;
 using KidsOrganizationApp.Service.DTO;
+using KidsOrganizationApp.Service.Mapper;
 
 namespace KidsOrganizationApp.Service
 {
@@ -21,90 +22,57 @@ namespace KidsOrganizationApp.Service
     public class ChildService : IChildService
     {
         private IChildRepository _childRepository;
+        private IMapper<ChildDTO, Child> _mapper;
 
-        public ChildService(IChildRepository childRepository) 
+        public ChildService(IChildRepository childRepository, ChildMapper mapper) 
         {
             _childRepository = childRepository;
+            _mapper = mapper;
         }
 
         public ChildDTO AddChild(ChildDTO dto)
         {
-            Child child = ConvertToNewDomain(dto);
+            Child child = _mapper.ToNewDomain(dto);
             _childRepository.Add(child);
 
-            return ConvertToDTO(child);
+            return _mapper.ToDTO(child);
         }
 
         public List<ChildDTO> GetAllChildren()
         {
-            List<ChildDTO> children = ConvertToDTO(_childRepository.GetAll());
+            List<ChildDTO> children = _mapper.ToDTO(_childRepository.GetAll());
 
             return children;
         }
 
         public ChildDTO GetChildById(Guid id)
         {
-            return ConvertToDTO(_childRepository.GetById(id));
+            return _mapper.ToDTO(_childRepository.GetById(id));
         }
 
         public List<ChildDTO> GetChildrenByName(string name)
         {
-            return ConvertToDTO(_childRepository.GetByName(name));
+            return _mapper.ToDTO(_childRepository.GetByName(name));
         }
 
         public List<ChildDTO> GetChildrenBySurname(string surname)
         {
-            return ConvertToDTO(_childRepository.GetBySurname(surname));
+            return _mapper.ToDTO(_childRepository.GetBySurname(surname));
         }
 
         public List<ChildDTO> GetChildrenByPatronymic(string patronomyc)
         {
-            return ConvertToDTO(_childRepository.GetBySurname(patronomyc));
+            return _mapper.ToDTO(_childRepository.GetBySurname(patronomyc));
         }
 
         public void DeleteChild(ChildDTO dto)
         {
-            _childRepository.Remove(ConvertToDomain(dto));
+            _childRepository.Remove(_childRepository.GetById(dto.Id));
         }
 
         public void UpdateChild(ChildDTO dto)
         {
-            _childRepository.Update(ConvertToDomain(dto));
-        }
-
-        private List<ChildDTO> ConvertToDTO(List<Child> children)
-        {
-            List<ChildDTO> dto = new List<ChildDTO>();
-            foreach (Child child in children)
-            {
-                dto.Add(ConvertToDTO(child));
-            }
-
-            return dto;
-        }
-
-        private ChildDTO ConvertToDTO(Child child)
-        {
-            return new ChildDTO()
-            {
-                Id = child.Id,
-                Name = child.Name,
-                Surname = child.Surname,
-                DateBirth = child.DateBirth
-            };
-        }
-
-        private Child ConvertToDomain(ChildDTO dto)
-        {
-            return _childRepository.GetById(dto.Id);
-        }
-
-        private Child ConvertToNewDomain(ChildDTO dto)
-        {
-            return new Child(dto.Name,
-                dto.Surname,
-                dto.Patronymic,
-                dto.DateBirth);
+            _childRepository.Update(_childRepository.GetById(dto.Id));
         }
     }
 }

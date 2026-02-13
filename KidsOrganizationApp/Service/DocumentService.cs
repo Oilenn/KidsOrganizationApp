@@ -1,6 +1,7 @@
 ﻿using KidsOrganizationApp.Domain;
 using KidsOrganizationApp.Repository.Interface;
 using KidsOrganizationApp.Service.DTO;
+using KidsOrganizationApp.Service.Mapper;
 
 namespace KidsOrganizationApp.Service
 {
@@ -16,30 +17,30 @@ namespace KidsOrganizationApp.Service
     public class DocumentService : IDocumentService
     {
         private readonly IDocumentRepository _documentRepository;
+        private readonly IMapper<DocumentDTO, Document> _mapper;
 
-        public DocumentService(IDocumentRepository documentRepository)
+        public DocumentService(IDocumentRepository documentRepository, DocumentMapper mapper)
         {
             _documentRepository = documentRepository;
+            _mapper = mapper;
         }
 
         public DocumentDTO Add(DocumentDTO dto)
         {
-            var document = new Document(dto.DocumentType, dto.Path);
-
-            _documentRepository.Add(document);
-            return ConvertToDTO(document);
+            _documentRepository.Add(_mapper.ToNewDomain(dto));
+            return dto;
         }
 
         public List<DocumentDTO> GetAll()
         {
             return _documentRepository.GetAll()
-                .Select(ConvertToDTO)
+                .Select(_mapper.ToDTO)
                 .ToList();
         }
 
         public DocumentDTO GetById(Guid id)
         {
-            return ConvertToDTO(_documentRepository.GetById(id));
+            return _mapper.ToDTO(_documentRepository.GetById(id));
         }
 
         public void Update(DocumentDTO dto)
@@ -51,16 +52,6 @@ namespace KidsOrganizationApp.Service
         public void Delete(DocumentDTO dto)
         {
             _documentRepository.Remove(_documentRepository.GetById(dto.Id));
-        }
-
-        private DocumentDTO ConvertToDTO(Document document)
-        {
-            return new DocumentDTO
-            {
-                Id = document.Id,
-                DocumentType = document.Type,
-                Path = document.Path
-            };
         }
     }
 }
