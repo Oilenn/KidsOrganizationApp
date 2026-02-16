@@ -9,72 +9,48 @@ namespace KidsOrganizationApp.Domain
     public class Parent : IDomain
     {
         public Guid Id { get; private set; }
-        public string Name { get; private set; } = string.Empty;
-        public string Surname { get; private set; } = string.Empty;
-        public string Patronymic { get; private set; } = string.Empty;
-        public DateTime DateBirth { get; private set; } = DateTime.MinValue;
-        public List<Child> Children { get; private set; } = [];
 
-        private const int MinAge = 14;
+        public FullName FullName { get; private set; }
+        public Contact Contact { get; private set; }
+
+        public DateTime DateBirth { get; private set; } = DateTime.MinValue;
+
+        public List<Document> Documents = new List<Document>();
+
+        public const int MinAge = 16;
 
         protected Parent() { }
 
-        public Parent(string name,
-              string surname,
-              string patronomic,
-              DateTime dateBirth) 
-            : this(name, surname, patronomic, dateBirth, []) { }
-
-        public Parent(string name,
-              string surname,
-              string patronomic,
-              DateTime dateBirth,
-              Child child)
-            : this(name, surname, patronomic, dateBirth, [child]) { }
-
-        public Parent(string name,
-              string surname,
-              string patronomic,
-              DateTime dateBirth,
-              List<Child> children)
+        public Parent(FullName fullName,
+                      Contact contact,
+                      DateTime dateBirth,
+                      List<Document> documents)
         {
-            ChangeName(name, surname, patronomic);
-            ChangeDateBirth(dateBirth);
-            AddChildren(children);
+            FullName = fullName;
+            Contact = contact;
 
             Id = Guid.NewGuid();
         }
 
-        //todo: сделать инвариант для изменения каждого ФИО(для ребенка также)
-        public void ChangeName(string name, string surname, string patronymic)
+        public void ChangeDateBirth(DateTime birth)
         {
-            if (string.IsNullOrWhiteSpace(name) ||
-                string.IsNullOrWhiteSpace(surname) ||
-                string.IsNullOrWhiteSpace(patronymic))
-                throw new ArgumentException("Имя не может быть пустым");
+            if (birth.Year < MinAge)
+                throw new ArgumentException($"Родитель не может быть младше {MinAge} лет!");
 
-            Name = name;
-            Surname = surname;
-            Patronymic = patronymic;
+            DateBirth = birth;
         }
 
-        public void AddChildren(List<Child> childen)
+        public void AddDocument(Document document)
         {
-            foreach (var child in childen)
+            Documents.Add(document);
+        }
+
+        public void AddDocuments(List<Document> documents)
+        {
+            foreach(Document document in documents)
             {
-                if (child.Parents.Contains(this)) throw new ArgumentException("Родитель уже является родителем!");
-
-                Children.Add(child);
-                child.AddParents([this]);
+                AddDocument(document);
             }
-        }
-
-        public void ChangeDateBirth(DateTime dateBirth)
-        {
-            if (MinAge < DateTime.Now.Year - dateBirth.Year)
-                throw new ArgumentException("Дата рождения не может превышать 14 лет!");
-
-            DateBirth = dateBirth;
         }
     }
 }

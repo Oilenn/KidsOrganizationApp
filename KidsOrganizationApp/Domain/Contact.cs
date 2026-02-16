@@ -1,37 +1,81 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KidsOrganizationApp.Domain
 {
-    public class Contact : IDomain
+    // Value Object
+    public class Contact : IEquatable<Contact>
     {
-        public Guid Id { get; private set; }
-        public string MobileNumber { get; private set; } = string.Empty;
-        public string LivingPlace { get; private set; } = string.Empty;
+        public string MobileNumber { get; }
+        public string LivingPlace { get; }
+        public string? Email { get; }
 
-        private const int _maxLenghtNumber = 11;
+        private const int MaxLengthNumber = 11;
 
         protected Contact() { }
 
-        public Contact(string mobileNumber, string livingPlace)
+        public Contact(string mobileNumber, string livingPlace, string? email = null)
         {
-            ChangeMobileNumber(mobileNumber);
-            ChangeLivingPlace(livingPlace);
-
-            Id = Guid.NewGuid();
+            MobileNumber = NormalizePhone(mobileNumber);
+            LivingPlace = NormalizeLivingPlace(livingPlace);
+            Email = NormalizeEmail(email);
         }
 
-        public void ChangeMobileNumber(string mobileNumber)
+        private static string NormalizePhone(string mobileNumber)
         {
-            MobileNumber = mobileNumber.Trim().Remove(_maxLenghtNumber - 1);
+            if (string.IsNullOrWhiteSpace(mobileNumber))
+                throw new ArgumentException("Номер телефона обязателен");
+
+            var normalized = mobileNumber.Trim();
+
+            if (normalized.Length != MaxLengthNumber)
+                throw new ArgumentException("Номер телефона должен содержать 11 цифр");
+
+            if (!normalized.All(char.IsDigit))
+                throw new ArgumentException("Номер телефона должен содержать только цифры");
+
+            return normalized;
         }
 
-        public void ChangeLivingPlace(string livingPlace)
+        private static string NormalizeLivingPlace(string livingPlace)
         {
-            LivingPlace = livingPlace;
+            if (string.IsNullOrWhiteSpace(livingPlace))
+                throw new ArgumentException("Адрес обязателен");
+
+            return livingPlace.Trim();
         }
+
+        private static string? NormalizeEmail(string? email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return null;
+
+            var normalized = email.Trim();
+
+            if (!normalized.Contains("@") || normalized.StartsWith("@") || normalized.EndsWith("@"))
+                throw new ArgumentException("Некорректный email");
+
+            return normalized;
+        }
+
+        public bool Equals(Contact? other)
+        {
+            if (other is null) return false;
+
+            return MobileNumber == other.MobileNumber &&
+                   LivingPlace == other.LivingPlace &&
+                   Email == other.Email;
+        }
+
+        public override bool Equals(object? obj)
+            => Equals(obj as Contact);
+
+        public override int GetHashCode()
+            => HashCode.Combine(MobileNumber, LivingPlace, Email);
+
+        public override string ToString()
+            => Email is null
+                ? $"{MobileNumber}, {LivingPlace}"
+                : $"{MobileNumber}, {LivingPlace}, {Email}";
     }
 }
