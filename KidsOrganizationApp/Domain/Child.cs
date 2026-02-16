@@ -9,51 +9,34 @@ namespace KidsOrganizationApp.Domain
     public class Child
     {
         public Guid Id { get; private set; }
-        public string Name { get; private set; } = string.Empty;
-        public string Surname { get; private set; } = string.Empty;
-        public string Patronymic { get; private set; } = string.Empty;
+
+        public FullName FullName { get; private set; }
+        public Contact Contact { get; private set; }
+
         public DateTime DateBirth { get; private set; } = DateTime.MinValue;
 
-        public List<Parent> Parents { get; set; } = [];
+        public MembershipStatus MembershipStatus { get; private set; } = MembershipStatus.Active;
+
+        public List<Parent> Parents { get; private set; } = new List<Parent>();
+        public List<Document> Documents = new List<Document>();
 
         private const int MaxParents = 2;
 
         protected Child() { }
 
-        public Child(string name,
-                      string surname,
-                      string patronymic,
-                      DateTime dateBirth) : this(name, surname, patronymic, dateBirth, []) { }
-
-        public Child(string name,
-              string surname,
-              string patronymic,
+        public Child(FullName fullName,
+              Contact contact,
               DateTime dateBirth,
-              Parent parent) : this(name, surname, patronymic, dateBirth, [parent]) { }
-
-        public Child(string name,
-              string surname,
-              string patronymic,
-              DateTime dateBirth,
-              List<Parent> parents)
+              List<Parent> parents,
+              List<Document> documents)
         {
-            ChangeName(name, surname, patronymic);
+            Contact = contact;
+            FullName = fullName;
+
             ChangeDateBirth(dateBirth);
             AddParents(parents);
 
             Id = Guid.NewGuid();
-        }
-
-        public void ChangeName(string name, string surname, string patronymic)
-        {
-            if (string.IsNullOrWhiteSpace(name) || 
-                string.IsNullOrWhiteSpace(surname) ||
-                string.IsNullOrWhiteSpace(patronymic))
-                throw new ArgumentException("Имя не может быть пустым");
-
-            Name = name;
-            Surname = surname;
-            Patronymic = patronymic;
         }
 
         public void ChangeDateBirth(DateTime dateBirth)
@@ -66,14 +49,30 @@ namespace KidsOrganizationApp.Domain
 
         public void AddParents(List<Parent> parents)
         {
-            if (Parents.Count > MaxParents) throw new ArgumentException("Родителей не может быть больше 2!");
             foreach (Parent parent in parents)
             {
-                if (parent.Children.Contains(this)) throw new ArgumentException("Ребенок уже является ребенком!");
-
                 Parents.Add(parent);
-                parent.AddChildren([this]);
             }
         }
+
+        public void AddParent(Parent parent)
+        {
+            if (parent is null)
+                throw new ArgumentNullException(nameof(parent));
+
+            if (Parents.Count >= MaxParents)
+                throw new InvalidOperationException("У ребенка не может быть больше 2 родителей.");
+
+            if (Parents.Any(p => p.Id == parent.Id))
+                throw new InvalidOperationException("Этот родитель уже добавлен.");
+
+            Parents.Add(parent);
+        }
+    }
+
+    public enum MembershipStatus
+    {
+        Active = 0,
+        Left = 1
     }
 }
