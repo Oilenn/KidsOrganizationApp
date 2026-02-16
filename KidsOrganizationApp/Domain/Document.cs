@@ -17,7 +17,19 @@ namespace KidsOrganizationApp.Domain
         public Document(DocumentType documentType, string path)
         {
             Id = Guid.NewGuid();
-            Path = path; //todo: сделать инвариант пути
+
+            ChangeType(documentType);
+            ChangePath(path);
+        }
+
+        public void ChangePath(string path)
+        {
+            Path = path.ToLower();//todo: доделать инвариант пути
+        }
+
+        public void ChangeType(DocumentType type)
+        {
+            Type = type;
         }
 
         public enum DocumentType

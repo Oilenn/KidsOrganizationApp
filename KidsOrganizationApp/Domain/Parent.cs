@@ -9,62 +9,48 @@ namespace KidsOrganizationApp.Domain
     public class Parent
     {
         public Guid Id { get; private set; }
-        public string Name { get; private set; } = string.Empty;
-        public string Surname { get; private set; } = string.Empty;
-        public string Patronymic { get; private set; } = string.Empty;
+
+        public FullName FullName { get; private set; }
+        public Contact Contact { get; private set; }
+
         public DateTime DateBirth { get; private set; } = DateTime.MinValue;
-        public ICollection<Child> Children { get; private set; } = [];  
+
+        public List<Document> Documents = new List<Document>();
+
+        public const int MinAge = 16;
 
         protected Parent() { }
 
-        public Parent(string name,
-                      string surname,
-                      string patronomic,
-                      DateTime dateBirth)
+        public Parent(FullName fullName,
+                      Contact contact,
+                      DateTime dateBirth,
+                      List<Document> documents)
         {
-            ChangeName(name, surname, patronomic);
-            DateBirth = dateBirth;
+            FullName = fullName;
+            Contact = contact;
+
             Id = Guid.NewGuid();
         }
 
-        public Parent(string name,
-              string surname,
-              string patronomic,
-              DateTime dateBirth,
-              List<Child> children)
+        public void ChangeDateBirth(DateTime birth)
         {
-            ChangeName(name, surname, patronomic);
-            DateBirth = dateBirth;
-            Id = Guid.NewGuid();
+            if (birth.Year < MinAge)
+                throw new ArgumentException($"Родитель не может быть младше {MinAge} лет!");
 
-            Children = children;
+            DateBirth = birth;
         }
 
-        public void ChangeName(string name, string surname, string patronymic)
+        public void AddDocument(Document document)
         {
-            if (string.IsNullOrWhiteSpace(name) || 
-                string.IsNullOrWhiteSpace(surname) ||
-                string.IsNullOrWhiteSpace(patronymic))
-                throw new ArgumentException("Имя не может быть пустым");
-
-            Name = name;
-            Surname = surname;
-            Patronymic = patronymic;
+            Documents.Add(document);
         }
 
-        public void AddChild(Child child)
+        public void AddDocuments(List<Document> documents)
         {
-            if(child.Parents.Contains(this)) throw new ArgumentException("Родитель уже является родителем!");
-            
-            Children.Add(child);
-            child.AddParent(this);
-        }
-
-        public void AddDateBirth(DateTime dateBirth)
-        {
-            if(dateBirth > DateTime.Now) throw new ArgumentException("Дата рождения не может превышать сегодняшний день!");
-
-            DateBirth = dateBirth;
+            foreach(Document document in documents)
+            {
+                AddDocument(document);
+            }
         }
     }
 }

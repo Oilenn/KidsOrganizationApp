@@ -1,11 +1,6 @@
 ﻿using KidsOrganizationApp.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KidsOrganizationApp.Configuration
 {
@@ -13,32 +8,67 @@ namespace KidsOrganizationApp.Configuration
     {
         public void Configure(EntityTypeBuilder<Child> builder)
         {
-            builder.ToTable("Child");
+            builder.ToTable("Children");
 
-            builder.HasKey(p => p.Id);
+            builder.HasKey(c => c.Id);
 
-            builder.Property(p => p.Name)
+            builder.Property(c => c.FullName.Name)
                    .IsRequired()
                    .HasMaxLength(100);
 
-            builder.Property(p => p.Surname)
+            builder.Property(c => c.FullName.Surname)
                    .IsRequired()
                    .HasMaxLength(100);
 
-            builder.Property(p => p.Patronymic)
+            builder.Property(c => c.FullName.Patronymic)
                    .IsRequired()
                    .HasMaxLength(100);
 
-            builder.Property(p => p.DateBirth)
+            builder.Property(c => c.DateBirth)
                    .IsRequired();
 
+            // --- Many-to-Many с Parent ---
             builder
-                .HasMany(p => p.Parents)
-                .WithMany(c => c.Children)
-                .UsingEntity(j =>
+                .HasMany(c => c.Parents)
+                .WithMany(p => p.Children)
+                .UsingEntity<Dictionary<string, object>>(
+                    "ParentChildren",
+                    j => j.HasOne<Parent>().WithMany().HasForeignKey("ParentId"),
+                    j => j.HasOne<Child>().WithMany().HasForeignKey("ChildId"),
+                    j => j.ToTable("ParentChildren")
+                );
+
+            // --- Owned Object: PersonInfo ---
+            builder.OwnsOne(c => c.Info, info =>
+            {
+                // Внутри PersonInfo есть Contact — тоже Owned
+                info.OwnsOne(i => i.Contact, contact =>
                 {
-                    j.ToTable("ParentChildren");
+                    contact.Property(c => c.MobileNumber)
+                           .HasMaxLength(15)
+                           .IsRequired();
+
+                    contact.Property(c => c.LivingPlace)
+                           .HasMaxLength(200)
+                           .IsRequired();
                 });
+
+                // Связь с Document
+                info.HasOne(i => i.Passport)
+                    .WithMany()
+                    .HasForeignKey("PassportId");
+
+                info.HasOne(i => i.SNILS)
+                    .WithMany()
+                    .HasForeignKey("SNILSId");
+
+                info.HasOne(i => i.DiagnosisFile)
+                    .WithMany()
+                    .HasForeignKey("DiagnosisFileId");
+
+                info.Property(i => i.MembershipStatus)
+                    .IsRequired();
+            });
         }
     }
 }

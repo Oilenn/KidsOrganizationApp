@@ -13,14 +13,46 @@ namespace KidsOrganizationApp.Domain
         public DateTime Date { get; private set; } = DateTime.MinValue;
         public List<Document> Documents { get; private set; } = new List<Document>();
 
+        private const int NameLenght = 100;
+
         protected Event() { }
 
         public Event(string name, DateTime dateTime, List<Document> documents)
         {
+            ChangeName(name);
+            ChangeDate(dateTime);
+            AddDocument(documents);
+
             Id = Guid.NewGuid();
-            Name = string.Empty;
-            Date = DateTime.MinValue;
-            Documents = documents;
         }
+
+        public Event(string name, DateTime dateTime) : this(name, dateTime, []) { }
+
+        public void ChangeDate(DateTime dateTime)
+        {
+            Date = dateTime;
+        }
+
+        public void AddDocument(List<Document> documents)
+        {
+            foreach (Document document in documents)
+            {
+                Documents.Add(document);
+            }
+        }
+
+        public void ChangeName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Имя не может быть пустым!");
+
+            name = name.Trim();
+
+            if (name.Length > NameLenght)
+                name = name.Substring(0, NameLenght);
+
+            Name = name;
+        }
+
     }
 }

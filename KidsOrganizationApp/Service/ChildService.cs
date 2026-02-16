@@ -1,83 +1,110 @@
 ﻿using KidsOrganizationApp.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using KidsOrganizationApp.Repository.Interface;
+using KidsOrganizationApp.Service.DTO;
 
 namespace KidsOrganizationApp.Service
 {
     public interface IChildService
     {
-        Child AddChild(string name,
-                    string surname,
-                    string patronomyc,
-                    DateTime dateBirth);
+        ChildDTO AddChild(ChildDTO dto);
+        ChildDTO GetChildById(Guid id);
 
-        List<Child> GetAllChildren();
-        List<Child> GetChildrenByCount(int start, int end);
-        Child GetChildById(int id);
-        Child GetChildByName(string name);
-        Child GetChildBySurname(string surname);
-        Child GetChildByPatronomyc(string patronomyc);
+        void DeleteChild(ChildDTO dto);
+        void UpdateChild(ChildDTO dto);
+
+        List<ChildDTO> GetAllChildren();
+        List<ChildDTO> GetChildrenByName(string name);
+        List<ChildDTO> GetChildrenBySurname(string surname);
+        List<ChildDTO> GetChildrenByPatronymic(string patronomyc);
     }
 
     public class ChildService : IChildService
     {
-        private AppDbContext _appDbContext;
+        private IChildRepository _childRepository;
 
-        public ChildService(AppDbContext appDbContext) 
-        { 
-            _appDbContext = appDbContext;
+        public ChildService(IChildRepository childRepository) 
+        {
+            _childRepository = childRepository;
         }
 
-        public Child AddChild(
-            string name, 
-            string surname, 
-            string patronomyc,
-            DateTime dateBirth
-            )
+        public ChildDTO AddChild(ChildDTO dto)
         {
-            Child child = 
-                new Child(name, surname, patronomyc, dateBirth);
+            Child child = ConvertToNewDomain(dto);
+            _childRepository.Add(child);
 
-            _appDbContext.Children.Add(child);
-
-            _appDbContext.SaveChanges();
-            return child;
+            return ConvertToDTO(child);
         }
 
-        public List<Child> GetAllChildren()
+        public List<ChildDTO> GetAllChildren()
         {
-            List<Child> children = new List<Child>();
-            children = _appDbContext.Set<Child>().ToList();
+            List<ChildDTO> children = ConvertToDTO(_childRepository.GetAll());
 
             return children;
         }
 
-        public Child GetChildById(int id)
+        public ChildDTO GetChildById(Guid id)
         {
-            throw new NotImplementedException();
+            return ConvertToDTO(_childRepository.GetById(id));
         }
 
-        public Child GetChildByName(string name)
+        public List<ChildDTO> GetChildrenByName(string name)
         {
-            throw new NotImplementedException();
+            return ConvertToDTO(_childRepository.GetByName(name));
         }
 
-        public Child GetChildByPatronomyc(string patronomyc)
+        public List<ChildDTO> GetChildrenBySurname(string surname)
         {
-            throw new NotImplementedException();
+            return ConvertToDTO(_childRepository.GetBySurname(surname));
         }
 
-        public Child GetChildBySurname(string surname)
+        public List<ChildDTO> GetChildrenByPatronymic(string patronomyc)
         {
-            throw new NotImplementedException();
+            return ConvertToDTO(_childRepository.GetBySurname(patronomyc));
         }
 
-        public List<Child> GetChildrenByCount(int start, int end)
+        public void DeleteChild(ChildDTO dto)
         {
-            throw new NotImplementedException();
+            _childRepository.Remove(ConvertToDomain(dto));
+        }
+
+        public void UpdateChild(ChildDTO dto)
+        {
+            _childRepository.Update(ConvertToDomain(dto));
+        }
+
+        private List<ChildDTO> ConvertToDTO(List<Child> children)
+        {
+            List<ChildDTO> dto = new List<ChildDTO>();
+            foreach (Child child in children)
+            {
+                dto.Add(ConvertToDTO(child));
+            }
+
+            return dto;
+        }
+
+        private ChildDTO ConvertToDTO(Child child)
+        {
+            return new ChildDTO()
+            {
+                Id = child.Id,
+                Name = child.Name,
+                Surname = child.Surname,
+                DateBirth = child.DateBirth
+            };
+        }
+
+        private Child ConvertToDomain(ChildDTO dto)
+        {
+            return _childRepository.GetById(dto.Id);
+        }
+
+        private Child ConvertToNewDomain(ChildDTO dto)
+        {
+            return new Child(dto.Name,
+                dto.Surname,
+                dto.Patronymic,
+                dto.DateBirth);
         }
     }
 }

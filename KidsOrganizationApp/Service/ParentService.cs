@@ -1,76 +1,112 @@
 ﻿using KidsOrganizationApp.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using KidsOrganizationApp.Repository.Interface;
+using KidsOrganizationApp.Service.DTO;
 
 namespace KidsOrganizationApp.Service
 {
     public interface IParentService
     {
-        List<Parent> GetAllParents();
-        List<Parent> GetParentsByCount();
-        Parent GetParentById(int id);
-        Parent GetParentByName(string name);
-        Parent GetParentBySurname(string surname);
-        Parent GetParentByPatronomyc(string patronomyc);
-    }
+        ParentDTO AddParent(ParentDTO dto);
+        void UpdateParent(ParentDTO dto);
+        void DeleteParent(ParentDTO dto);
 
+        ParentDTO GetParentById(Guid id);
+        List<ParentDTO> GetAllParents();
+
+        List<ParentDTO> GetParentsByName(string name);
+        List<ParentDTO> GetParentsBySurname(string surname);
+        List<ParentDTO> GetParentsByPatronymic(string patronymic);
+    }
     public class ParentService : IParentService
     {
-        private AppDbContext _appDbContext;
+        private readonly IParentRepository _parentRepository;
 
-        public ParentService(AppDbContext appDbContext)
+        public ParentService(IParentRepository parentRepository)
         {
-            _appDbContext = appDbContext;
+            _parentRepository = parentRepository;
         }
 
-        public Parent AddParent(
-            string name,
-            string surname,
-            string patronomyc,
-            DateTime dateBirth
-            )
+        public ParentDTO AddParent(ParentDTO dto)
         {
-            Parent parent =
-                new Parent(name, surname, patronomyc, dateBirth);
+            Parent parent = ConvertToNewDomain(dto);
+            _parentRepository.Add(parent);
 
-            _appDbContext.SaveChanges();
-            return parent;
+            return ConvertToDTO(parent);
         }
 
-        public Parent GetParentById(int id)
+        public void UpdateParent(ParentDTO dto)
         {
-            throw new NotImplementedException();
+            Parent parent = ConvertToDomain(dto);
+            _parentRepository.Update(parent);
         }
 
-        public Parent GetParentByName(string name)
+        public void DeleteParent(ParentDTO dto)
         {
-            throw new NotImplementedException();
+            Parent parent = ConvertToDomain(dto);
+            _parentRepository.Remove(parent);
         }
 
-        public Parent GetParentByPatronomyc(string patronomyc)
+        public ParentDTO GetParentById(Guid id)
         {
-            throw new NotImplementedException();
+            Parent parent = _parentRepository.GetById(id);
+            return ConvertToDTO(parent);
         }
 
-        public Parent GetParentBySurname(string surname)
+        public List<ParentDTO> GetAllParents()
         {
-            throw new NotImplementedException();
+            return ConvertToDTO(_parentRepository.GetAll());
         }
 
-        public List<Parent> GetAllParents()
+        public List<ParentDTO> GetParentsByName(string name)
         {
-            List<Parent> parents = new List<Parent>();
-            parents = _appDbContext.Set<Parent>().ToList();
-
-            return parents;
+            return ConvertToDTO(_parentRepository.GetByName(name));
         }
 
-        public List<Parent> GetParentsByCount()
+        public List<ParentDTO> GetParentsBySurname(string surname)
         {
-            throw new NotImplementedException();
+            return ConvertToDTO(_parentRepository.GetBySurname(surname));
+        }
+
+        public List<ParentDTO> GetParentsByPatronymic(string patronymic)
+        {
+            return ConvertToDTO(_parentRepository.GetByPatronymic(patronymic));
+        }
+
+        private Parent ConvertToNewDomain(ParentDTO dto)
+        {
+            return new Parent(dto.Name, dto.Surname,dto.Patronymic,dto.DateBirth);
+        }
+
+        private Parent ConvertToDomain(ParentDTO dto)
+        {
+            return _parentRepository.GetById(dto.Id);
+        }
+
+        private ParentDTO ConvertToDTO(Parent parent)
+        {
+            return new ParentDTO
+            {
+                Id = parent.Id,
+                Name = parent.Name,
+                Surname = parent.Surname,
+                Patronymic = parent.Patronymic,
+                DateBirth = parent.DateBirth,
+                Children = parent.Children
+                    .Select(c => new ChildDTO
+                    {
+                        Id = c.Id,
+                        Name = c.Name,
+                        Surname = c.Surname,
+                        Patronymic = c.Patronymic,
+                        DateBirth = c.DateBirth
+                    })
+                    .ToList()
+            };
+        }
+
+        private List<ParentDTO> ConvertToDTO(List<Parent> parents)
+        {
+            return parents.Select(ConvertToDTO).ToList();
         }
     }
 }
