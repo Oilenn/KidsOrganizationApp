@@ -2,29 +2,25 @@
 using KidsOrganizationApp.Service.DTO;
 using System;
 using System.Collections.Generic;
+using System.Windows.Controls;
 
 namespace KidsOrganizationApp.Service.Mapper
 {
     public class ParentMapper : IMapper<ParentDTO, Parent>
     {
-        private readonly ChildMapper _childMapper;
-
-        public ParentMapper(ChildMapper childMapper)
-        {
-            _childMapper = childMapper;
-        }
 
         public ParentDTO ToDTO(Parent parent)
         {
-            return new ParentDTO
-            {
-                Id = parent.Id,
-                Name = parent.Name,
-                Surname = parent.Surname,
-                Patronymic = parent.Patronymic,
-                DateBirth = parent.DateBirth,
-                Children = _childMapper.ToDTO(parent.Children)
-            };
+            return new ParentDTO(
+                    parent.Id,
+                    parent.FullName.Name,
+                    parent.FullName.Surname,
+                    parent.FullName.Patronymic,
+                    parent.Contact.MobileNumber,
+                    parent.Contact.LivingPlace,
+                    parent.DateBirth,
+                    parent.Contact.Email
+                );
         }
 
         public List<ParentDTO> ToDTO(List<Parent> parents)
@@ -39,18 +35,22 @@ namespace KidsOrganizationApp.Service.Mapper
 
         public Parent ToNewDomain(ParentDTO dto)
         {
-            var children = new List<Child>();
-
-            foreach (var childDto in dto.Children)
-                children.Add(_childMapper.ToNewDomain(childDto));
-
-            return new Parent(
-                dto.Name,
-                dto.Surname,
-                dto.Patronymic,
+            var parent = new Parent(
+                new FullName(dto.Name, dto.Surname, dto.Patronymic),
+                new Contact(dto.MobileNumber, dto.LivingPlace, dto.Email),
                 dto.DateBirth,
-                children
-            );
+                new List<Document>());
+
+            return parent;
+        }
+
+        public void UpdateDomain(Parent domain, ParentDTO dto)
+        {
+            domain.Contact = new Contact(dto.MobileNumber, dto.LivingPlace, dto.Email);
+            domain.FullName = new FullName(dto.Name, dto.Surname, dto.Patronymic);
+
+            domain.ChangeDateBirth(dto.DateBirth);
+            domain.MembershipStatus = (MembershipStatus) dto.MembershipStatus;
         }
     }
 }

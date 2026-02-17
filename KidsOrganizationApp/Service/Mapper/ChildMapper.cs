@@ -13,14 +13,19 @@ namespace KidsOrganizationApp.Service.Mapper
     {
         public ChildDTO ToDTO(Child child)
         {
-            return new ChildDTO
-            {
-                Id = child.Id,
-                Name = child.Name,
-                Surname = child.Surname,
-                Patronymic = child.Patronymic,
-                DateBirth = child.DateBirth
-            };
+            var childDTO = new ChildDTO
+            (
+                child.Id,
+                child.FullName.Name,
+                child.FullName.Surname,
+                child.FullName.Patronymic,
+                child.Contact.MobileNumber,
+                child.Contact.LivingPlace,
+                child.DateBirth,
+                child.Contact.Email
+            );
+
+            return childDTO;
         }
 
         public List<ChildDTO> ToDTO(List<Child> children)
@@ -35,12 +40,23 @@ namespace KidsOrganizationApp.Service.Mapper
 
         public Child ToNewDomain(ChildDTO dto)
         {
-            return new Child(
-                dto.Name,
-                dto.Surname,
-                dto.Patronymic,
-                dto.DateBirth
-            );
+            var child = new Child(
+                new FullName(dto.Name, dto.Surname, dto.Patronymic),
+                new Contact(dto.MobileNumber, dto.LivingPlace, dto.Email),
+                dto.DateBirth,
+                new List<Parent>(),
+                new List<Document>());
+
+            return child;
+        }
+
+        public void UpdateDomain(Child domain, ChildDTO dto)
+        {
+            domain.Contact = new Contact(dto.MobileNumber, dto.LivingPlace, dto.Email);
+            domain.FullName = new FullName(dto.Name, dto.Surname, dto.Patronymic);
+
+            domain.ChangeDateBirth(dto.DateBirth);
+            domain.MembershipStatus = (MembershipStatus) dto.MembershipStatus;
         }
     }
 }

@@ -12,6 +12,7 @@ namespace KidsOrganizationApp.Service.Mapper
         public List<TDto> ToDTO(List<TDomain> domain);
 
         public TDomain ToNewDomain(TDto dto);
+        public void UpdateDomain(TDomain domain, TDto dto);
     }
 }
 

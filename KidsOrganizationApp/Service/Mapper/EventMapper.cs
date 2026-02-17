@@ -14,15 +14,9 @@ namespace KidsOrganizationApp.Service.Mapper
             _documentMapper = documentMapper;
         }
 
-        public EventDTO ToDTO(Event @event)
+        public EventDTO ToDTO(Event eventD)
         {
-            return new EventDTO
-            {
-                Id = @event.Id,
-                Name = @event.Name,
-                Date = @event.Date,
-                Documents = _documentMapper.ToDTO(@event.Documents)
-            };
+            return new EventDTO(eventD.Id, eventD.Name, eventD.Date);
         }
 
         public List<EventDTO> ToDTO(List<Event> events)
@@ -37,16 +31,18 @@ namespace KidsOrganizationApp.Service.Mapper
 
         public Event ToNewDomain(EventDTO dto)
         {
-            var documents = new List<Document>();
-
-            foreach (var documentDto in dto.Documents)
-                documents.Add(_documentMapper.ToNewDomain(documentDto));
-
-            return new Event(
+            var newEvent = new Event(
                 dto.Name,
                 dto.Date,
-                documents
-            );
+                new List<Document>());
+
+            return newEvent;
+        }
+
+        public void UpdateDomain(Event domain, EventDTO dto)
+        {
+            domain.ChangeDate(dto.Date);
+            domain.ChangeName(dto.Name);
         }
     }
 }

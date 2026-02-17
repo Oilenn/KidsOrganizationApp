@@ -9,12 +9,10 @@ namespace KidsOrganizationApp.Service.Mapper
     {
         public DocumentDTO ToDTO(Document document)
         {
-            return new DocumentDTO
-            {
-                Id = document.Id,
-                Type = document.Type,
-                Path = document.Path
-            };
+            return new DocumentDTO(
+                document.Id,
+                document.Type,
+                document.Path);
         }
 
         public List<DocumentDTO> ToDTO(List<Document> documents)
@@ -35,6 +33,12 @@ namespace KidsOrganizationApp.Service.Mapper
             );
 
             return document;
+        }
+
+        public void UpdateDomain(Document domain, DocumentDTO dto)
+        {
+            domain.ChangePath(dto.Path);
+            domain.ChangeType(dto.Type);
         }
     }
 }
