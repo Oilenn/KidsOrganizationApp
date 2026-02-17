@@ -30,13 +30,20 @@ namespace KidsOrganizationApp.Repository
 
         public void Update(Document document)
         {
+            if (document == null)
+                throw new NullReferenceException(nameof(document));
+
             _context.Documents.Update(document);
             _context.SaveChanges();
         }
 
-        public void Remove(Document document)
+        public void Remove(Guid id)
         {
-            _context.Documents.Remove(document);
+            var doc = GetById(id);
+            if (doc == null)
+                throw new NullReferenceException(nameof(doc));
+            
+            _context.Remove(doc.Id);
             _context.SaveChanges();
         }
     }

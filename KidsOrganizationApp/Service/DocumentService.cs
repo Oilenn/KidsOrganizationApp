@@ -11,7 +11,7 @@ namespace KidsOrganizationApp.Service
         List<DocumentDTO> GetAll();
         DocumentDTO GetById(Guid id);
         void Update(DocumentDTO dto);
-        void Delete(DocumentDTO dto);
+        void Delete(Guid id);
     }
 
     public class DocumentService : IDocumentService
@@ -46,12 +46,14 @@ namespace KidsOrganizationApp.Service
         public void Update(DocumentDTO dto)
         {
             var document = _documentRepository.GetById(dto.Id);
+            _mapper.UpdateDomain(document, dto);
+
             _documentRepository.Update(document);
         }
 
-        public void Delete(DocumentDTO dto)
+        public void Delete(Guid id)
         {
-            _documentRepository.Remove(_documentRepository.GetById(dto.Id));
+            _documentRepository.Remove(id);
         }
     }
 }

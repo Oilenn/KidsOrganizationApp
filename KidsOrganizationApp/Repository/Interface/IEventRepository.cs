@@ -7,7 +7,7 @@ namespace KidsOrganizationApp.Repository.Interface
         Event GetById(Guid id);
         List<Event> GetAll();
         void Add(Event newEvent);
-        void Remove(Event eventToDelete);
+        void Remove(Guid id);
         void Update(Event eventToUpdate);
     }
 }

@@ -10,7 +10,7 @@ namespace KidsOrganizationApp.Repository.Interface
         List<Child> GetBySurname(string surname);
         List<Child> GetByPatronymic(string patronymic);
         void Add(Child child);
-        void Remove(Child child);
+        void Remove(Guid id);
         void Update(Child child);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using KidsOrganizationApp.Domain;
+using KidsOrganizationApp.Repository;
 using KidsOrganizationApp.Repository.Interface;
 using KidsOrganizationApp.Service.DTO;
 using KidsOrganizationApp.Service.Mapper;
@@ -39,12 +40,15 @@ namespace KidsOrganizationApp.Service
 
         public void Update(ParentDTO dto)
         {
-            _parentRepository.Update(_parentRepository.GetById(dto.Id));
+            var parent = _parentRepository.GetById(dto.Id);
+            _mapper.UpdateDomain(parent, dto);
+
+            _parentRepository.Update(parent);
         }
 
         public void Delete(ParentDTO dto)
         {
-            _parentRepository.Remove(_parentRepository.GetById(dto.Id));
+            _parentRepository.Remove(dto.Id);
         }
 
         public ParentDTO GetParentById(Guid id)

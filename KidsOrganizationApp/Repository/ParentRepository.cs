@@ -17,6 +17,7 @@ namespace KidsOrganizationApp.Repository
         public void Add(Parent parent)
         {
             _context.Add(parent);
+            _context.SaveChanges();
         }
 
         public List<Parent> GetAll()
@@ -32,32 +33,41 @@ namespace KidsOrganizationApp.Repository
         public List<Parent> GetByName(string name)
         {
             return _context.Parents
-                .Where(c => c.Name == name)
+                .Where(c => c.FullName.Name == name)
                 .ToList();
         }
 
         public List<Parent> GetByPatronymic(string patronymic)
         {
             return _context.Parents
-                .Where(c => c.Patronymic == patronymic)
+                .Where(c => c.FullName.Patronymic == patronymic)
                 .ToList();
         }
 
         public List<Parent> GetBySurname(string surname)
         {
             return _context.Parents
-                .Where(c => c.Surname == surname)
+                .Where(c => c.FullName.Surname == surname)
                 .ToList();
         }
 
-        public void Remove(Parent parent)
+        public void Remove(Guid id)
         {
-            _context.Remove(parent);
+            var parent = GetById(id);
+            if (parent == null)
+                throw new NullReferenceException(nameof(parent));
+
+            _context.Parents.Remove(parent);
+            _context.SaveChanges();
         }
 
         public void Update(Parent parent)
         {
+            if (parent == null)
+                throw new NullReferenceException(nameof(parent));
+
             _context.Update(parent);
+            _context.SaveChanges();
         }
     }
 }

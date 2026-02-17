@@ -1,4 +1,5 @@
 ﻿using KidsOrganizationApp.Domain;
+using KidsOrganizationApp.Repository;
 using KidsOrganizationApp.Repository.Interface;
 using KidsOrganizationApp.Service.DTO;
 using KidsOrganizationApp.Service.Mapper;
@@ -11,7 +12,7 @@ namespace KidsOrganizationApp.Service
         EventDTO GetById(Guid id);
         List<EventDTO> GetAll();
         void Update(EventDTO dto);
-        void Delete(EventDTO dto);
+        void Delete(Guid id);
     }
 
     public class EventService : IEventService
@@ -47,12 +48,15 @@ namespace KidsOrganizationApp.Service
 
         public void Update(EventDTO dto)
         {
-            _eventRepository.Update(_eventRepository.GetById(dto.Id));
+            var ev = _eventRepository.GetById(dto.Id);
+            _mapper.UpdateDomain(ev, dto);
+
+            _eventRepository.Update(ev);
         }
 
-        public void Delete(EventDTO dto)
+        public void Delete(Guid id)
         {
-            _eventRepository.Remove(_eventRepository.GetById(dto.Id));
+            _eventRepository.Remove(id);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using KidsOrganizationApp.Domain;
 using KidsOrganizationApp.Repository.Interface;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,33 +38,39 @@ namespace KidsOrganizationApp.Repository
         public List<Child> GetByName(string name)
         {
             return _context.Children
-                .Where(c => c.Name == name)
+                .Where(c => c.FullName.Name == name)
+                .ToList();
+        }
+        public List<Child> GetBySurname(string surname)
+        {
+            return _context.Children
+                .Where(c => c.FullName.Surname == surname)
                 .ToList();
         }
 
         public List<Child> GetByPatronymic(string patronymic)
         {
             return _context.Children
-                .Where(c => c.Patronymic == patronymic)
+                .Where(c => c.FullName.Patronymic == patronymic)
                 .ToList();
         }
 
-        public List<Child> GetBySurname(string surname)
+        public void Remove(Guid id)
         {
-            return _context.Children
-                .Where(c => c.Surname == surname)
-                .ToList();
-        }
+            var child = GetById(id);
+            if (child == null)
+                throw new NullReferenceException(nameof(id));
 
-        public void Remove(Child child)
-        {
-            _context.Remove(child);
+            _context.Remove(child.Id);
             _context.SaveChanges();
         }
 
         public void Update(Child child)
         {
-            _context.Update(child);
+            if(child == null)
+                throw new NullReferenceException(nameof(child));
+
+            _context.Children.Update(child);
             _context.SaveChanges();
         }
     }

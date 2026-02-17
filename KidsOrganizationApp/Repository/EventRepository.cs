@@ -1,6 +1,7 @@
 ﻿using KidsOrganizationApp.Domain;
 using KidsOrganizationApp.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata;
 
 namespace KidsOrganizationApp.Repository
 {
@@ -22,25 +23,32 @@ namespace KidsOrganizationApp.Repository
         public List<Event> GetAll()
         {
             return _context.Events
-                .Include(e => e.Document)
+                .Include(e => e.Documents)
                 .ToList();
         }
 
         public Event GetById(Guid id)
         {
             return _context.Events
-                .Include(e => e.Document)
-                .FirstOrDefault(e => e.Id == id);
+                    .Include(e => e.Documents)
+                    .FirstOrDefault(e => e.Id == id);
         }
 
         public void Update(Event eventEntity)
         {
+            if (eventEntity == null)
+                throw new NullReferenceException(nameof(eventEntity));
+
             _context.Events.Update(eventEntity);
             _context.SaveChanges();
         }
 
-        public void Remove(Event eventEntity)
+        public void Remove(Guid id)
         {
+            var eventEntity = GetById(id);
+            if (eventEntity == null)
+                throw new NullReferenceException(nameof(eventEntity));
+
             _context.Events.Remove(eventEntity);
             _context.SaveChanges();
         }

@@ -7,7 +7,7 @@ namespace KidsOrganizationApp.Repository.Interface
         Document GetById(Guid id);
         List<Document> GetAll();
         void Add(Document document);
-        void Remove(Document document);
+        void Remove(Guid id);
         void Update(Document document);
     }
 }
