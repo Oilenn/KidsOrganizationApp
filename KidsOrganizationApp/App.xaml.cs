@@ -12,6 +12,7 @@ using System.Data;
 using System.Windows;
 using KidsOrganizationApp.Repository;
 using KidsOrganizationApp.Repository.Interface;
+using KidsOrganizationApp.Service.Mapper;
 
 namespace KidsOrganizationApp
 {
@@ -30,24 +31,53 @@ namespace KidsOrganizationApp
             var services = new ServiceCollection();
             services.AddDbContext<AppDbContext>();
 
-            services.AddScoped<IParentService, ParentService>();
-            services.AddScoped<IChildService, ChildService>();
-            services.AddScoped<WindowService>();
-
+            // Репозитории
             services.AddScoped<IChildRepository, ChildRepository>();
             services.AddScoped<IParentRepository, ParentRepository>();
+            services.AddScoped<IDocumentRepository, DocumentRepository>();
+            services.AddScoped<IEventRepository, EventRepository>();
 
+            // Сервисы
+            services.AddScoped<IParentService, ParentService>();
+            services.AddScoped<IChildService, ChildService>();
+            services.AddScoped<IDocumentService, DocumentService>();
+            services.AddScoped<IEventService, EventService>();
+            services.AddScoped<IFamilyService, FamilyService>();
+            services.AddScoped<WindowService>();
+
+            // Мапперы
+            services.AddScoped<ChildMapper>();
+            services.AddScoped<DocumentMapper>();
+            services.AddScoped<EventMapper>();
+            services.AddScoped<ParentMapper>();
+
+            // ViewModel
             services.AddTransient<MainViewModel>();
             services.AddTransient<ParentViewModel>();
-
             services.AddTransient<ParentChildView>();
-
 
             var serviceProvider = services.BuildServiceProvider();
 
-            var window = serviceProvider.GetRequiredService<WindowService>();
-            window.ShowParentChildWindow();
+            Console.WriteLine("Hi!");
+
+            //var window = serviceProvider.GetRequiredService<WindowService>();
+            //window.ShowParentChildWindow();
+
+            var child = serviceProvider.GetRequiredService<IChildService>();
+            var parents = serviceProvider.GetRequiredService<IParentService>();
+
+            var dto = child.AddChild(new Service.DTO.ChildDTO("Настя", "Копшева", "Олеговна",
+                "88005553535", "Саратов", DateTime.MinValue));
+            var parentdto = parents.Add(new Service.DTO.ParentDTO("Олег", "Копшев", "Анатольевич",
+                "88005553535", "Саратов", DateTime.MinValue));
+
+
+            Console.WriteLine(dto.Name);
+            Console.WriteLine(dto.DateBirth);
+            Console.WriteLine(child.GetChildById(dto.Id).Name);
+            Console.WriteLine(child.GetAllChildren().ToList().Count);
+            child.AddParent(parentdto, dto);
+            Console.WriteLine(child.GetParents(dto)[0].Name);
         }
     }
-
 }

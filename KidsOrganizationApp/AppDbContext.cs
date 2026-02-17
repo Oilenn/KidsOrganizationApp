@@ -7,8 +7,6 @@ namespace KidsOrganizationApp
     {
         public DbSet<Parent> Parents => Set<Parent>();
         public DbSet<Child> Children => Set<Child>();
-        public DbSet<PersonInfo> PersonInfos => Set<PersonInfo>();
-        public DbSet<Contact> Contacts => Set<Contact>();
         public DbSet<Document> Documents => Set<Document>();
         public DbSet<Event> Events => Set<Event>();
 
