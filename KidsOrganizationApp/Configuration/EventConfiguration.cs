@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace KidsOrganizationApp.Infrastructure.Configurations
+namespace KidsOrganizationApp.Configuration
 {
     public class EventConfiguration : IEntityTypeConfiguration<Event>
     {
@@ -16,13 +16,12 @@ namespace KidsOrganizationApp.Infrastructure.Configurations
                    .ValueGeneratedNever();
 
             builder.Property(e => e.Name)
-                   .IsRequired()
-                   .HasMaxLength(100);
+                   .HasMaxLength(100)
+                   .IsRequired();
 
             builder.Property(e => e.Date)
                    .IsRequired();
 
-            // Связь один ко многим (Event -> Documents)
             builder.HasMany(e => e.Documents)
                    .WithOne()
                    .HasForeignKey("EventId")

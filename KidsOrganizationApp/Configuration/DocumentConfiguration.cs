@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace KidsOrganizationApp.Infrastructure.Configurations
+namespace KidsOrganizationApp.Configuration
 {
     public class DocumentConfiguration : IEntityTypeConfiguration<Document>
     {
@@ -15,14 +15,13 @@ namespace KidsOrganizationApp.Infrastructure.Configurations
             builder.Property(d => d.Id)
                    .ValueGeneratedNever();
 
-            // Enum хранится как int (по умолчанию)
             builder.Property(d => d.Type)
-                   .IsRequired()
-                   .HasConversion<int>();
+                   .HasConversion<int>()
+                   .IsRequired();
 
             builder.Property(d => d.Path)
-                   .IsRequired()
-                   .HasMaxLength(500);
+                   .HasMaxLength(500)
+                   .IsRequired();
         }
     }
 }

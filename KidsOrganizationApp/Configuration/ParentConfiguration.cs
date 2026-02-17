@@ -1,11 +1,6 @@
 ﻿using KidsOrganizationApp.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KidsOrganizationApp.Configuration
 {
@@ -17,28 +12,51 @@ namespace KidsOrganizationApp.Configuration
 
             builder.HasKey(p => p.Id);
 
-            builder.Property(p => p.Name)
-                   .IsRequired()
-                   .HasMaxLength(100);
-
-            builder.Property(p => p.Surname)
-                   .IsRequired()
-                   .HasMaxLength(100);
-
-            builder.Property(p => p.Patronymic)
-                   .IsRequired()
-                   .HasMaxLength(100);
+            builder.Property(p => p.Id)
+                   .ValueGeneratedNever();
 
             builder.Property(p => p.DateBirth)
                    .IsRequired();
 
-            builder
-                .HasMany(p => p.Children)
-                .WithMany(c => c.Parents)
-                .UsingEntity(j =>
-                {
-                    j.ToTable("ParentChildren");
-                });
+            builder.Property(p => p.MembershipStatus)
+                   .HasConversion<int>()
+                   .IsRequired();
+
+            // --- FullName (Value Object)
+            builder.OwnsOne(p => p.FullName, fn =>
+            {
+                fn.Property(f => f.Name)
+                  .HasMaxLength(100)
+                  .IsRequired();
+
+                fn.Property(f => f.Surname)
+                  .HasMaxLength(100)
+                  .IsRequired();
+
+                fn.Property(f => f.Patronymic)
+                  .HasMaxLength(100);
+            });
+
+            // --- Contact (Value Object)
+            builder.OwnsOne(p => p.Contact, contact =>
+            {
+                contact.Property(c => c.MobileNumber)
+                       .HasMaxLength(11)
+                       .IsRequired();
+
+                contact.Property(c => c.LivingPlace)
+                       .HasMaxLength(200)
+                       .IsRequired();
+
+                contact.Property(c => c.Email)
+                       .HasMaxLength(150);
+            });
+
+            // --- Documents (1:N)
+            builder.HasMany(p => p.Documents)
+                   .WithOne()
+                   .HasForeignKey("ParentId")
+                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
