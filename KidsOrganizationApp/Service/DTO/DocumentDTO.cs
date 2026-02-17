@@ -12,5 +12,12 @@ namespace KidsOrganizationApp.Service.DTO
         public Guid Id { get; set; }
         public Document.DocumentType Type { get; set; }
         public string Path { get; set; }
+
+        public DocumentDTO(Guid id, Document.DocumentType type, string path)
+        {
+            Id = id;
+            Type = type;
+            Path = path;
+        }
     }
 }

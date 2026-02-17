@@ -11,6 +11,13 @@ namespace KidsOrganizationApp.Service.DTO
         public Guid Id { get; set; }
         public string Name { get; set; }
         public DateTime Date { get; set; }
-        public List<DocumentDTO> Documents { get; set; } = new();
+        public List<Guid> Documents { get; set; } = new List<Guid>();
+
+        public EventDTO(Guid id, string name, DateTime date)
+        {
+            Id = id;
+            Name = name;
+            Date = date;
+        }
     }
 }
