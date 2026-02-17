@@ -10,12 +10,12 @@ namespace KidsOrganizationApp.Domain
     {
         public Guid Id { get; private set; }
 
-        public FullName FullName { get; private set; }
-        public Contact Contact { get; private set; }
+        public FullName FullName { get; set; }
+        public Contact Contact { get; set; }
 
         public DateTime DateBirth { get; private set; } = DateTime.MinValue;
 
-        public MembershipStatus MembershipStatus { get; private set; } = MembershipStatus.Active;
+        public MembershipStatus MembershipStatus { get; set; } = MembershipStatus.Active;
 
         public List<Parent> Parents { get; private set; } = new List<Parent>();
         public List<Document> Documents = new List<Document>();
@@ -67,6 +67,13 @@ namespace KidsOrganizationApp.Domain
                 throw new InvalidOperationException("Этот родитель уже добавлен.");
 
             Parents.Add(parent);
+        }
+
+        public void UpdateParents(List<Parent> parents)
+        {
+            parents.Clear();
+
+            AddParents(parents);
         }
     }
 

@@ -10,10 +10,11 @@ namespace KidsOrganizationApp.Domain
     {
         public Guid Id { get; private set; }
 
-        public FullName FullName { get; private set; }
-        public Contact Contact { get; private set; }
+        public FullName FullName { get; set; }
+        public Contact Contact { get; set; }
 
         public DateTime DateBirth { get; private set; } = DateTime.MinValue;
+        public MembershipStatus MembershipStatus { get; set; } = MembershipStatus.Active;
 
         public List<Document> Documents = new List<Document>();
 
