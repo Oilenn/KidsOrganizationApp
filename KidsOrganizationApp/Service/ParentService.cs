@@ -10,7 +10,7 @@ namespace KidsOrganizationApp.Service
     {
         ParentDTO Add(ParentDTO dto);
         void Update(ParentDTO dto);
-        void Delete(ParentDTO dto);
+        void Delete(Guid id);
 
         ParentDTO GetParentById(Guid id);
         List<ParentDTO> GetAllParents();
@@ -46,9 +46,9 @@ namespace KidsOrganizationApp.Service
             _parentRepository.Update(parent);
         }
 
-        public void Delete(ParentDTO dto)
+        public void Delete(Guid id)
         {
-            _parentRepository.Remove(dto.Id);
+            _parentRepository.Remove(id);
         }
 
         public ParentDTO GetParentById(Guid id)

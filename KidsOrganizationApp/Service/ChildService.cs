@@ -11,7 +11,7 @@ namespace KidsOrganizationApp.Service
         ChildDTO AddChild(ChildDTO dto);
         ChildDTO GetChildById(Guid id);
 
-        void DeleteChild(ChildDTO dto);
+        void DeleteChild(Guid id);
         void UpdateChild(ChildDTO dto);
 
         List<ChildDTO> GetAllChildren();
@@ -72,16 +72,9 @@ namespace KidsOrganizationApp.Service
             return _mapper.ToDTO(_childRepository.GetByPatronymic(patronomyc));
         }
 
-        public List<ParentDTO> GetParents(ChildDTO dto)
+        public void DeleteChild(Guid id)
         {
-            return new List<ParentDTO>() {
-                _parentSerivce.GetParentById(dto.ParentIds[0])
-            };
-        }
-
-        public void DeleteChild(ChildDTO dto)
-        {
-            _childRepository.Remove(dto.Id);
+            _childRepository.Remove(id);
         }
 
         public void UpdateChild(ChildDTO dto)
@@ -98,6 +91,13 @@ namespace KidsOrganizationApp.Service
             dto.ParentIds.Add(par.Id);
 
             UpdateChild(dto);
+        }
+
+        public List<ParentDTO> GetParents(ChildDTO dto)
+        {
+            return new List<ParentDTO>() {
+                _parentSerivce.GetParentById(dto.ParentIds[0])
+            };
         }
     }
 }
