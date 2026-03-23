@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,16 +10,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace KidsOrganizationApp.UI.View
+namespace KidsOrganizationApp.UI.View.UserControls
 {
-    public partial class MainWindow : Window
+    /// <summary>
+    /// Логика взаимодействия для Head.xaml
+    /// </summary>
+    public partial class Head : UserControl
     {
-        public MainWindow()
+        public Head()
         {
             InitializeComponent();
-            DataContext = App.Provider.GetService<MainViewModel>();
         }
     }
 }

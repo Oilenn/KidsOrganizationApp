@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,12 +14,14 @@ using System.Windows.Shapes;
 
 namespace KidsOrganizationApp.UI.View
 {
-    public partial class MainWindow : Window
+    /// <summary>
+    /// Логика взаимодействия для AddFamilyView.xaml
+    /// </summary>
+    public partial class AddFamilyView : Window
     {
-        public MainWindow()
+        public AddFamilyView()
         {
             InitializeComponent();
-            DataContext = App.Provider.GetService<MainViewModel>();
         }
     }
 }

@@ -1,14 +1,6 @@
 using KidsOrganizationApp.Service;
 using KidsOrganizationApp.UI.View;
-using KidsOrganizationApp.UI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
-using System.Configuration;
-﻿using KidsOrganizationApp.Service;
-using KidsOrganizationApp.UI.View;
-using KidsOrganizationApp.UI.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
-using System.Configuration;
-using System.Data;
 using System.Windows;
 using KidsOrganizationApp.Repository;
 using KidsOrganizationApp.Repository.Interface;
@@ -21,11 +13,14 @@ namespace KidsOrganizationApp
     /// </summary>
     public partial class App : Application
     {
+        public static IServiceProvider Provider { get; private set; }
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
             using var db = new AppDbContext();
+            db.Database.EnsureDeleted();
             db.Database.EnsureCreated();
 
             var services = new ServiceCollection();
@@ -53,31 +48,30 @@ namespace KidsOrganizationApp
 
             // ViewModel
             services.AddTransient<MainViewModel>();
-            services.AddTransient<ParentViewModel>();
-            services.AddTransient<ParentChildView>();
+            services.AddTransient<FamilyViewModel>();
+            services.AddTransient<AddFamilyViewModel>();
 
-            var serviceProvider = services.BuildServiceProvider();
+            Provider = services.BuildServiceProvider();
 
             Console.WriteLine("Hi!");
 
             //var window = serviceProvider.GetRequiredService<WindowService>();
             //window.ShowParentChildWindow();
 
-            var child = serviceProvider.GetRequiredService<IChildService>();
-            var parents = serviceProvider.GetRequiredService<IParentService>();
+            var child = Provider.GetRequiredService<IChildService>();
+            var parents = Provider.GetRequiredService<IParentService>();
 
-            var dto = child.AddChild(new Service.DTO.ChildDTO("Настя", "Копшева", "Олеговна",
-                "88005553535", "Саратов", DateTime.MinValue));
             var parentdto = parents.Add(new Service.DTO.ParentDTO("Олег", "Копшев", "Анатольевич",
                 "88005553535", "Саратов", DateTime.MinValue));
+            var dto = child.AddChild(new Service.DTO.ChildDTO("Настя", "Копшева", "Олеговна",
+                "88005553535", "Саратов", DateTime.MinValue, new List<Guid> { parentdto.Id }));
 
-
-            Console.WriteLine(dto.Name);
-            Console.WriteLine(dto.DateBirth);
-            Console.WriteLine(child.GetChildById(dto.Id).Name);
-            Console.WriteLine(child.GetAllChildren().ToList().Count);
-            child.AddParent(parentdto, dto);
-            Console.WriteLine(child.GetParents(dto)[0].Name);
+            //Console.WriteLine(dto.Name);
+            //Console.WriteLine(dto.DateBirth);
+            //Console.WriteLine(child.GetChildById(dto.Id).Name);
+            //Console.WriteLine(child.GetAllChildren().ToList().Count);
+            //child.AddParent(parentdto, dto);
+            //Console.WriteLine(child.GetParents(dto)[0].Name);
         }
     }
 }
