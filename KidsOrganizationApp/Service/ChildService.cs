@@ -26,19 +26,40 @@ namespace KidsOrganizationApp.Service
     public class ChildService : IChildService
     {
         private IChildRepository _childRepository;
+
+        private IParentRepository _parentRepository;
+        private IDocumentRepository _documentRepository;
+
         private IParentService _parentSerivce;
+
         private IMapper<ChildDTO, Child> _mapper;
 
-        public ChildService(IChildRepository childRepository, IParentService parentService, ChildMapper mapper) 
+        public ChildService(IChildRepository childRepository, 
+                            IParentService parentService, 
+                            ChildMapper mapper,
+                            IParentRepository parentRepository,
+                            IDocumentRepository documentRepository) 
         {
             _childRepository = childRepository;
             _parentSerivce = parentService;
             _mapper = mapper;
+            _parentRepository = parentRepository;
+            _documentRepository = documentRepository;
         }
 
         public ChildDTO AddChild(ChildDTO dto)
         {
+            List<Parent> parents = new List<Parent>();
+            foreach (var parentId in dto.ParentIds)
+            {
+                parents.Add(_parentRepository.GetById(parentId));
+            }
+            
             Child child = _mapper.ToNewDomain(dto);
+            foreach(var parent in parents)
+            {
+                child.Parents.Add(parent);
+            }
 
             _childRepository.Add(child);
 

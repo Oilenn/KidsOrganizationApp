@@ -31,6 +31,7 @@ namespace KidsOrganizationApp.Service.DTO
             string mobileNumber,
             string livingPlace,
             DateTime dateBirth,
+            List<Guid> parents,
             string email = null)
         {
             Id = id;
@@ -41,6 +42,7 @@ namespace KidsOrganizationApp.Service.DTO
             LivingPlace = livingPlace ?? throw new ArgumentNullException(nameof(livingPlace));
             DateBirth = dateBirth;
             Email = email;
+            ParentIds = parents;
         }
 
         public ChildDTO(
@@ -50,15 +52,16 @@ namespace KidsOrganizationApp.Service.DTO
             string mobileNumber,
             string livingPlace,
             DateTime dateBirth,
-            string email = null)
-        {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            Surname = surname ?? throw new ArgumentNullException(nameof(surname));
-            Patronymic = patronymic;
-            MobileNumber = mobileNumber ?? throw new ArgumentNullException(nameof(mobileNumber));
-            LivingPlace = livingPlace ?? throw new ArgumentNullException(nameof(livingPlace));
-            DateBirth = dateBirth;
-            Email = email;
-        }
+            List<Guid> parents,
+            string email = null) : this(new Guid(),
+                name,
+                surname,
+                patronymic,
+                mobileNumber,
+                livingPlace,
+                dateBirth,
+                parents,
+                email)
+        { }
     }
 }
