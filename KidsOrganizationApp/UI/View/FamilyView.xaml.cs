@@ -17,7 +17,7 @@ namespace KidsOrganizationApp.UI.View
     /// <summary>
     /// Логика взаимодействия для FamilyView.xaml
     /// </summary>
-    public partial class FamilyView : Window
+    public partial class FamilyView : UserControl
     {
         public FamilyView()
         {

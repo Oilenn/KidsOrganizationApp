@@ -1,48 +1,23 @@
-﻿<Window x:Class="KidsOrganizationApp.UI.View.MainWindow"
+<<<<<<< Updated upstream
+﻿<Window x:Class="KidsOrganizationApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:KidsOrganizationApp.UI.View"
-        xmlns:userControl="clr-namespace:KidsOrganizationApp.UI.View.UserControls"
+        xmlns:local="clr-namespace:KidsOrganizationApp"
         mc:Ignorable="d"
-        Title="MainWindow" Height="500" Width="800">
+        Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
-            <RowDefinition/>
-            <RowDefinition Height="50"/>
-        </Grid.RowDefinitions>
-        
-        <StackPanel Grid.Row="1" Margin="10">
-            <Button Content="Дети и родители" Margin="10"
-                Command="{Binding OpenFamilyCommand}"
-                Width="150"
-                Height="40"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"/>
-            <Button Content="Мероприятия" Margin="10"
-                Command="{Binding OpenFamilyCommand}"
-                Width="150"
-                Height="40"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"/>
-            <Button Content="Все документы" Margin="10"
-                Command="{Binding OpenDocs}"
-                Width="150"
-                Height="40"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"/>
-            <Button Content="Скачать базу данных" Margin="10"
-                Command="{Binding DownloadDb}"
-                Width="150"
-                Height="40"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"/>
-        </StackPanel>
+=======
+<Window x:Class="KidsOrganizationApp.UI.View.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="clr-namespace:" xmlns:view="clr-namespace:KidsOrganizationApp.UI.View" Title="Организация семей, имеющих детей инвалидов" Height="680" Width="1120" WindowStartupLocation="CenterScreen">
+    <Window.Resources><DataTemplate DataType="{x:Type vm:FamilyViewModel}"><view:FamilyView/></DataTemplate><DataTemplate DataType="{x:Type vm:DocumentsViewModel}"><view:DocumentsView/></DataTemplate><DataTemplate DataType="{x:Type vm:EventsViewModel}"><view:EventsView/></DataTemplate><DataTemplate DataType="{x:Type vm:AddFamilyViewModel}"><view:AddFamilyView/></DataTemplate></Window.Resources>
+    <Grid Background="{DynamicResource AppBackground}"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <Menu Background="#243B6B" Foreground="White"><MenuItem Header="Файл"><MenuItem Header="Скачать базу данных" Command="{Binding ExportDatabaseCommand}"/><MenuItem Header="Выбрать папку документов" Command="{Binding SelectDocumentsFolderCommand}"/></MenuItem><MenuItem Header="Настройки" Command="{Binding OpenSettingsCommand}"/><MenuItem Header="О программе" Command="{Binding OpenAboutCommand}"/></Menu>
+        <Grid Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition Width="245"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <Border Background="#243B6B" Padding="24"><DockPanel LastChildFill="False"><StackPanel DockPanel.Dock="Top"><TextBlock Text="Организация семей" Foreground="White" FontSize="20" FontWeight="SemiBold" TextWrapping="Wrap"/><TextBlock Text="имеющих детей инвалидов" Foreground="#BFD2FF" FontSize="14" TextWrapping="Wrap"/><Separator Margin="0,28,0,18" Background="#5270A6"/><Button Content="Дети и родители" Command="{Binding OpenFamilyCommand}" Style="{StaticResource NavigationButton}"/><Button Content="Документы" Command="{Binding OpenDocsCommand}" Style="{StaticResource NavigationButton}"/><Button Content="Мероприятия" Command="{Binding OpenEventsCommand}" Style="{StaticResource NavigationButton}"/></StackPanel><Button DockPanel.Dock="Bottom" Content="Выгрузить базу данных" Command="{Binding ExportDatabaseCommand}" Style="{StaticResource NavigationButton}"/></DockPanel></Border>
+            <ContentControl Grid.Column="1" Content="{Binding CurrentViewModel}" Margin="28"/>
+        </Grid>
+>>>>>>> Stashed changes
     </Grid>
-    </Window>
+</Window>
