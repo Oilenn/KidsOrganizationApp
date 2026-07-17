@@ -108,6 +108,9 @@ namespace KidsOrganizationApp.Service
 
         public void AddParent(ParentDTO parent, ChildDTO dto)
         {
+            if (dto.ParentIds.Count >= 2)
+                throw new InvalidOperationException("У ребенка не может быть больше 2 родителей.");
+
             var par = _parentSerivce.Add(parent);
             dto.ParentIds.Add(par.Id);
 
@@ -116,9 +119,7 @@ namespace KidsOrganizationApp.Service
 
         public List<ParentDTO> GetParents(ChildDTO dto)
         {
-            return new List<ParentDTO>() {
-                _parentSerivce.GetParentById(dto.ParentIds[0])
-            };
+            return dto.ParentIds.Select(_parentSerivce.GetParentById).ToList();
         }
     }
 }

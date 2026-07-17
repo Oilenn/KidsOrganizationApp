@@ -29,6 +29,7 @@ namespace KidsOrganizationApp.Domain
         {
             FullName = fullName;
             Contact = contact;
+            ChangeDateBirth(dateBirth);
 
             Id = Guid.NewGuid();
         }

@@ -11,7 +11,7 @@ namespace KidsOrganizationApp.Service.Mapper
 
         public ParentDTO ToDTO(Parent parent)
         {
-            return new ParentDTO(
+            var dto = new ParentDTO(
                     parent.Id,
                     parent.FullName.Name,
                     parent.FullName.Surname,
@@ -21,6 +21,8 @@ namespace KidsOrganizationApp.Service.Mapper
                     parent.DateBirth,
                     parent.Contact.Email
                 );
+            dto.DocumentIds = parent.Documents.Select(d => d.Id).ToList();
+            return dto;
         }
 
         public List<ParentDTO> ToDTO(List<Parent> parents)

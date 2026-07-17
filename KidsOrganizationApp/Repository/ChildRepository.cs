@@ -27,12 +27,12 @@ namespace KidsOrganizationApp.Repository
 
         public List<Child> GetAll()
         {
-            return _context.Children.ToList();
+            return _context.Children.Include(c => c.Parents).Include(c => c.Documents).ToList();
         }
 
         public Child GetById(Guid id)
         {
-            return _context.Children.Find(id);
+            return _context.Children.Include(c => c.Parents).Include(c => c.Documents).FirstOrDefault(c => c.Id == id);
         }
 
         public List<Child> GetByName(string name)

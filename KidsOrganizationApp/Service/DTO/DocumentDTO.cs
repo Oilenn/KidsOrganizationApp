@@ -12,6 +12,15 @@ namespace KidsOrganizationApp.Service.DTO
         public Guid Id { get; set; }
         public Document.DocumentType Type { get; set; }
         public string Path { get; set; }
+        public string TypeName => Type switch
+        {
+            Document.DocumentType.Passport => "Паспорт",
+            Document.DocumentType.SNILS => "СНИЛС",
+            Document.DocumentType.Diagnosis => "Диагноз",
+            Document.DocumentType.Letter => "Письмо",
+            Document.DocumentType.Order => "Приказ",
+            _ => "Не указан"
+        };
 
         public DocumentDTO(Guid id, Document.DocumentType type, string path)
         {

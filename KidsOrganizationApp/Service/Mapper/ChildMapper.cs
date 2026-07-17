@@ -32,6 +32,7 @@ namespace KidsOrganizationApp.Service.Mapper
                 child.Parents.Select(p => p.Id).ToList(),
                 child.Contact.Email
             );
+            childDTO.DocumentIds = child.Documents.Select(d => d.Id).ToList();
 
             return childDTO;
         }
