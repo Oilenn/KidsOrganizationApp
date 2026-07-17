@@ -1,25 +1,9 @@
-﻿using KidsOrganizationApp.UI.View;
+namespace KidsOrganizationApp.Service;
 
-namespace KidsOrganizationApp.Service
+/// <summary>
+/// Зарезервировано для обратной совместимости со старыми версиями приложения.
+/// Навигация в текущем интерфейсе выполняется внутри главного окна через MainViewModel.
+/// </summary>
+public sealed class WindowService
 {
-    /// <summary>
-    /// Сервис для контроля за окнами и их состоянием
-    /// </summary>
-    public class WindowService
-    {
-
-        //public WindowService(ParentChildView parentChildView, MainViewModel mainViewModel) 
-        //{
-        //    _parentChildView = parentChildView;
-        //    _mainViewModel = mainViewModel;
-        //}
-
-        //public void ShowParentChildWindow()
-        //{
-
-        //    _parentChildView.SetViewModel(_mainViewModel);
-
-        //    _parentChildView.Show();
-        //}
-    }
 }

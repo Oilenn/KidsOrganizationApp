@@ -21,7 +21,7 @@ namespace KidsOrganizationApp.Service.Mapper
                     parent.DateBirth,
                     parent.Contact.Email
                 );
-            dto.DocumentIds = parent.Documents.Select(d => d.Id).ToList();
+            dto.DocumentIds = parent.Documents.Select(document => document.Id).ToList();
             return dto;
         }
 

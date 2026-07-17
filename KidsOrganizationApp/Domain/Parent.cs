@@ -31,12 +31,14 @@ namespace KidsOrganizationApp.Domain
             Contact = contact;
             ChangeDateBirth(dateBirth);
 
+            ChangeDateBirth(dateBirth);
+            AddDocuments(documents);
             Id = Guid.NewGuid();
         }
 
         public void ChangeDateBirth(DateTime birth)
         {
-            if (birth.Year < MinAge)
+            if (birth > DateTime.Today.AddYears(-MinAge))
                 throw new ArgumentException($"Родитель не может быть младше {MinAge} лет!");
 
             DateBirth = birth;

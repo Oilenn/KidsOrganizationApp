@@ -1,27 +1,2 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-
-namespace KidsOrganizationApp.UI.View
-{
-    /// <summary>
-    /// Логика взаимодействия для AddFamilyView.xaml
-    /// </summary>
-    public partial class AddFamilyView : Window
-    {
-        public AddFamilyView()
-        {
-            InitializeComponent();
-        }
-    }
-}
+namespace KidsOrganizationApp.UI.View { public partial class AddFamilyView : UserControl { public AddFamilyView() { InitializeComponent(); } } }

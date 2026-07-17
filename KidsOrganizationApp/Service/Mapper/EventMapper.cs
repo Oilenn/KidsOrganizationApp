@@ -17,7 +17,7 @@ namespace KidsOrganizationApp.Service.Mapper
         public EventDTO ToDTO(Event eventD)
         {
             var dto = new EventDTO(eventD.Id, eventD.Name, eventD.Date);
-            dto.Documents = eventD.Documents.Select(d => d.Id).ToList();
+            dto.Documents = eventD.Documents.Select(document => document.Id).ToList();
             return dto;
         }
 

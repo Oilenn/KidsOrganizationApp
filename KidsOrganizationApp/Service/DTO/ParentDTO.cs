@@ -53,7 +53,6 @@ namespace KidsOrganizationApp.Service.DTO
             DateTime dateBirth,
             string email = null)
         {
-            Id = new Guid();
             Name = name;
             Surname = surname;
             MobileNumber = mobileNumber;

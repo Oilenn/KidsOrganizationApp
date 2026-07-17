@@ -23,12 +23,12 @@ namespace KidsOrganizationApp.Repository
 
         public List<Parent> GetAll()
         {
-            return _context.Parents.Include(p => p.Documents).ToList();
+            return _context.Parents.Include(parent => parent.Documents).ToList();
         }
 
         public Parent GetById(Guid id)
         {
-            return _context.Parents.Include(p => p.Documents).FirstOrDefault(p => p.Id == id);
+            return _context.Parents.Include(parent => parent.Documents).FirstOrDefault(parent => parent.Id == id);
         }
 
         public List<Parent> GetByName(string name)

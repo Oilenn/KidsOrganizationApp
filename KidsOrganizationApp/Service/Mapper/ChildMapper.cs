@@ -11,13 +11,6 @@ namespace KidsOrganizationApp.Service.Mapper
 {
     public class ChildMapper : IMapper<ChildDTO, Child>
     {
-        private readonly IParentService _parentService;
-
-        public ChildMapper(IParentService parentService)
-        {
-            _parentService = parentService;
-        }
-
         public ChildDTO ToDTO(Child child)
         {
             var childDTO = new ChildDTO
@@ -29,10 +22,10 @@ namespace KidsOrganizationApp.Service.Mapper
                 child.Contact.MobileNumber,
                 child.Contact.LivingPlace,
                 child.DateBirth,
-                child.Parents.Select(p => p.Id).ToList(),
+                child.Parents.Select(parent => parent.Id).ToList(),
                 child.Contact.Email
             );
-            childDTO.DocumentIds = child.Documents.Select(d => d.Id).ToList();
+            childDTO.DocumentIds = child.Documents.Select(document => document.Id).ToList();
 
             return childDTO;
         }
