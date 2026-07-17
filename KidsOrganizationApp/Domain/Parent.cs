@@ -29,7 +29,6 @@ namespace KidsOrganizationApp.Domain
         {
             FullName = fullName;
             Contact = contact;
-            ChangeDateBirth(dateBirth);
 
             ChangeDateBirth(dateBirth);
             AddDocuments(documents);
