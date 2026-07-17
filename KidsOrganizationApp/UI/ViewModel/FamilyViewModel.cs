@@ -7,6 +7,8 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 
+namespace KidsOrganizationApp;
+
 public class FamilyViewModel : BaseViewModel
 {
     private readonly IChildService _childService;

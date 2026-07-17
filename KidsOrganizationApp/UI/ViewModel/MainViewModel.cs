@@ -6,6 +6,8 @@ using System.Windows;
 using KidsOrganizationApp.UI.View;
 using System.Windows.Input;
 
+namespace KidsOrganizationApp;
+
 public class MainViewModel : BaseViewModel
 {
     private readonly FamilyViewModel _familyViewModel;

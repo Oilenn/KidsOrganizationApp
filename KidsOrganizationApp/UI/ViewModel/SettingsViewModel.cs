@@ -2,6 +2,8 @@ using CommunityToolkit.Mvvm.Input;
 using KidsOrganizationApp.Service;
 using System.Windows.Input;
 
+namespace KidsOrganizationApp;
+
 public class SettingsViewModel : BaseViewModel
 {
     private readonly IApplicationSettingsService _settings;

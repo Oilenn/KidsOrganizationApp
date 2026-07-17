@@ -4,6 +4,8 @@ using KidsOrganizationApp.Service.DTO;
 using System.Windows;
 using System.Windows.Input;
 
+namespace KidsOrganizationApp;
+
 public class AddFamilyViewModel : BaseViewModel
 {
     private readonly IChildService _childService;

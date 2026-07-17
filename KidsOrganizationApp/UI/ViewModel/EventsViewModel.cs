@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Input;
 
+namespace KidsOrganizationApp;
+
 public class EventsViewModel : BaseViewModel
 {
     private readonly IEventService _eventService;

@@ -2,6 +2,7 @@
 
 using KidsOrganizationApp.Domain;
 using KidsOrganizationApp.Repository.Interface;
+using Microsoft.EntityFrameworkCore;
 using System.Xml.Linq;
 
 namespace KidsOrganizationApp.Repository
@@ -22,12 +23,12 @@ namespace KidsOrganizationApp.Repository
 
         public List<Parent> GetAll()
         {
-            return _context.Parents.ToList();
+            return _context.Parents.Include(parent => parent.Documents).ToList();
         }
 
         public Parent GetById(Guid id)
         {
-            return _context.Parents.Find(id);
+            return _context.Parents.Include(parent => parent.Documents).FirstOrDefault(parent => parent.Id == id);
         }
 
         public List<Parent> GetByName(string name)

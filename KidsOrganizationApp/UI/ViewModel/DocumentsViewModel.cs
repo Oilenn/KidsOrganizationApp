@@ -10,6 +10,8 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media;
 
+namespace KidsOrganizationApp;
+
 public sealed class OwnerChoice
 {
     public Guid Id { get; init; }

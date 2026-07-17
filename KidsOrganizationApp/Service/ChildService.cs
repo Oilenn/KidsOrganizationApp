@@ -1,124 +1,59 @@
-﻿using KidsOrganizationApp.Domain;
-using KidsOrganizationApp.Repository;
+using KidsOrganizationApp.Domain;
 using KidsOrganizationApp.Repository.Interface;
 using KidsOrganizationApp.Service.DTO;
 using KidsOrganizationApp.Service.Mapper;
 
-namespace KidsOrganizationApp.Service
+namespace KidsOrganizationApp.Service;
+
+public interface IChildService
 {
-    public interface IChildService
+    ChildDTO AddChild(ChildDTO dto);
+    ChildDTO GetChildById(Guid id);
+    void DeleteChild(Guid id);
+    void UpdateChild(ChildDTO dto);
+    List<ChildDTO> GetAllChildren();
+    List<ChildDTO> GetChildrenByName(string name);
+    List<ChildDTO> GetChildrenBySurname(string surname);
+    List<ChildDTO> GetChildrenByPatronymic(string patronymic);
+    List<ParentDTO> GetParents(ChildDTO dto);
+    void AddParent(ParentDTO parent, ChildDTO dto);
+}
+
+public class ChildService : IChildService
+{
+    private readonly IChildRepository _children;
+    private readonly IParentRepository _parents;
+    private readonly IParentService _parentService;
+    private readonly IMapper<ChildDTO, Child> _mapper;
+
+    public ChildService(IChildRepository children, IParentRepository parents, IParentService parentService, ChildMapper mapper)
     {
-        ChildDTO AddChild(ChildDTO dto);
-        ChildDTO GetChildById(Guid id);
-
-        void DeleteChild(Guid id);
-        void UpdateChild(ChildDTO dto);
-
-        List<ChildDTO> GetAllChildren();
-        List<ChildDTO> GetChildrenByName(string name);
-        List<ChildDTO> GetChildrenBySurname(string surname);
-        List<ChildDTO> GetChildrenByPatronymic(string patronomyc);
-
-        List<ParentDTO> GetParents(ChildDTO dto);
-        void AddParent(ParentDTO parent, ChildDTO dto);
+        _children = children; _parents = parents; _parentService = parentService; _mapper = mapper;
     }
 
-    public class ChildService : IChildService
+    public ChildDTO AddChild(ChildDTO dto)
     {
-        private IChildRepository _childRepository;
-
-        private IParentRepository _parentRepository;
-        private IDocumentRepository _documentRepository;
-
-        private IParentService _parentSerivce;
-
-        private IMapper<ChildDTO, Child> _mapper;
-
-        public ChildService(IChildRepository childRepository, 
-                            IParentService parentService, 
-                            ChildMapper mapper,
-                            IParentRepository parentRepository,
-                            IDocumentRepository documentRepository) 
-        {
-            _childRepository = childRepository;
-            _parentSerivce = parentService;
-            _mapper = mapper;
-            _parentRepository = parentRepository;
-            _documentRepository = documentRepository;
-        }
-
-        public ChildDTO AddChild(ChildDTO dto)
-        {
-            List<Parent> parents = new List<Parent>();
-            foreach (var parentId in dto.ParentIds)
-            {
-                parents.Add(_parentRepository.GetById(parentId));
-            }
-            
-            Child child = _mapper.ToNewDomain(dto);
-            foreach(var parent in parents)
-            {
-                child.Parents.Add(parent);
-            }
-
-            _childRepository.Add(child);
-
-            return _mapper.ToDTO(child);
-        }
-
-        public List<ChildDTO> GetAllChildren()
-        {
-            List<ChildDTO> children = _mapper.ToDTO(_childRepository.GetAll());
-
-            return children;
-        }
-
-        public ChildDTO GetChildById(Guid id)
-        {
-            return _mapper.ToDTO(_childRepository.GetById(id));
-        }
-
-        public List<ChildDTO> GetChildrenByName(string name)
-        {
-            return _mapper.ToDTO(_childRepository.GetByName(name));
-        }
-
-        public List<ChildDTO> GetChildrenBySurname(string surname)
-        {
-            return _mapper.ToDTO(_childRepository.GetBySurname(surname));
-        }
-
-        public List<ChildDTO> GetChildrenByPatronymic(string patronomyc)
-        {
-            return _mapper.ToDTO(_childRepository.GetByPatronymic(patronomyc));
-        }
-
-        public void DeleteChild(Guid id)
-        {
-            _childRepository.Remove(id);
-        }
-
-        public void UpdateChild(ChildDTO dto)
-        {
-            var child = _childRepository.GetById(dto.Id);
-            _mapper.UpdateDomain(child, dto);
-
-            _childRepository.Update(child);
-        }
-
-        public void AddParent(ParentDTO parent, ChildDTO dto)
-        {
-            var par = _parentSerivce.Add(parent);
-            dto.ParentIds.Add(par.Id);
-
-            UpdateChild(dto);
-        }
-
-        public List<ParentDTO> GetParents(ChildDTO dto)
-        {
-            return new List<ParentDTO>() {
-                _parentSerivce.GetParentById(dto.ParentIds[0])
-            };
-        }
+        var child = _mapper.ToNewDomain(dto);
+        foreach (var parentId in dto.ParentIds) child.AddParent(_parents.GetById(parentId));
+        _children.Add(child);
+        return _mapper.ToDTO(child);
     }
+
+    public ChildDTO GetChildById(Guid id) => _mapper.ToDTO(_children.GetById(id));
+    public List<ChildDTO> GetAllChildren() => _mapper.ToDTO(_children.GetAll());
+    public List<ChildDTO> GetChildrenByName(string name) => _mapper.ToDTO(_children.GetByName(name));
+    public List<ChildDTO> GetChildrenBySurname(string surname) => _mapper.ToDTO(_children.GetBySurname(surname));
+    public List<ChildDTO> GetChildrenByPatronymic(string patronymic) => _mapper.ToDTO(_children.GetByPatronymic(patronymic));
+    public void DeleteChild(Guid id) => _children.Remove(id);
+    public void UpdateChild(ChildDTO dto) { var child = _children.GetById(dto.Id); _mapper.UpdateDomain(child, dto); _children.Update(child); }
+
+    public void AddParent(ParentDTO parent, ChildDTO dto)
+    {
+        var child = _children.GetById(dto.Id);
+        var savedParent = _parentService.Add(parent);
+        child.AddParent(_parents.GetById(savedParent.Id));
+        _children.Update(child);
+    }
+
+    public List<ParentDTO> GetParents(ChildDTO dto) => dto.ParentIds.Select(_parentService.GetParentById).ToList();
 }
