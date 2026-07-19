@@ -1,54 +1,56 @@
 # KidsOrganizationApp
 
-**Desktop-приложение в разработке** для автоматизации и управления деятельностью общественной организации семей, имеющих детей инвалидов.
+**Desktop application under development** for automating and managing the activities of a non-profit organization supporting families with children with disabilities.
 
-Проект разрабатывается для реальной общественной организации и предназначен для замены хранения данных в бумажном виде и таблицах Excel. Основная цель — централизованное управление семьями, документами и мероприятиями организации.
----
-
-## Технологии
-
-* **C#** - основной язык разработки
-* **WPF** - для создания графического интерфейса
-* **Entity Framework Core** - работа с базой данных
-* **SQLite** - локальная база данных
+The project is being developed for a real non-profit organization and is intended to replace paper-based records and Excel spreadsheets. Its main goal is to provide centralized management of families, documents, and organizational events.
 
 ---
 
-## Архитектура
+## Technologies
 
-* **DDD (Domain-Driven Design)** - логика построена вокруг предметной области
-* **MVVM (Model-View-ViewModel)** - удобное разделение интерфейса, логики и данных
+* **C#** – primary programming language
+* **WPF** – graphical user interface framework
+* **Entity Framework Core** – database access
+* **SQLite** – local database
 
 ---
-## Возможности
 
-### Управление детьми и родителями
+## Architecture
 
-* Хранение основных сведений о детях и родителях или законных представителях
-* Связывание одного ребёнка с родителем или законным представителем
-* Связывание одного родителя с несколькими детьми
-* Хранение даты рождения, контактного телефона и места проживания
-* Отслеживание статуса членства в организации
+* **DDD (Domain-Driven Design)** – business logic is built around the domain model
+* **MVVM (Model-View-ViewModel)** – clear separation of the user interface, business logic, and data
 
-### Управление мероприятиями
+---
 
-* Создание мероприятий организации
-* Указание названия и даты проведения мероприятия
-* Просмотр списка запланированных и проведённых мероприятий
-* Редактирование и удаление мероприятий
-* Связывание мероприятия с относящимися к нему документами
+## Features
 
-### Управление документами
+### Child and Parent Management
 
-* Добавление документов, относящихся к семьям и мероприятиям
-* Хранение пути к файлу документа
-* Изменение категории и расположения документа
-* Просмотр документов, связанных с выбранной сущностью
+* Store essential information about children and their parents or legal guardians
+* Associate a child with a parent or legal guardian
+* Associate one parent with multiple children
+* Store date of birth, contact phone number, and residential address
+* Track organization membership status
 
-Поддерживаемые категории документов:
+### Event Management
 
-* Паспорт
-* СНИЛС
-* Диагноз
-* Письмо
-* Приказ
+* Create organizational events
+* Specify the event name and date
+* View a list of upcoming and completed events
+* Edit and delete events
+* Link events with their related documents
+
+### Document Management
+
+* Add documents related to families and events
+* Store the file path for each document
+* Update the document category and file location
+* View documents associated with a selected entity
+
+Supported document categories:
+
+* Passport
+* SNILS
+* Medical Diagnosis
+* Letter
+* Order
