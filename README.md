@@ -1,4 +1,5 @@
 # KidsOrganizationApp
+**Language:** **English** | [Русский](README.ru.md)
 
 **Desktop application under development** for automating and managing the activities of a non-profit organization supporting families with children with disabilities.
 
