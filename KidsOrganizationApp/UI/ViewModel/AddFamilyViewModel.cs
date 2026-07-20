@@ -16,8 +16,8 @@ public class AddFamilyViewModel : BaseViewModel
     public event Action? Cancelled;
 
     public string Title => _childToAttachParent is null
-        ? "Добавление ребенка и родителя"
-        : $"Добавление родителя для: {_childToAttachParent.Surname} {_childToAttachParent.Name}";
+        ? "Добавление ребёнка и законного представителя"
+        : $"Добавление законного представителя для: {_childToAttachParent.Surname} {_childToAttachParent.Name}";
     public bool IsAddingParentOnly => _childToAttachParent is not null;
     public Visibility ChildFieldsVisibility => IsAddingParentOnly ? Visibility.Collapsed : Visibility.Visible;
 
@@ -89,12 +89,12 @@ public class AddFamilyViewModel : BaseViewModel
                 var child = new ChildDTO(ChildName, ChildSurname, ChildPatronymic, ChildPhone,
                     ChildLivingPlace, RequireDate(ChildBirthDate, "ребенка"), new List<Guid> { savedParent.Id });
                 _childService.AddChild(child);
-                StatusMessage = "Ребенок и родитель сохранены.";
+                StatusMessage = "Ребёнок и законный представитель сохранены.";
             }
             else
             {
                 _childService.AddParent(CreateParent(), _childToAttachParent);
-                StatusMessage = "Родитель добавлен.";
+                StatusMessage = "Законный представитель добавлен.";
             }
 
             Saved?.Invoke();

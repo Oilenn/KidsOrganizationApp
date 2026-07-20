@@ -24,7 +24,9 @@ public class FamilyViewModel : BaseViewModel
     public ParentDTO? SelectedParent { get => _selectedParent; set { _selectedParent = value; OnPropertyChanged(); OnPropertyChanged(nameof(SelectedParentVisibility)); OnPropertyChanged(nameof(DocumentsTitle)); LoadDocuments(); } }
     public Visibility SelectedChildVisibility => SelectedChild is null ? Visibility.Collapsed : Visibility.Visible;
     public Visibility SelectedParentVisibility => SelectedParent is null ? Visibility.Collapsed : Visibility.Visible;
-    public string DocumentsTitle => SelectedParent is not null ? "Документы родителя" : "Документы ребёнка";
+    public string DocumentsTitle => SelectedParent is not null
+        ? "Документы родителя или законного представителя"
+        : "Документы ребёнка";
     public ICommand AddChildCommand { get; }
     public ICommand AddParentCommand { get; }
     public ICommand AddDocumentCommand { get; }

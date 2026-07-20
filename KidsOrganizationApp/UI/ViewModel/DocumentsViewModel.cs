@@ -57,7 +57,7 @@ public class DocumentsViewModel : BaseViewModel
     public bool IsSuccessMessage { get => _isSuccessMessage; private set { _isSuccessMessage = value; OnPropertyChanged(); OnPropertyChanged(nameof(StatusBrush)); } }
     public Brush StatusBrush => IsSuccessMessage
         ? (Brush)Application.Current.Resources["SuccessText"]
-        : Brushes.Firebrick;
+        : (Brush)Application.Current.Resources["ErrorText"];
     public ICommand SaveCommand { get; }
     public ICommand SelectFileCommand { get; }
     public ICommand OpenDocumentCommand { get; }
@@ -77,7 +77,7 @@ public class DocumentsViewModel : BaseViewModel
         DocumentTypes.Add(new() { Value = Document.DocumentType.Letter, Name = "Письмо" });
         DocumentTypes.Add(new() { Value = Document.DocumentType.Order, Name = "Приказ" });
         OwnerTypes.Add(new() { Value = DocumentOwnerType.Child, Name = "Ребёнок" });
-        OwnerTypes.Add(new() { Value = DocumentOwnerType.Parent, Name = "Родитель" });
+        OwnerTypes.Add(new() { Value = DocumentOwnerType.Parent, Name = "Родитель или законный представитель" });
         OwnerTypes.Add(new() { Value = DocumentOwnerType.Event, Name = "Мероприятие" });
         _selectedDocumentType = DocumentTypes.First();
         _selectedOwnerType = OwnerTypes.First();
@@ -109,7 +109,7 @@ public class DocumentsViewModel : BaseViewModel
         IEnumerable<OwnerChoice> owners = SelectedOwnerType.Value switch
         {
             DocumentOwnerType.Child => _childService.GetAllChildren().Select(c => new OwnerChoice { Id = c.Id, Name = $"Ребенок: {c.Surname} {c.Name}" }),
-            DocumentOwnerType.Parent => _parentService.GetAllParents().Select(p => new OwnerChoice { Id = p.Id, Name = $"Родитель: {p.Surname} {p.Name}" }),
+            DocumentOwnerType.Parent => _parentService.GetAllParents().Select(p => new OwnerChoice { Id = p.Id, Name = $"Представитель: {p.Surname} {p.Name}" }),
             DocumentOwnerType.Event => _eventService.GetAll().Select(e => new OwnerChoice { Id = e.Id, Name = $"Мероприятие: {e.Name}" }),
             _ => []
         };

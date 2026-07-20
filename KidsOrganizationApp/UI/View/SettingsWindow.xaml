@@ -1,3 +1,17 @@
-<Window x:Class="KidsOrganizationApp.UI.View.SettingsWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Настройки" Width="360" Height="220" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
-    <StackPanel Margin="24"><TextBlock Text="Тема оформления" Style="{StaticResource SectionTitle}"/><RadioButton Content="Светлая" IsChecked="{Binding IsLightTheme}" Margin="0,0,0,8"/><RadioButton Content="Тёмная" IsChecked="{Binding IsDarkTheme}"/><Button Content="Сохранить" Command="{Binding SaveCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" Margin="0,22,0,0"/></StackPanel>
+<Window x:Class="KidsOrganizationApp.UI.View.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Настройки" Width="360" Height="220"
+        Background="{DynamicResource ContentBackground}"
+        Foreground="{DynamicResource PrimaryText}"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Border Background="{DynamicResource ContentBackground}">
+        <StackPanel Margin="24">
+            <TextBlock Text="Тема оформления" Style="{StaticResource SectionTitle}" />
+            <RadioButton Content="Светлая" IsChecked="{Binding IsLightTheme}" Margin="0,0,0,8" />
+            <RadioButton Content="Тёмная" IsChecked="{Binding IsDarkTheme}" />
+            <Button Content="Сохранить" Command="{Binding SaveCommand}" Style="{StaticResource PrimaryButton}"
+                    HorizontalAlignment="Right" Margin="0,20,0,0" />
+        </StackPanel>
+    </Border>
 </Window>

@@ -1,25 +1,225 @@
-<Application x:Class="KidsOrganizationApp.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" StartupUri="UI/View/MainWindow.xaml">
+<Application x:Class="KidsOrganizationApp.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="UI/View/MainWindow.xaml">
     <Application.Resources>
-        <SolidColorBrush x:Key="AppBackground" Color="#F3F4F6"/><SolidColorBrush x:Key="ContentBackground" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="PrimaryText" Color="#172033"/><SolidColorBrush x:Key="SecondaryText" Color="#5B667A"/>
-        <SolidColorBrush x:Key="ControlBorder" Color="#C9D2E1"/><SolidColorBrush x:Key="SuccessText" Color="#027A48"/>
-        <Style TargetType="Window"><Setter Property="Background" Value="{DynamicResource AppBackground}"/><Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/></Style>
-        <Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/></Style>
-        <Style TargetType="Button"><Setter Property="FontSize" Value="14"/><Setter Property="Padding" Value="14,8"/><Setter Property="Background" Value="{DynamicResource ContentBackground}"/><Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/><Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Cursor" Value="Hand"/></Style>
-        <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Background" Value="#315EA8"/><Setter Property="Foreground" Value="White"/><Setter Property="BorderBrush" Value="#315EA8"/></Style>
-        <Style x:Key="NavigationButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="HorizontalContentAlignment" Value="Left"/><Setter Property="Margin" Value="0,5"/><Setter Property="Background" Value="#31558F"/><Setter Property="Foreground" Value="White"/><Setter Property="BorderBrush" Value="#31558F"/></Style>
-        <Style x:Key="SectionTitle" TargetType="TextBlock"><Setter Property="FontSize" Value="20"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Margin" Value="0,0,0,18"/></Style>
-        <Style x:Key="FieldLabel" TargetType="TextBlock"><Setter Property="FontSize" Value="12"/><Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/><Setter Property="Margin" Value="0,0,0,3"/></Style>
-        <Style x:Key="FieldValue" TargetType="TextBlock"><Setter Property="FontSize" Value="15"/><Setter Property="Margin" Value="0,0,0,15"/></Style>
-        <Style TargetType="TextBox"><Setter Property="Padding" Value="8"/><Setter Property="Background" Value="{DynamicResource ContentBackground}"/><Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/><Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}"/></Style>
-        <Style TargetType="ComboBox"><Setter Property="Padding" Value="6"/><Setter Property="Background" Value="{DynamicResource ContentBackground}"/><Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/><Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}"/></Style>
-        <Style TargetType="DatePicker"><Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/><Setter Property="Background" Value="{DynamicResource ContentBackground}"/></Style>
-        <Style TargetType="RadioButton"><Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/></Style>
-        <Style TargetType="ListBox"><Setter Property="Background" Value="{DynamicResource ContentBackground}"/><Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/><Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}"/></Style>
-        <Style TargetType="ListBoxItem"><Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/></Style>
-        <Style TargetType="DataGrid"><Setter Property="Background" Value="{DynamicResource ContentBackground}"/><Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/><Setter Property="RowBackground" Value="{DynamicResource ContentBackground}"/><Setter Property="AlternatingRowBackground" Value="{DynamicResource AppBackground}"/><Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}"/></Style>
-        <Style TargetType="DataGridCell"><Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/><Setter Property="Background" Value="Transparent"/></Style>
-        <Style TargetType="DataGridColumnHeader"><Setter Property="Background" Value="{DynamicResource AppBackground}"/><Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/></Style>
-        <Style TargetType="MenuItem"><Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/><Setter Property="Background" Value="{DynamicResource ContentBackground}"/></Style>
+        <SolidColorBrush x:Key="AppBackground" Color="#F3F4F6" />
+        <SolidColorBrush x:Key="ContentBackground" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="PrimaryText" Color="#172033" />
+        <SolidColorBrush x:Key="SecondaryText" Color="#5B667A" />
+        <SolidColorBrush x:Key="AccentText" Color="#315EA8" />
+        <SolidColorBrush x:Key="ErrorText" Color="#B42318" />
+        <SolidColorBrush x:Key="ControlBorder" Color="#C9D2E1" />
+        <SolidColorBrush x:Key="SuccessText" Color="#027A48" />
+
+        <Style TargetType="Window">
+            <Setter Property="Background" Value="{DynamicResource AppBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+        </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+        </Style>
+
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="Background" Value="{DynamicResource ContentBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="#708CFF" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="#708CFF" />
+        </Style>
+
+        <Style x:Key="NavigationButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Margin" Value="0,1" />
+            <Setter Property="Background" Value="#708CFF" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="#708CFF" />
+        </Style>
+
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="Margin" Value="0,0,0,18" />
+        </Style>
+
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}" />
+            <Setter Property="Margin" Value="0,0,0,3" />
+        </Style>
+
+        <Style x:Key="FieldValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="Margin" Value="0,0,0,10" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="Background" Value="{DynamicResource ContentBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}" />
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Padding" Value="6" />
+            <Setter Property="Background" Value="{DynamicResource ContentBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBox}">
+                        <Grid>
+                            <ToggleButton Focusable="False" ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                          Background="{TemplateBinding Background}"
+                                          BorderBrush="{TemplateBinding BorderBrush}"
+                                          BorderThickness="{TemplateBinding BorderThickness}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                        <Border Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}">
+                                            <Grid>
+                                                <TextBlock Margin="8,2,28,2" VerticalAlignment="Center"
+                                                           Text="{Binding SelectedItem.Name, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                           Foreground="{DynamicResource PrimaryText}" />
+                                                <Path Data="M 0 0 L 8 0 L 4 5 Z" Width="8" Height="5"
+                                                      HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0"
+                                                      Fill="{DynamicResource PrimaryText}" />
+                                            </Grid>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                                <Grid />
+                            </ToggleButton>
+                            <Popup IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                                   PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                   Placement="Bottom" AllowsTransparency="True" PopupAnimation="Slide">
+                                <Border MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                        Background="{DynamicResource ContentBackground}"
+                                        BorderBrush="{DynamicResource ControlBorder}" BorderThickness="1">
+                                    <ScrollViewer MaxHeight="240" CanContentScroll="True">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="{DynamicResource ContentBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="Padding" Value="8,5" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                        <Border x:Name="ItemBorder" Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#708CFF" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#526FDE" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="DatePicker">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="Background" Value="{DynamicResource ContentBackground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}" />
+        </Style>
+
+        <Style TargetType="DatePickerTextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="Background" Value="{DynamicResource ContentBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}" />
+        </Style>
+
+        <Style TargetType="Calendar">
+            <Setter Property="Background" Value="{DynamicResource ContentBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+        </Style>
+
+        <Style TargetType="CalendarDayButton">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="Background" Value="{DynamicResource ContentBackground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}" />
+        </Style>
+
+        <Style TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+        </Style>
+
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+        </Style>
+
+        <Style TargetType="ListBox">
+            <Setter Property="Background" Value="{DynamicResource ContentBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}" />
+        </Style>
+
+        <Style TargetType="ListBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+        </Style>
+
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="{DynamicResource ContentBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="RowBackground" Value="{DynamicResource ContentBackground}" />
+            <Setter Property="AlternatingRowBackground" Value="{DynamicResource AppBackground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}" />
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="{DynamicResource AppBackground}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+        </Style>
+
+        <Style TargetType="GroupBox">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}" />
+        </Style>
+
+        <Style TargetType="MenuItem">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />
+            <Setter Property="Background" Value="{DynamicResource ContentBackground}" />
+        </Style>
     </Application.Resources>
 </Application>
