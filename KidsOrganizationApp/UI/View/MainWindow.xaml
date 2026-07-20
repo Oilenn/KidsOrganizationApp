@@ -14,12 +14,12 @@
     <Grid Background="{DynamicResource AppBackground}">
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
         <Menu Background="#243B6B" Foreground="White">
-            <MenuItem Header="Файл">
+            <MenuItem Header="Файл" Foreground="White">
                 <MenuItem Header="Скачать базу данных" Command="{Binding ExportDatabaseCommand}" />
                 <MenuItem Header="Выбрать папку документов" Command="{Binding SelectDocumentsFolderCommand}" />
             </MenuItem>
-            <MenuItem Header="Настройки" Command="{Binding OpenSettingsCommand}" />
-            <MenuItem Header="О программе" Command="{Binding OpenAboutCommand}" />
+            <MenuItem Header="Настройки" Foreground="White" Command="{Binding OpenSettingsCommand}" />
+            <MenuItem Header="О программе" Foreground="White" Command="{Binding OpenAboutCommand}" />
         </Menu>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions><ColumnDefinition Width="245" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
