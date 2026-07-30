@@ -1,25 +1,42 @@
 using CommunityToolkit.Mvvm.Input;
+using KidsOrganizationApp.Domain;
 using KidsOrganizationApp.Service;
 using KidsOrganizationApp.Service.DTO;
+using Microsoft.Win32;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 
 namespace KidsOrganizationApp;
 
+public sealed class PendingDocument
+{
+    public Document.DocumentType Type { get; init; }
+    public string Path { get; init; } = string.Empty;
+    public string Name => $"{Type}: {System.IO.Path.GetFileName(Path)}";
+}
+
 public class AddFamilyViewModel : BaseViewModel
 {
     private readonly IChildService _childService;
     private readonly IParentService _parentService;
-    private ChildDTO? _childToAttachParent;
+    private readonly IDocumentService _documentService;
+    private readonly IApplicationSettingsService _settings;
+    private ParentDTO? _selectedParent;
+    private bool _isParentForm;
 
     public event Action? Saved;
     public event Action? Cancelled;
 
-    public string Title => _childToAttachParent is null
-        ? "Добавление ребёнка и законного представителя"
-        : $"Добавление законного представителя для: {_childToAttachParent.Surname} {_childToAttachParent.Name}";
-    public bool IsAddingParentOnly => _childToAttachParent is not null;
-    public Visibility ChildFieldsVisibility => IsAddingParentOnly ? Visibility.Collapsed : Visibility.Visible;
+    public ObservableCollection<DocumentTypeChoice> DocumentTypes { get; } = new();
+    public ObservableCollection<PendingDocument> PendingDocuments { get; } = new();
+
+    public string Title => _isParentForm
+        ? "Добавление родителя или законного представителя"
+        : $"Добавление ребёнка для: {_selectedParent?.Surname} {_selectedParent?.Name}";
+    public Visibility ChildFieldsVisibility => _isParentForm ? Visibility.Collapsed : Visibility.Visible;
+    public Visibility ParentFieldsVisibility => _isParentForm ? Visibility.Visible : Visibility.Collapsed;
 
     private string _childName = string.Empty;
     public string ChildName { get => _childName; set { _childName = value; OnPropertyChanged(); } }
@@ -47,56 +64,82 @@ public class AddFamilyViewModel : BaseViewModel
     private DateTime? _parentBirthDate;
     public DateTime? ParentBirthDate { get => _parentBirthDate; set { _parentBirthDate = value; OnPropertyChanged(); } }
 
+    private DocumentTypeChoice? _selectedDocumentType;
+    public DocumentTypeChoice? SelectedDocumentType { get => _selectedDocumentType; set { _selectedDocumentType = value; OnPropertyChanged(); } }
+    private string _documentPath = string.Empty;
+    public string DocumentPath { get => _documentPath; set { _documentPath = value; OnPropertyChanged(); } }
+    private PendingDocument? _selectedPendingDocument;
+    public PendingDocument? SelectedPendingDocument { get => _selectedPendingDocument; set { _selectedPendingDocument = value; OnPropertyChanged(); } }
     private string _statusMessage = string.Empty;
     public string StatusMessage { get => _statusMessage; private set { _statusMessage = value; OnPropertyChanged(); } }
 
     public ICommand SaveCommand { get; }
     public ICommand CancelCommand { get; }
+    public ICommand SelectDocumentCommand { get; }
+    public ICommand AddDocumentCommand { get; }
+    public ICommand RemoveDocumentCommand { get; }
 
-    public AddFamilyViewModel(IChildService childService, IParentService parentService)
+    public AddFamilyViewModel(IChildService childService, IParentService parentService, IDocumentService documentService, IApplicationSettingsService settings)
     {
         _childService = childService;
         _parentService = parentService;
+        _documentService = documentService;
+        _settings = settings;
+        DocumentTypes.Add(new() { Value = Document.DocumentType.Passport, Name = "Паспорт" });
+        DocumentTypes.Add(new() { Value = Document.DocumentType.SNILS, Name = "СНИЛС" });
+        DocumentTypes.Add(new() { Value = Document.DocumentType.Diagnosis, Name = "Диагноз" });
+        DocumentTypes.Add(new() { Value = Document.DocumentType.Letter, Name = "Письмо" });
+        DocumentTypes.Add(new() { Value = Document.DocumentType.Order, Name = "Приказ" });
+        SelectedDocumentType = DocumentTypes.First();
         SaveCommand = new RelayCommand(Save);
         CancelCommand = new RelayCommand(() => Cancelled?.Invoke());
+        SelectDocumentCommand = new RelayCommand(SelectDocument);
+        AddDocumentCommand = new RelayCommand(AddDocument);
+        RemoveDocumentCommand = new RelayCommand(RemoveDocument);
     }
 
-    public void PrepareForNewChild()
+    public void PrepareForChild(ParentDTO parent)
     {
-        _childToAttachParent = null;
+        _selectedParent = parent;
+        _isParentForm = false;
         ClearForm();
-        OnPropertyChanged(nameof(Title));
-        OnPropertyChanged(nameof(IsAddingParentOnly));
-        OnPropertyChanged(nameof(ChildFieldsVisibility));
+        NotifyModeChanged();
     }
 
-    public void PrepareForParent(ChildDTO child)
+    public void PrepareForParent()
     {
-        _childToAttachParent = child;
+        _selectedParent = null;
+        _isParentForm = true;
         ClearForm();
+        NotifyModeChanged();
+    }
+
+    private void NotifyModeChanged()
+    {
         OnPropertyChanged(nameof(Title));
-        OnPropertyChanged(nameof(IsAddingParentOnly));
         OnPropertyChanged(nameof(ChildFieldsVisibility));
+        OnPropertyChanged(nameof(ParentFieldsVisibility));
     }
 
     private void Save()
     {
         try
         {
-            if (_childToAttachParent is null)
+            if (_isParentForm)
             {
-                var savedParent = _parentService.Add(CreateParent());
-                var child = new ChildDTO(ChildName, ChildSurname, ChildPatronymic, ChildPhone,
-                    ChildLivingPlace, RequireDate(ChildBirthDate, "ребенка"), new List<Guid> { savedParent.Id });
-                _childService.AddChild(child);
-                StatusMessage = "Ребёнок и законный представитель сохранены.";
+                var parent = _parentService.Add(CreateParent());
+                SaveDocuments(DocumentOwnerType.Parent, parent.Id);
+                StatusMessage = "Родитель или законный представитель сохранён.";
             }
             else
             {
-                _childService.AddParent(CreateParent(), _childToAttachParent);
-                StatusMessage = "Законный представитель добавлен.";
+                if (_selectedParent is null) throw new InvalidOperationException("Выберите родителя или законного представителя.");
+                var child = _childService.AddChild(new ChildDTO(
+                    ChildName, ChildSurname, ChildPatronymic, ChildPhone, ChildLivingPlace,
+                    RequireDate(ChildBirthDate, "ребёнка"), [_selectedParent.Id]));
+                SaveDocuments(DocumentOwnerType.Child, child.Id);
+                StatusMessage = "Ребёнок сохранён.";
             }
-
             Saved?.Invoke();
         }
         catch (Exception ex)
@@ -111,12 +154,57 @@ public class AddFamilyViewModel : BaseViewModel
     private static DateTime RequireDate(DateTime? date, string person) =>
         date ?? throw new ArgumentException($"Укажите дату рождения {person}.");
 
+    private void SelectDocument()
+    {
+        var dialog = new OpenFileDialog { Title = "Выберите документ" };
+        if (dialog.ShowDialog() == true) DocumentPath = dialog.FileName;
+    }
+
+    private void AddDocument()
+    {
+        if (SelectedDocumentType is null) { StatusMessage = "Выберите тип документа."; return; }
+        if (string.IsNullOrWhiteSpace(DocumentPath) || !File.Exists(DocumentPath)) { StatusMessage = "Выберите существующий файл документа."; return; }
+        PendingDocuments.Add(new PendingDocument { Type = SelectedDocumentType.Value, Path = DocumentPath });
+        DocumentPath = string.Empty;
+        StatusMessage = string.Empty;
+    }
+
+    private void RemoveDocument()
+    {
+        if (SelectedPendingDocument is not null) PendingDocuments.Remove(SelectedPendingDocument);
+    }
+
+    private void SaveDocuments(DocumentOwnerType ownerType, Guid ownerId)
+    {
+        foreach (var document in PendingDocuments)
+        {
+            var destination = CopyToDocumentsDirectory(document.Path);
+            _documentService.AddToOwner(new DocumentDTO(Guid.Empty, document.Type, destination), ownerType, ownerId);
+        }
+    }
+
+    private string CopyToDocumentsDirectory(string sourcePath)
+    {
+        var name = Path.GetFileName(sourcePath);
+        var destination = Path.Combine(_settings.DocumentsDirectory, name);
+        var number = 2;
+        while (File.Exists(destination))
+        {
+            destination = Path.Combine(_settings.DocumentsDirectory, $"{Path.GetFileNameWithoutExtension(name)} ({number++}){Path.GetExtension(name)}");
+        }
+        File.Copy(sourcePath, destination);
+        return destination;
+    }
+
     private void ClearForm()
     {
         ChildName = ChildSurname = ChildPatronymic = ChildPhone = ChildLivingPlace = string.Empty;
         ChildBirthDate = null;
         ParentName = ParentSurname = ParentPatronymic = ParentPhone = ParentLivingPlace = string.Empty;
         ParentBirthDate = null;
+        DocumentPath = string.Empty;
+        PendingDocuments.Clear();
+        SelectedPendingDocument = null;
         StatusMessage = string.Empty;
     }
 }

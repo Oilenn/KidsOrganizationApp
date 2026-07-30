@@ -44,17 +44,23 @@ public class MainViewModel : BaseViewModel
         SelectDocumentsFolderCommand = new RelayCommand(SelectDocumentsFolder);
         OpenSettingsCommand = new RelayCommand(OpenSettings);
         OpenAboutCommand = new RelayCommand(OpenAbout);
-        _familyViewModel.AddRequested += OpenAddFamily;
+        _familyViewModel.AddChildRequested += OpenAddChild;
+        _familyViewModel.AddParentRequested += OpenAddParent;
         _familyViewModel.DocumentAddRequested += OpenDocumentsForOwner;
         _eventsViewModel.DocumentAddRequested += OpenDocumentsForOwner;
         _addFamilyViewModel.Saved += ReturnToFamily;
         _addFamilyViewModel.Cancelled += ReturnToFamily;
     }
 
-    private void OpenAddFamily(ChildDTO? child)
+    private void OpenAddChild(ParentDTO parent)
     {
-        if (child is null) _addFamilyViewModel.PrepareForNewChild();
-        else _addFamilyViewModel.PrepareForParent(child);
+        _addFamilyViewModel.PrepareForChild(parent);
+        CurrentViewModel = _addFamilyViewModel;
+    }
+
+    private void OpenAddParent()
+    {
+        _addFamilyViewModel.PrepareForParent();
         CurrentViewModel = _addFamilyViewModel;
     }
     private void ReturnToFamily()

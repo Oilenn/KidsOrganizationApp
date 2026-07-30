@@ -15,34 +15,8 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <TextBlock Text="Дети" Style="{StaticResource SectionTitle}" Height="54" />
-            <ListBox Grid.Row="1" ItemsSource="{Binding Children}" SelectedItem="{Binding SelectedChild}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Margin="4">
-                            <TextBlock FontWeight="SemiBold">
-                                <Run Text="{Binding Surname}" />
-                                <Run Text=" " />
-                                <Run Text="{Binding Name}" />
-                            </TextBlock>
-                            <TextBlock Text="{Binding DateBirth, StringFormat=Дата рождения: {0:dd.MM.yyyy}}"
-                                       FontSize="11" Foreground="{DynamicResource SecondaryText}" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-            <Button Grid.Row="2" Content="Добавить ребёнка и родителя" Command="{Binding AddChildCommand}"
-                    Style="{StaticResource PrimaryButton}" Margin="0,12,0,0" />
-        </Grid>
-
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <TextBlock Text="Родитель или законный представитель"
-                       Style="{StaticResource SectionTitle}" FontSize="15" Height="54" TextWrapping="Wrap" />
+            <TextBlock Text="Родители и законные представители" Style="{StaticResource SectionTitle}"
+                       FontSize="15" Height="54" TextWrapping="Wrap" />
             <ListBox Grid.Row="1" ItemsSource="{Binding Parents}" SelectedItem="{Binding SelectedParent}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
@@ -58,7 +32,35 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <Border Grid.Row="2" Height="48" />
+            <Button Grid.Row="2" Content="Добавить родителя" Command="{Binding AddParentCommand}"
+                    Style="{StaticResource PrimaryButton}" Margin="0,12,0,0" />
+        </Grid>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Text="Дети выбранного родителя" Style="{StaticResource SectionTitle}"
+                       FontSize="15" Height="54" TextWrapping="Wrap" />
+            <ListBox Grid.Row="1" ItemsSource="{Binding Children}" SelectedItem="{Binding SelectedChild}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="4">
+                            <TextBlock FontWeight="SemiBold">
+                                <Run Text="{Binding Surname}" />
+                                <Run Text=" " />
+                                <Run Text="{Binding Name}" />
+                            </TextBlock>
+                            <TextBlock Text="{Binding DateBirth, StringFormat=Дата рождения: {0:dd.MM.yyyy}}"
+                                       FontSize="11" Foreground="{DynamicResource SecondaryText}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <Button Grid.Row="2" Content="Добавить ребёнка" Command="{Binding AddChildCommand}"
+                    Style="{StaticResource PrimaryButton}" Margin="0,12,0,0" />
         </Grid>
 
         <Border Grid.Column="3" Background="{DynamicResource ContentBackground}"
@@ -68,27 +70,7 @@
                 <StackPanel>
                     <TextBlock Text="Карточка" Style="{StaticResource SectionTitle}" />
 
-                    <StackPanel Visibility="{Binding SelectedChildVisibility}">
-                        <TextBlock Text="Ребёнок" FontSize="14" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource AccentText}" />
-                        <TextBlock FontSize="20" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,6,0,16">
-                            <Run Text="{Binding SelectedChild.Surname}" />
-                            <Run Text=" " />
-                            <Run Text="{Binding SelectedChild.Name}" />
-                            <Run Text=" " />
-                            <Run Text="{Binding SelectedChild.Patronymic}" />
-                        </TextBlock>
-                        <TextBlock Text="Дата рождения" Style="{StaticResource FieldLabel}" />
-                        <TextBlock Text="{Binding SelectedChild.DateBirth, StringFormat={}{0:dd.MM.yyyy}}" Style="{StaticResource FieldValue}" />
-                        <TextBlock Text="Телефон" Style="{StaticResource FieldLabel}" />
-                        <TextBlock Text="{Binding SelectedChild.MobileNumber}" Style="{StaticResource FieldValue}" />
-                        <TextBlock Text="Место жительства" Style="{StaticResource FieldLabel}" />
-                        <TextBlock Text="{Binding SelectedChild.LivingPlace}" Style="{StaticResource FieldValue}" />
-                        <TextBlock Text="Электронная почта" Style="{StaticResource FieldLabel}" />
-                        <TextBlock Text="{Binding SelectedChild.Email}" Style="{StaticResource FieldValue}" />
-                    </StackPanel>
-
-                    <StackPanel Visibility="{Binding SelectedParentVisibility}" Margin="0,18,0,0">
+                    <StackPanel Visibility="{Binding SelectedParentVisibility}">
                         <TextBlock Text="Родитель или законный представитель" FontSize="12" FontWeight="SemiBold"
                                    Foreground="{DynamicResource AccentText}" TextWrapping="Wrap" />
                         <TextBlock FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,4,0,10">
@@ -106,6 +88,22 @@
                         <TextBlock Text="{Binding SelectedParent.LivingPlace}" Style="{StaticResource FieldValue}" />
                         <TextBlock Text="Электронная почта" Style="{StaticResource FieldLabel}" />
                         <TextBlock Text="{Binding SelectedParent.Email}" Style="{StaticResource FieldValue}" />
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding SelectedChildVisibility}" Margin="0,18,0,0">
+                        <TextBlock Text="Ребёнок" FontSize="12" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource AccentText}" />
+                        <TextBlock FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,4,0,10">
+                            <Run Text="{Binding SelectedChild.Surname}" />
+                            <Run Text=" " />
+                            <Run Text="{Binding SelectedChild.Name}" />
+                            <Run Text=" " />
+                            <Run Text="{Binding SelectedChild.Patronymic}" />
+                        </TextBlock>
+                        <TextBlock Text="Телефон" Style="{StaticResource FieldLabel}" />
+                        <TextBlock Text="{Binding SelectedChild.MobileNumber}" Style="{StaticResource FieldValue}" />
+                        <TextBlock Text="Дата рождения" Style="{StaticResource FieldLabel}" />
+                        <TextBlock Text="{Binding SelectedChild.DateBirth, StringFormat={}{0:dd.MM.yyyy}}" Style="{StaticResource FieldValue}" />
                     </StackPanel>
 
                     <StackPanel Margin="0,18,0,0">
