@@ -25,6 +25,7 @@ public partial class App : Application
         services.AddScoped<IParentService, ParentService>();
         services.AddScoped<IChildService, ChildService>();
         services.AddScoped<IDocumentService, DocumentService>();
+        services.AddScoped<IDocumentFileService, DocumentFileService>();
         services.AddScoped<IEventService, EventService>();
         services.AddScoped<IFamilyService, FamilyService>();
         services.AddScoped<IExportService, ExportService>();

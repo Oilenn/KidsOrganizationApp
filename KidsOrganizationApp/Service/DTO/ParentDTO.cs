@@ -15,9 +15,9 @@ namespace KidsOrganizationApp.Service.DTO
         public string Surname { get; set; } = string.Empty;
         public string Patronymic { get; set; } = string.Empty;
 
-        public string MobileNumber { get; set; }
-        public string LivingPlace { get; set; }
-        public string Email { get; set; }
+        public string MobileNumber { get; set; } = string.Empty;
+        public string LivingPlace { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
 
         public int MembershipStatus { get; set; }
         public DateTime DateBirth { get; set; } = DateTime.MinValue;
@@ -33,7 +33,7 @@ namespace KidsOrganizationApp.Service.DTO
             string mobileNumber,
             string livingPlace,
             DateTime dateBirth,
-            string email = null)
+            string? email = null)
         {
             Id = id;
             Name = name;
@@ -42,6 +42,7 @@ namespace KidsOrganizationApp.Service.DTO
             LivingPlace = livingPlace;
             Patronymic = patronymic ?? throw new ArgumentNullException(nameof(patronymic));
             DateBirth = dateBirth;
+            Email = email ?? string.Empty;
         }
 
         public ParentDTO(
@@ -51,7 +52,7 @@ namespace KidsOrganizationApp.Service.DTO
             string mobileNumber,
             string livingPlace,
             DateTime dateBirth,
-            string email = null)
+            string? email = null)
         {
             Name = name;
             Surname = surname;
@@ -59,6 +60,7 @@ namespace KidsOrganizationApp.Service.DTO
             LivingPlace = livingPlace;
             Patronymic = patronymic ?? throw new ArgumentNullException(nameof(patronymic));
             DateBirth = dateBirth;
+            Email = email ?? string.Empty;
         }
     }
 }

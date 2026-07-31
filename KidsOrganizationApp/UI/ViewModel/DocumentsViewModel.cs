@@ -2,12 +2,11 @@ using CommunityToolkit.Mvvm.Input;
 using KidsOrganizationApp.Domain;
 using KidsOrganizationApp.Service;
 using KidsOrganizationApp.Service.DTO;
-using System.Collections.ObjectModel;
-using System.Windows.Input;
 using Microsoft.Win32;
-using System.Diagnostics;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace KidsOrganizationApp;
@@ -33,6 +32,7 @@ public sealed class OwnerTypeChoice
 public class DocumentsViewModel : BaseViewModel
 {
     private readonly IDocumentService _documentService;
+    private readonly IDocumentFileService _documentFiles;
     private readonly IChildService _childService;
     private readonly IParentService _parentService;
     private readonly IEventService _eventService;
@@ -57,41 +57,63 @@ public class DocumentsViewModel : BaseViewModel
     public bool IsSuccessMessage { get => _isSuccessMessage; private set { _isSuccessMessage = value; OnPropertyChanged(); OnPropertyChanged(nameof(StatusBrush)); } }
     public Brush StatusBrush => IsSuccessMessage
         ? (Brush)Application.Current.Resources["SuccessText"]
-        : Brushes.Firebrick;
+        : (Brush)Application.Current.Resources["ErrorText"];
+    public Visibility DocumentsEmptyVisibility => Documents.Count == 0
+        ? Visibility.Visible
+        : Visibility.Collapsed;
+
     public ICommand SaveCommand { get; }
     public ICommand SelectFileCommand { get; }
     public ICommand OpenDocumentCommand { get; }
-    private DocumentDTO? _selectedDocument;
-    public DocumentDTO? SelectedDocument { get => _selectedDocument; set { _selectedDocument = value; OnPropertyChanged(); } }
+    public ICommand ShowInExplorerCommand { get; }
+    public ICommand OpenDocumentsFolderCommand { get; }
 
-    public DocumentsViewModel(IDocumentService documentService, IChildService childService, IParentService parentService, IEventService eventService, IApplicationSettingsService settings)
+    public DocumentsViewModel(
+        IDocumentService documentService,
+        IDocumentFileService documentFiles,
+        IChildService childService,
+        IParentService parentService,
+        IEventService eventService,
+        IApplicationSettingsService settings)
     {
         _documentService = documentService;
+        _documentFiles = documentFiles;
         _childService = childService;
         _parentService = parentService;
         _eventService = eventService;
         _settings = settings;
+
         DocumentTypes.Add(new() { Value = Document.DocumentType.Passport, Name = "Паспорт" });
         DocumentTypes.Add(new() { Value = Document.DocumentType.SNILS, Name = "СНИЛС" });
         DocumentTypes.Add(new() { Value = Document.DocumentType.Diagnosis, Name = "Диагноз" });
         DocumentTypes.Add(new() { Value = Document.DocumentType.Letter, Name = "Письмо" });
         DocumentTypes.Add(new() { Value = Document.DocumentType.Order, Name = "Приказ" });
         OwnerTypes.Add(new() { Value = DocumentOwnerType.Child, Name = "Ребёнок" });
-        OwnerTypes.Add(new() { Value = DocumentOwnerType.Parent, Name = "Родитель" });
+        OwnerTypes.Add(new() { Value = DocumentOwnerType.Parent, Name = "Родитель или законный представитель" });
         OwnerTypes.Add(new() { Value = DocumentOwnerType.Event, Name = "Мероприятие" });
+
         _selectedDocumentType = DocumentTypes.First();
         _selectedOwnerType = OwnerTypes.First();
         SaveCommand = new RelayCommand(Save);
         SelectFileCommand = new RelayCommand(SelectFile);
-        OpenDocumentCommand = new RelayCommand(OpenDocument);
+        OpenDocumentCommand = new RelayCommand<DocumentDTO?>(OpenDocument);
+        ShowInExplorerCommand = new RelayCommand<DocumentDTO?>(ShowInExplorer);
+        OpenDocumentsFolderCommand = new RelayCommand(OpenDocumentsFolder);
         LoadDocuments();
         LoadOwners();
     }
 
-    private void LoadDocuments()
+    public void AcceptDroppedFiles(IEnumerable<string> paths)
     {
-        Documents.Clear();
-        foreach (var document in _documentService.GetAll()) Documents.Add(document);
+        var path = paths.FirstOrDefault(File.Exists);
+        if (path is null)
+        {
+            SetError("Файл не найден");
+            return;
+        }
+        DocumentPath = path;
+        StatusMessage = "Файл выбран. Проверьте тип и владельца документа.";
+        IsSuccessMessage = true;
     }
 
     public void PrepareForOwner(DocumentOwnerType ownerType, Guid ownerId)
@@ -102,15 +124,25 @@ public class DocumentsViewModel : BaseViewModel
         StatusMessage = string.Empty;
     }
 
+    private void LoadDocuments()
+    {
+        Documents.Clear();
+        foreach (var document in _documentService.GetAll()) Documents.Add(document);
+        OnPropertyChanged(nameof(DocumentsEmptyVisibility));
+    }
+
     private void LoadOwners()
     {
         Owners.Clear();
         if (SelectedOwnerType is null) return;
         IEnumerable<OwnerChoice> owners = SelectedOwnerType.Value switch
         {
-            DocumentOwnerType.Child => _childService.GetAllChildren().Select(c => new OwnerChoice { Id = c.Id, Name = $"Ребенок: {c.Surname} {c.Name}" }),
-            DocumentOwnerType.Parent => _parentService.GetAllParents().Select(p => new OwnerChoice { Id = p.Id, Name = $"Родитель: {p.Surname} {p.Name}" }),
-            DocumentOwnerType.Event => _eventService.GetAll().Select(e => new OwnerChoice { Id = e.Id, Name = $"Мероприятие: {e.Name}" }),
+            DocumentOwnerType.Child => _childService.GetAllChildren().Select(child =>
+                new OwnerChoice { Id = child.Id, Name = $"Ребёнок: {child.Surname} {child.Name}" }),
+            DocumentOwnerType.Parent => _parentService.GetAllParents().Select(parent =>
+                new OwnerChoice { Id = parent.Id, Name = $"Представитель: {parent.Surname} {parent.Name}" }),
+            DocumentOwnerType.Event => _eventService.GetAll().Select(item =>
+                new OwnerChoice { Id = item.Id, Name = $"Мероприятие: {item.Name}" }),
             _ => []
         };
         foreach (var owner in owners) Owners.Add(owner);
@@ -122,17 +154,27 @@ public class DocumentsViewModel : BaseViewModel
         try
         {
             if (SelectedOwner is null) throw new ArgumentException("Выберите владельца документа.");
-            if (string.IsNullOrWhiteSpace(DocumentPath)) throw new ArgumentException("Укажите путь к документу.");
             if (SelectedDocumentType is null || SelectedOwnerType is null) throw new ArgumentException("Выберите тип и владельца документа.");
-            if (!File.Exists(DocumentPath)) throw new FileNotFoundException("Выбранный файл не найден.", DocumentPath);
+            if (string.IsNullOrWhiteSpace(DocumentPath) || !File.Exists(DocumentPath)) throw new FileNotFoundException("Файл не найден");
+
             var copiedFilePath = CopyToDocumentsDirectory(DocumentPath);
-            _documentService.AddToOwner(new DocumentDTO(Guid.Empty, SelectedDocumentType.Value, copiedFilePath), SelectedOwnerType.Value, SelectedOwner.Id);
+            _documentService.AddToOwner(
+                new DocumentDTO(Guid.Empty, SelectedDocumentType.Value, copiedFilePath),
+                SelectedOwnerType.Value,
+                SelectedOwner.Id);
             DocumentPath = string.Empty;
             StatusMessage = "Документ добавлен и привязан к выбранной записи.";
             IsSuccessMessage = true;
             LoadDocuments();
         }
-        catch (Exception ex) { StatusMessage = ex.Message; IsSuccessMessage = false; }
+        catch (FileNotFoundException)
+        {
+            SetError("Файл не найден");
+        }
+        catch
+        {
+            SetError("Файл поврежден");
+        }
     }
 
     private void SelectFile()
@@ -148,16 +190,40 @@ public class DocumentsViewModel : BaseViewModel
         var number = 2;
         while (File.Exists(targetPath))
         {
-            targetPath = Path.Combine(_settings.DocumentsDirectory, $"{Path.GetFileNameWithoutExtension(originalName)} ({number++}){Path.GetExtension(originalName)}");
+            targetPath = Path.Combine(
+                _settings.DocumentsDirectory,
+                $"{Path.GetFileNameWithoutExtension(originalName)} ({number++}){Path.GetExtension(originalName)}");
         }
         File.Copy(sourcePath, targetPath);
         return targetPath;
     }
 
-    private void OpenDocument()
+    private void OpenDocument(DocumentDTO? document)
     {
-        if (SelectedDocument is null) { StatusMessage = "Выберите документ в списке."; IsSuccessMessage = false; return; }
-        if (!File.Exists(SelectedDocument.Path)) { StatusMessage = "Файл документа не найден."; IsSuccessMessage = false; return; }
-        Process.Start(new ProcessStartInfo(SelectedDocument.Path) { UseShellExecute = true });
+        if (document is null) return;
+        var error = _documentFiles.Open(document);
+        if (error is not null) SetError(error);
+        else StatusMessage = string.Empty;
+    }
+
+    private void ShowInExplorer(DocumentDTO? document)
+    {
+        if (document is null) return;
+        var error = _documentFiles.ShowInExplorer(document);
+        if (error is not null) SetError(error);
+        else StatusMessage = string.Empty;
+    }
+
+    private void OpenDocumentsFolder()
+    {
+        var error = _documentFiles.OpenFolder(_settings.DocumentsDirectory);
+        if (error is not null) SetError(error);
+        else StatusMessage = string.Empty;
+    }
+
+    private void SetError(string message)
+    {
+        StatusMessage = message;
+        IsSuccessMessage = false;
     }
 }
