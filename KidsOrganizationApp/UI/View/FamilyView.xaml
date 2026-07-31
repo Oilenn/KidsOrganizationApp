@@ -88,6 +88,26 @@
                         <TextBlock Text="{Binding SelectedParent.LivingPlace}" Style="{StaticResource FieldValue}" />
                         <TextBlock Text="Электронная почта" Style="{StaticResource FieldLabel}" />
                         <TextBlock Text="{Binding SelectedParent.Email}" Style="{StaticResource FieldValue}" />
+                        <TextBlock Text="Документы родителя или законного представителя"
+                                   FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource AccentText}" Margin="0,8,0,6" />
+                        <Grid Height="108">
+                            <ListBox ItemsSource="{Binding ParentDocuments}"
+                                     Background="Transparent" BorderThickness="0"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                     ItemTemplate="{StaticResource DocumentIconTemplate}">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                            </ListBox>
+                            <TextBlock Text="{Binding ParentDocumentsEmptyMessage}"
+                                       Visibility="{Binding ParentDocumentsEmptyVisibility}"
+                                       Foreground="{DynamicResource SecondaryText}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Grid>
+                        <Button Content="Добавить файл родителю" Command="{Binding AddParentDocumentCommand}"
+                                HorizontalAlignment="Left" Margin="0,6,0,0" />
                     </StackPanel>
 
                     <StackPanel Visibility="{Binding SelectedChildVisibility}" Margin="0,18,0,0">
@@ -104,18 +124,29 @@
                         <TextBlock Text="{Binding SelectedChild.MobileNumber}" Style="{StaticResource FieldValue}" />
                         <TextBlock Text="Дата рождения" Style="{StaticResource FieldLabel}" />
                         <TextBlock Text="{Binding SelectedChild.DateBirth, StringFormat={}{0:dd.MM.yyyy}}" Style="{StaticResource FieldValue}" />
+                        <TextBlock Text="Документы ребёнка" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource AccentText}" Margin="0,8,0,6" />
+                        <Grid Height="108">
+                            <ListBox ItemsSource="{Binding ChildDocuments}"
+                                     Background="Transparent" BorderThickness="0"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                     ItemTemplate="{StaticResource DocumentIconTemplate}">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                            </ListBox>
+                            <TextBlock Text="{Binding ChildDocumentsEmptyMessage}"
+                                       Visibility="{Binding ChildDocumentsEmptyVisibility}"
+                                       Foreground="{DynamicResource SecondaryText}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Grid>
+                        <Button Content="Добавить файл ребёнку" Command="{Binding AddChildDocumentCommand}"
+                                HorizontalAlignment="Left" Margin="0,6,0,0" />
                     </StackPanel>
 
-                    <StackPanel Margin="0,18,0,0">
-                        <TextBlock Text="{Binding DocumentsTitle}" FontSize="14" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource AccentText}" />
-                        <ListBox ItemsSource="{Binding AttachedDocuments}" SelectedItem="{Binding SelectedDocument}"
-                                 DisplayMemberPath="Path" Height="120" Margin="0,8,0,8" />
-                        <StackPanel Orientation="Horizontal">
-                            <Button Content="Добавить файл" Command="{Binding AddDocumentCommand}" Margin="0,0,8,0" />
-                            <Button Content="Открыть файл" Command="{Binding OpenDocumentCommand}" />
-                        </StackPanel>
-                    </StackPanel>
+                    <TextBlock Text="{Binding DocumentStatusMessage}" Foreground="{DynamicResource ErrorText}"
+                               TextWrapping="Wrap" Margin="0,12,0,0" />
                 </StackPanel>
             </ScrollViewer>
         </Border>

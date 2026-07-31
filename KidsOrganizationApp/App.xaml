@@ -12,6 +12,41 @@
         <SolidColorBrush x:Key="ControlBorder" Color="#C9D2E1" />
         <SolidColorBrush x:Key="SuccessText" Color="#027A48" />
 
+        <DataTemplate x:Key="DocumentIconTemplate">
+            <Button Width="108" Height="92" Margin="0,0,6,6" Padding="6"
+                    ToolTip="{Binding Path}"
+                    Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                    Command="{Binding DataContext.OpenDocumentCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                    CommandParameter="{Binding}">
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Показать в проводнике"
+                                  Command="{Binding PlacementTarget.Tag.ShowInExplorerCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                  CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                    </ContextMenu>
+                </Button.ContextMenu>
+                <StackPanel>
+                    <TextBlock Text="{Binding IconGlyph}" FontSize="25" FontFamily="Segoe UI Emoji"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="{Binding TypeName}" FontSize="12" FontWeight="SemiBold"
+                               HorizontalAlignment="Center" Margin="0,2,0,1" />
+                    <TextBlock Text="{Binding FileName}" FontSize="9" TextAlignment="Center"
+                               TextWrapping="Wrap" MaxWidth="94">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource SecondaryText}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsFileMissing}" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource ErrorText}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Button>
+        </DataTemplate>
+
         <Style TargetType="Window">
             <Setter Property="Background" Value="{DynamicResource AppBackground}" />
             <Setter Property="Foreground" Value="{DynamicResource PrimaryText}" />

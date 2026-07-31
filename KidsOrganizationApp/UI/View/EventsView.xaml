@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="280" />
-            <ColumnDefinition Width="24" />
+            <ColumnDefinition Width="350" />
+            <ColumnDefinition Width="30" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
@@ -14,36 +14,56 @@
             <TextBox Text="{Binding EventName, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,12" />
             <TextBlock Text="Дата" />
             <DatePicker SelectedDate="{Binding EventDate}" Margin="0,5,0,12" />
-            <Button Content="Добавить мероприятие" Command="{Binding SaveCommand}" Style="{StaticResource PrimaryButton}" />
+            <Button Content="Добавить мероприятие" Command="{Binding SaveCommand}"
+                    Style="{StaticResource PrimaryButton}" />
             <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource ErrorText}"
                        TextWrapping="Wrap" Margin="0,12,0,0" />
         </StackPanel>
 
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="150" />
+                <RowDefinition Height="108" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Text="Мероприятия" Style="{StaticResource SectionTitle}" />
-            <DataGrid Margin="0,38,0,0" ItemsSource="{Binding Events}" SelectedItem="{Binding SelectedEvent}"
+            <DataGrid Grid.Row="1" ItemsSource="{Binding Events}" SelectedItem="{Binding SelectedEvent}"
                       AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*" />
-                    <DataGridTextColumn Header="Дата" Binding="{Binding Date, StringFormat={}{0:dd.MM.yyyy}}" Width="120" />
+                    <DataGridTextColumn Header="Дата" Binding="{Binding Date, StringFormat={}{0:dd.MM.yyyy}}" Width="150" />
                 </DataGrid.Columns>
             </DataGrid>
 
-            <TextBlock Grid.Row="1" Text="Документы выбранного мероприятия"
+            <TextBlock Grid.Row="2" Text="Документы выбранного мероприятия"
                        FontWeight="SemiBold" Margin="0,16,0,6" />
-            <ListBox Grid.Row="2" ItemsSource="{Binding AttachedDocuments}"
-                     SelectedItem="{Binding SelectedDocument}" DisplayMemberPath="Path" />
-            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-                <Button Content="Добавить файл" Command="{Binding AddDocumentCommand}" Margin="0,0,8,0" />
-                <Button Content="Открыть файл" Command="{Binding OpenDocumentCommand}" />
-            </StackPanel>
+            <Grid Grid.Row="3">
+                <ListBox ItemsSource="{Binding AttachedDocuments}"
+                         Background="Transparent" BorderThickness="0"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         ItemTemplate="{StaticResource DocumentIconTemplate}">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+                <TextBlock Text="{Binding EventDocumentsEmptyMessage}"
+                           Visibility="{Binding EventDocumentsEmptyVisibility}"
+                           Foreground="{DynamicResource SecondaryText}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Grid>
+            <Grid Grid.Row="4" Margin="0,8,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding DocumentStatusMessage}" Foreground="{DynamicResource ErrorText}"
+                           TextWrapping="Wrap" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Добавить файл" Command="{Binding AddDocumentCommand}" />
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

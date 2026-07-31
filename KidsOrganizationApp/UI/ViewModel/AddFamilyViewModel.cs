@@ -14,7 +14,25 @@ public sealed class PendingDocument
 {
     public Document.DocumentType Type { get; init; }
     public string Path { get; init; } = string.Empty;
-    public string Name => $"{Type}: {System.IO.Path.GetFileName(Path)}";
+    public string TypeName => Type switch
+    {
+        Document.DocumentType.Passport => "Паспорт",
+        Document.DocumentType.SNILS => "СНИЛС",
+        Document.DocumentType.Diagnosis => "Диагноз",
+        Document.DocumentType.Letter => "Письмо",
+        Document.DocumentType.Order => "Приказ",
+        _ => "Документ"
+    };
+    public string IconGlyph => Type switch
+    {
+        Document.DocumentType.Passport => "🪪",
+        Document.DocumentType.SNILS => "▦",
+        Document.DocumentType.Diagnosis => "⚕",
+        Document.DocumentType.Letter => "✉",
+        Document.DocumentType.Order => "📋",
+        _ => "📄"
+    };
+    public string FileName => System.IO.Path.GetFileName(Path);
 }
 
 public class AddFamilyViewModel : BaseViewModel
@@ -61,13 +79,13 @@ public class AddFamilyViewModel : BaseViewModel
     public string ParentPhone { get => _parentPhone; set { _parentPhone = value; OnPropertyChanged(); } }
     private string _parentLivingPlace = string.Empty;
     public string ParentLivingPlace { get => _parentLivingPlace; set { _parentLivingPlace = value; OnPropertyChanged(); } }
+    private string _parentEmail = string.Empty;
+    public string ParentEmail { get => _parentEmail; set { _parentEmail = value; OnPropertyChanged(); } }
     private DateTime? _parentBirthDate;
     public DateTime? ParentBirthDate { get => _parentBirthDate; set { _parentBirthDate = value; OnPropertyChanged(); } }
 
     private DocumentTypeChoice? _selectedDocumentType;
     public DocumentTypeChoice? SelectedDocumentType { get => _selectedDocumentType; set { _selectedDocumentType = value; OnPropertyChanged(); } }
-    private string _documentPath = string.Empty;
-    public string DocumentPath { get => _documentPath; set { _documentPath = value; OnPropertyChanged(); } }
     private PendingDocument? _selectedPendingDocument;
     public PendingDocument? SelectedPendingDocument { get => _selectedPendingDocument; set { _selectedPendingDocument = value; OnPropertyChanged(); } }
     private string _statusMessage = string.Empty;
@@ -75,8 +93,7 @@ public class AddFamilyViewModel : BaseViewModel
 
     public ICommand SaveCommand { get; }
     public ICommand CancelCommand { get; }
-    public ICommand SelectDocumentCommand { get; }
-    public ICommand AddDocumentCommand { get; }
+    public ICommand SelectDocumentsCommand { get; }
     public ICommand RemoveDocumentCommand { get; }
 
     public AddFamilyViewModel(IChildService childService, IParentService parentService, IDocumentService documentService, IApplicationSettingsService settings)
@@ -93,8 +110,7 @@ public class AddFamilyViewModel : BaseViewModel
         SelectedDocumentType = DocumentTypes.First();
         SaveCommand = new RelayCommand(Save);
         CancelCommand = new RelayCommand(() => Cancelled?.Invoke());
-        SelectDocumentCommand = new RelayCommand(SelectDocument);
-        AddDocumentCommand = new RelayCommand(AddDocument);
+        SelectDocumentsCommand = new RelayCommand(SelectDocuments);
         RemoveDocumentCommand = new RelayCommand(RemoveDocument);
     }
 
@@ -112,6 +128,18 @@ public class AddFamilyViewModel : BaseViewModel
         _isParentForm = true;
         ClearForm();
         NotifyModeChanged();
+    }
+
+    public void AcceptDroppedFiles(IEnumerable<string> paths)
+    {
+        if (SelectedDocumentType is null)
+        {
+            StatusMessage = "Выберите тип документа.";
+            return;
+        }
+
+        var added = AddPendingDocuments(paths, SelectedDocumentType.Value);
+        StatusMessage = added > 0 ? $"Добавлено файлов: {added}." : "Файл не найден";
     }
 
     private void NotifyModeChanged()
@@ -149,24 +177,37 @@ public class AddFamilyViewModel : BaseViewModel
     }
 
     private ParentDTO CreateParent() => new(ParentName, ParentSurname, ParentPatronymic,
-        ParentPhone, ParentLivingPlace, RequireDate(ParentBirthDate, "родителя"));
+        ParentPhone, ParentLivingPlace, RequireDate(ParentBirthDate, "родителя"), ParentEmail);
 
     private static DateTime RequireDate(DateTime? date, string person) =>
         date ?? throw new ArgumentException($"Укажите дату рождения {person}.");
 
-    private void SelectDocument()
-    {
-        var dialog = new OpenFileDialog { Title = "Выберите документ" };
-        if (dialog.ShowDialog() == true) DocumentPath = dialog.FileName;
-    }
-
-    private void AddDocument()
+    private void SelectDocuments()
     {
         if (SelectedDocumentType is null) { StatusMessage = "Выберите тип документа."; return; }
-        if (string.IsNullOrWhiteSpace(DocumentPath) || !File.Exists(DocumentPath)) { StatusMessage = "Выберите существующий файл документа."; return; }
-        PendingDocuments.Add(new PendingDocument { Type = SelectedDocumentType.Value, Path = DocumentPath });
-        DocumentPath = string.Empty;
-        StatusMessage = string.Empty;
+        var dialog = new OpenFileDialog
+        {
+            Title = "Выберите документы",
+            Multiselect = true
+        };
+        if (dialog.ShowDialog() != true) return;
+
+        var added = AddPendingDocuments(dialog.FileNames, SelectedDocumentType.Value);
+        StatusMessage = added > 0 ? $"Добавлено файлов: {added}." : "Файл не найден";
+    }
+
+    private int AddPendingDocuments(IEnumerable<string> paths, Document.DocumentType type)
+    {
+        var added = 0;
+        foreach (var path in paths.Where(File.Exists))
+        {
+            if (PendingDocuments.Any(document =>
+                    string.Equals(document.Path, path, StringComparison.OrdinalIgnoreCase))) continue;
+
+            PendingDocuments.Add(new PendingDocument { Type = type, Path = path });
+            added++;
+        }
+        return added;
     }
 
     private void RemoveDocument()
@@ -200,9 +241,8 @@ public class AddFamilyViewModel : BaseViewModel
     {
         ChildName = ChildSurname = ChildPatronymic = ChildPhone = ChildLivingPlace = string.Empty;
         ChildBirthDate = null;
-        ParentName = ParentSurname = ParentPatronymic = ParentPhone = ParentLivingPlace = string.Empty;
+        ParentName = ParentSurname = ParentPatronymic = ParentPhone = ParentLivingPlace = ParentEmail = string.Empty;
         ParentBirthDate = null;
-        DocumentPath = string.Empty;
         PendingDocuments.Clear();
         SelectedPendingDocument = null;
         StatusMessage = string.Empty;

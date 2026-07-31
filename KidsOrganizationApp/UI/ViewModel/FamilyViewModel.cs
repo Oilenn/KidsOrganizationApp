@@ -2,8 +2,6 @@ using CommunityToolkit.Mvvm.Input;
 using KidsOrganizationApp.Service;
 using KidsOrganizationApp.Service.DTO;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
 using System.Windows;
 using System.Windows.Input;
 
@@ -14,7 +12,10 @@ public class FamilyViewModel : BaseViewModel
     private readonly IChildService _childService;
     private readonly IParentService _parentService;
     private readonly IDocumentService _documentService;
+    private readonly IDocumentFileService _documentFiles;
     private readonly RelayCommand _addChildCommand;
+    private readonly RelayCommand _addParentDocumentCommand;
+    private readonly RelayCommand _addChildDocumentCommand;
 
     public event Action<ParentDTO>? AddChildRequested;
     public event Action? AddParentRequested;
@@ -22,7 +23,8 @@ public class FamilyViewModel : BaseViewModel
 
     public ObservableCollection<ParentDTO> Parents { get; } = new();
     public ObservableCollection<ChildDTO> Children { get; } = new();
-    public ObservableCollection<DocumentDTO> AttachedDocuments { get; } = new();
+    public ObservableCollection<DocumentDTO> ParentDocuments { get; } = new();
+    public ObservableCollection<DocumentDTO> ChildDocuments { get; } = new();
 
     private ParentDTO? _selectedParent;
     public ParentDTO? SelectedParent
@@ -33,10 +35,10 @@ public class FamilyViewModel : BaseViewModel
             _selectedParent = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(SelectedParentVisibility));
-            OnPropertyChanged(nameof(DocumentsTitle));
             _addChildCommand.NotifyCanExecuteChanged();
+            _addParentDocumentCommand.NotifyCanExecuteChanged();
             LoadChildren();
-            LoadDocuments();
+            LoadParentDocuments();
         }
     }
 
@@ -49,34 +51,54 @@ public class FamilyViewModel : BaseViewModel
             _selectedChild = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(SelectedChildVisibility));
-            OnPropertyChanged(nameof(DocumentsTitle));
-            LoadDocuments();
+            _addChildDocumentCommand.NotifyCanExecuteChanged();
+            LoadChildDocuments();
         }
     }
 
     public Visibility SelectedParentVisibility => SelectedParent is null ? Visibility.Collapsed : Visibility.Visible;
     public Visibility SelectedChildVisibility => SelectedChild is null ? Visibility.Collapsed : Visibility.Visible;
-    public string DocumentsTitle => SelectedChild is not null
-        ? "Документы ребёнка"
-        : "Документы родителя или законного представителя";
+    public Visibility ParentDocumentsEmptyVisibility =>
+        SelectedParent is not null && ParentDocuments.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility ChildDocumentsEmptyVisibility =>
+        SelectedChild is not null && ChildDocuments.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    public string ParentDocumentsEmptyMessage => SelectedParent is null
+        ? string.Empty
+        : $"Нет документов у {SelectedParent.Name} {SelectedParent.Surname}";
+    public string ChildDocumentsEmptyMessage => SelectedChild is null
+        ? string.Empty
+        : $"Нет документов у {SelectedChild.Name} {SelectedChild.Surname}";
 
     public ICommand AddChildCommand => _addChildCommand;
     public ICommand AddParentCommand { get; }
-    public ICommand AddDocumentCommand { get; }
+    public ICommand AddParentDocumentCommand => _addParentDocumentCommand;
+    public ICommand AddChildDocumentCommand => _addChildDocumentCommand;
     public ICommand OpenDocumentCommand { get; }
+    public ICommand ShowInExplorerCommand { get; }
 
-    private DocumentDTO? _selectedDocument;
-    public DocumentDTO? SelectedDocument { get => _selectedDocument; set { _selectedDocument = value; OnPropertyChanged(); } }
+    private string _documentStatusMessage = string.Empty;
+    public string DocumentStatusMessage { get => _documentStatusMessage; private set { _documentStatusMessage = value; OnPropertyChanged(); } }
 
-    public FamilyViewModel(IChildService childService, IParentService parentService, IDocumentService documentService)
+    public FamilyViewModel(
+        IChildService childService,
+        IParentService parentService,
+        IDocumentService documentService,
+        IDocumentFileService documentFiles)
     {
         _childService = childService;
         _parentService = parentService;
         _documentService = documentService;
+        _documentFiles = documentFiles;
         _addChildCommand = new RelayCommand(() => AddChildRequested?.Invoke(SelectedParent!), () => SelectedParent is not null);
+        _addParentDocumentCommand = new RelayCommand(
+            () => DocumentAddRequested?.Invoke(DocumentOwnerType.Parent, SelectedParent!.Id),
+            () => SelectedParent is not null);
+        _addChildDocumentCommand = new RelayCommand(
+            () => DocumentAddRequested?.Invoke(DocumentOwnerType.Child, SelectedChild!.Id),
+            () => SelectedChild is not null);
         AddParentCommand = new RelayCommand(() => AddParentRequested?.Invoke());
-        AddDocumentCommand = new RelayCommand(AddDocument);
-        OpenDocumentCommand = new RelayCommand(OpenDocument);
+        OpenDocumentCommand = new RelayCommand<DocumentDTO?>(OpenDocument);
+        ShowInExplorerCommand = new RelayCommand<DocumentDTO?>(ShowInExplorer);
         Refresh();
     }
 
@@ -87,7 +109,10 @@ public class FamilyViewModel : BaseViewModel
         Parents.Clear();
         foreach (var parent in _parentService.GetAllParents()) Parents.Add(parent);
         SelectedParent = parentId is null ? null : Parents.FirstOrDefault(parent => parent.Id == parentId);
-        if (SelectedParent is not null && childId is not null) SelectedChild = Children.FirstOrDefault(child => child.Id == childId);
+        if (SelectedParent is not null && childId is not null)
+        {
+            SelectedChild = Children.FirstOrDefault(child => child.Id == childId);
+        }
     }
 
     private void LoadChildren()
@@ -100,29 +125,45 @@ public class FamilyViewModel : BaseViewModel
         {
             Children.Add(child);
         }
-        if (selectedChildId is not null) SelectedChild = Children.FirstOrDefault(child => child.Id == selectedChildId);
-    }
-
-    private void LoadDocuments()
-    {
-        AttachedDocuments.Clear();
-        SelectedDocument = null;
-        var ids = SelectedChild?.DocumentIds ?? SelectedParent?.DocumentIds;
-        if (ids is null) return;
-        foreach (var document in _documentService.GetByIds(ids)) AttachedDocuments.Add(document);
-    }
-
-    private void AddDocument()
-    {
-        if (SelectedChild is not null) DocumentAddRequested?.Invoke(DocumentOwnerType.Child, SelectedChild.Id);
-        else if (SelectedParent is not null) DocumentAddRequested?.Invoke(DocumentOwnerType.Parent, SelectedParent.Id);
-    }
-
-    private void OpenDocument()
-    {
-        if (SelectedDocument is not null && File.Exists(SelectedDocument.Path))
+        if (selectedChildId is not null)
         {
-            Process.Start(new ProcessStartInfo(SelectedDocument.Path) { UseShellExecute = true });
+            SelectedChild = Children.FirstOrDefault(child => child.Id == selectedChildId);
         }
+    }
+
+    private void LoadParentDocuments()
+    {
+        ParentDocuments.Clear();
+        DocumentStatusMessage = string.Empty;
+        if (SelectedParent is not null)
+        {
+            foreach (var document in _documentService.GetByIds(SelectedParent.DocumentIds)) ParentDocuments.Add(document);
+        }
+        OnPropertyChanged(nameof(ParentDocumentsEmptyVisibility));
+        OnPropertyChanged(nameof(ParentDocumentsEmptyMessage));
+    }
+
+    private void LoadChildDocuments()
+    {
+        ChildDocuments.Clear();
+        DocumentStatusMessage = string.Empty;
+        if (SelectedChild is not null)
+        {
+            foreach (var document in _documentService.GetByIds(SelectedChild.DocumentIds)) ChildDocuments.Add(document);
+        }
+        OnPropertyChanged(nameof(ChildDocumentsEmptyVisibility));
+        OnPropertyChanged(nameof(ChildDocumentsEmptyMessage));
+    }
+
+    private void OpenDocument(DocumentDTO? document)
+    {
+        if (document is null) return;
+        DocumentStatusMessage = _documentFiles.Open(document) ?? string.Empty;
+    }
+
+    private void ShowInExplorer(DocumentDTO? document)
+    {
+        if (document is null) return;
+        DocumentStatusMessage = _documentFiles.ShowInExplorer(document) ?? string.Empty;
     }
 }
