@@ -24,11 +24,12 @@ namespace KidsOrganizationApp.Domain
 
         protected Child() { }
 
-        public Child(FullName fullName,
-              Contact contact,
-              DateTime dateBirth,
-              List<Parent> parents,
-              List<Document> documents)
+        public Child(
+            FullName fullName,
+            Contact contact,
+            DateTime dateBirth,
+            List<Parent> parents,
+            List<Document> documents)
         {
             Contact = contact;
             FullName = fullName;
@@ -41,7 +42,7 @@ namespace KidsOrganizationApp.Domain
 
         public void ChangeDateBirth(DateTime dateBirth)
         {
-            if (dateBirth > DateTime.Now) 
+            if (dateBirth > DateTime.Now)
                 throw new ArgumentException("Дата рождения не может превышать сегодняшний день!");
 
             DateBirth = dateBirth;

@@ -18,7 +18,16 @@ public class MainViewModel : BaseViewModel
     private readonly IApplicationSettingsService _settings;
     private readonly SettingsViewModel _settingsViewModel;
     private object _currentViewModel;
-    public object CurrentViewModel { get => _currentViewModel; private set { _currentViewModel = value; OnPropertyChanged(); } }
+    public object CurrentViewModel
+    {
+        get => _currentViewModel;
+        private set
+        {
+            _currentViewModel = value;
+            OnPropertyChanged();
+        }
+    }
+
     public ICommand OpenFamilyCommand { get; }
     public ICommand OpenDocsCommand { get; }
     public ICommand OpenEventsCommand { get; }
@@ -27,7 +36,14 @@ public class MainViewModel : BaseViewModel
     public ICommand OpenSettingsCommand { get; }
     public ICommand OpenAboutCommand { get; }
 
-    public MainViewModel(FamilyViewModel familyViewModel, DocumentsViewModel documentsViewModel, EventsViewModel eventsViewModel, AddFamilyViewModel addFamilyViewModel, IExportService exportService, IApplicationSettingsService settings, SettingsViewModel settingsViewModel)
+    public MainViewModel(
+        FamilyViewModel familyViewModel,
+        DocumentsViewModel documentsViewModel,
+        EventsViewModel eventsViewModel,
+        AddFamilyViewModel addFamilyViewModel,
+        IExportService exportService,
+        IApplicationSettingsService settings,
+        SettingsViewModel settingsViewModel)
     {
         _familyViewModel = familyViewModel;
         _documentsViewModel = documentsViewModel;
@@ -37,9 +53,17 @@ public class MainViewModel : BaseViewModel
         _settings = settings;
         _settingsViewModel = settingsViewModel;
         _currentViewModel = familyViewModel;
-        OpenFamilyCommand = new RelayCommand(() => { _familyViewModel.Refresh(); CurrentViewModel = _familyViewModel; });
+        OpenFamilyCommand = new RelayCommand(() =>
+        {
+            _familyViewModel.Refresh();
+            CurrentViewModel = _familyViewModel;
+        });
         OpenDocsCommand = new RelayCommand(() => CurrentViewModel = _documentsViewModel);
-        OpenEventsCommand = new RelayCommand(() => { _eventsViewModel.Refresh(); CurrentViewModel = _eventsViewModel; });
+        OpenEventsCommand = new RelayCommand(() =>
+        {
+            _eventsViewModel.Refresh();
+            CurrentViewModel = _eventsViewModel;
+        });
         ExportDatabaseCommand = new RelayCommand(ExportDatabase);
         SelectDocumentsFolderCommand = new RelayCommand(SelectDocumentsFolder);
         OpenSettingsCommand = new RelayCommand(OpenSettings);
@@ -63,6 +87,7 @@ public class MainViewModel : BaseViewModel
         _addFamilyViewModel.PrepareForParent();
         CurrentViewModel = _addFamilyViewModel;
     }
+
     private void ReturnToFamily()
     {
         _familyViewModel.Refresh();
@@ -83,7 +108,8 @@ public class MainViewModel : BaseViewModel
             Filter = "ZIP-архив (*.zip)|*.zip",
             FileName = $"Выгрузка_организации_{DateTime.Now:yyyy-MM-dd}.zip"
         };
-        if (dialog.ShowDialog() != true) return;
+        if (dialog.ShowDialog() != true)
+            return;
         try
         {
             _exportService.ExportArchive(dialog.FileName);
@@ -97,8 +123,13 @@ public class MainViewModel : BaseViewModel
 
     private void SelectDocumentsFolder()
     {
-        var dialog = new OpenFolderDialog { Title = "Выберите папку для хранения документов", InitialDirectory = _settings.DocumentsDirectory };
-        if (dialog.ShowDialog() == true) _settings.SetDocumentsDirectory(dialog.FolderName);
+        var dialog = new OpenFolderDialog
+        {
+            Title = "Выберите папку для хранения документов",
+            InitialDirectory = _settings.DocumentsDirectory
+        };
+        if (dialog.ShowDialog() == true)
+            _settings.SetDocumentsDirectory(dialog.FolderName);
     }
 
     private void OpenSettings()
@@ -112,5 +143,7 @@ public class MainViewModel : BaseViewModel
 
     private static void OpenAbout() => MessageBox.Show(
         "Организация семей, имеющих детей инвалидов\nВерсия: 1.0.0\n\nGitHub: https://github.com/Oilenn/KidsOrganizationApp",
-        "О программе", MessageBoxButton.OK, MessageBoxImage.Information);
+        "О программе",
+        MessageBoxButton.OK,
+        MessageBoxImage.Information);
 }

@@ -15,4 +15,3 @@ namespace KidsOrganizationApp.Service.Mapper
         public void UpdateDomain(TDomain domain, TDto dto);
     }
 }
-

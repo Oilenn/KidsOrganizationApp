@@ -6,13 +6,24 @@
         Title="Организация семей, имеющих детей инвалидов"
         Height="680" Width="1120" WindowStartupLocation="CenterScreen">
     <Window.Resources>
-        <DataTemplate DataType="{x:Type vm:FamilyViewModel}"><view:FamilyView /></DataTemplate>
-        <DataTemplate DataType="{x:Type vm:DocumentsViewModel}"><view:DocumentsView /></DataTemplate>
-        <DataTemplate DataType="{x:Type vm:EventsViewModel}"><view:EventsView /></DataTemplate>
-        <DataTemplate DataType="{x:Type vm:AddFamilyViewModel}"><view:AddFamilyView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:FamilyViewModel}">
+            <view:FamilyView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:DocumentsViewModel}">
+            <view:DocumentsView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:EventsViewModel}">
+            <view:EventsView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:AddFamilyViewModel}">
+            <view:AddFamilyView />
+        </DataTemplate>
     </Window.Resources>
     <Grid Background="{DynamicResource AppBackground}">
-        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
         <Menu Background="#243B6B" Foreground="White">
             <MenuItem Header="Файл" Foreground="White">
                 <MenuItem Header="Скачать базу данных" Command="{Binding ExportDatabaseCommand}" />
@@ -22,7 +33,10 @@
             <MenuItem Header="О программе" Foreground="White" Command="{Binding OpenAboutCommand}" />
         </Menu>
         <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions><ColumnDefinition Width="245" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="245" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
             <Border Background="#243B6B" Padding="24">
                 <DockPanel LastChildFill="False">
                     <StackPanel DockPanel.Dock="Top">
@@ -33,7 +47,8 @@
                         <Button Content="Документы" Command="{Binding OpenDocsCommand}" Style="{StaticResource NavigationButton}" />
                         <Button Content="Мероприятия" Command="{Binding OpenEventsCommand}" Style="{StaticResource NavigationButton}" />
                     </StackPanel>
-                    <Button DockPanel.Dock="Bottom" Content="Выгрузить базу данных" Command="{Binding ExportDatabaseCommand}" Style="{StaticResource NavigationButton}" />
+                    <Button DockPanel.Dock="Bottom" Content="Выгрузить базу данных"
+                            Command="{Binding ExportDatabaseCommand}" Style="{StaticResource NavigationButton}" />
                 </DockPanel>
             </Border>
             <ContentControl Grid.Column="1" Content="{Binding CurrentViewModel}" Margin="28" />

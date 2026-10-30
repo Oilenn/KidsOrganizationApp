@@ -1,6 +1,4 @@
-﻿
-
-using KidsOrganizationApp.Domain;
+﻿using KidsOrganizationApp.Domain;
 using KidsOrganizationApp.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
 using System.Xml.Linq;
@@ -11,24 +9,49 @@ namespace KidsOrganizationApp.Repository
     {
         private AppDbContext _context;
 
-        public ParentRepository(AppDbContext appDbContext) 
+        public ParentRepository(AppDbContext appDbContext)
         {
             _context = appDbContext;
         }
+
         public void Add(Parent parent)
         {
             _context.Add(parent);
             _context.SaveChanges();
         }
 
+        public async Task AddAsync(Parent parent, CancellationToken cancellationToken = default)
+        {
+            _context.Add(parent);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
         public List<Parent> GetAll()
         {
-            return _context.Parents.Include(parent => parent.Documents).ToList();
+            return _context.Parents
+                .Include(parent => parent.Documents)
+                .ToList();
+        }
+
+        public async Task<List<Parent>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.Parents
+                .Include(parent => parent.Documents)
+                .ToListAsync(cancellationToken);
         }
 
         public Parent GetById(Guid id)
         {
-            return _context.Parents.Include(parent => parent.Documents).FirstOrDefault(parent => parent.Id == id);
+            return _context.Parents
+                .Include(parent => parent.Documents)
+                .FirstOrDefault(parent => parent.Id == id);
+        }
+
+        public async Task<Parent?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _context.Parents
+                .Include(parent => parent.Documents)
+                .FirstOrDefaultAsync(parent => parent.Id == id, cancellationToken);
         }
 
         public List<Parent> GetByName(string name)
@@ -38,6 +61,13 @@ namespace KidsOrganizationApp.Repository
                 .ToList();
         }
 
+        public async Task<List<Parent>> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+        {
+            return await _context.Parents
+                .Where(c => c.FullName.Name == name)
+                .ToListAsync(cancellationToken);
+        }
+
         public List<Parent> GetByPatronymic(string patronymic)
         {
             return _context.Parents
@@ -45,11 +75,25 @@ namespace KidsOrganizationApp.Repository
                 .ToList();
         }
 
+        public async Task<List<Parent>> GetByPatronymicAsync(string patronymic, CancellationToken cancellationToken = default)
+        {
+            return await _context.Parents
+                .Where(c => c.FullName.Patronymic == patronymic)
+                .ToListAsync(cancellationToken);
+        }
+
         public List<Parent> GetBySurname(string surname)
         {
             return _context.Parents
                 .Where(c => c.FullName.Surname == surname)
                 .ToList();
+        }
+
+        public async Task<List<Parent>> GetBySurnameAsync(string surname, CancellationToken cancellationToken = default)
+        {
+            return await _context.Parents
+                .Where(c => c.FullName.Surname == surname)
+                .ToListAsync(cancellationToken);
         }
 
         public void Remove(Guid id)
@@ -62,6 +106,16 @@ namespace KidsOrganizationApp.Repository
             _context.SaveChanges();
         }
 
+        public async Task RemoveAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            var parent = await GetByIdAsync(id, cancellationToken);
+            if (parent == null)
+                throw new NullReferenceException(nameof(parent));
+
+            _context.Parents.Remove(parent);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
         public void Update(Parent parent)
         {
             if (parent == null)
@@ -69,6 +123,15 @@ namespace KidsOrganizationApp.Repository
 
             _context.Update(parent);
             _context.SaveChanges();
+        }
+
+        public async Task UpdateAsync(Parent parent, CancellationToken cancellationToken = default)
+        {
+            if (parent == null)
+                throw new NullReferenceException(nameof(parent));
+
+            _context.Update(parent);
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

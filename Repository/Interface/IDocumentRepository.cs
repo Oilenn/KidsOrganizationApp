@@ -9,5 +9,11 @@ namespace KidsOrganizationApp.Repository.Interface
         void Add(Document document);
         void Remove(Guid id);
         void Update(Document document);
+
+        Task<Document?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<List<Document>> GetAllAsync(CancellationToken cancellationToken = default);
+        Task AddAsync(Document document, CancellationToken cancellationToken = default);
+        Task RemoveAsync(Guid id, CancellationToken cancellationToken = default);
+        Task UpdateAsync(Document document, CancellationToken cancellationToken = default);
     }
 }

@@ -57,46 +57,191 @@ public class AddFamilyViewModel : BaseViewModel
     public Visibility ParentFieldsVisibility => _isParentForm ? Visibility.Visible : Visibility.Collapsed;
 
     private string _childName = string.Empty;
-    public string ChildName { get => _childName; set { _childName = value; OnPropertyChanged(); } }
+    public string ChildName
+    {
+        get => _childName;
+        set
+        {
+            _childName = value;
+            OnPropertyChanged();
+        }
+    }
+
     private string _childSurname = string.Empty;
-    public string ChildSurname { get => _childSurname; set { _childSurname = value; OnPropertyChanged(); } }
+    public string ChildSurname
+    {
+        get => _childSurname;
+        set
+        {
+            _childSurname = value;
+            OnPropertyChanged();
+        }
+    }
+
     private string _childPatronymic = string.Empty;
-    public string ChildPatronymic { get => _childPatronymic; set { _childPatronymic = value; OnPropertyChanged(); } }
+    public string ChildPatronymic
+    {
+        get => _childPatronymic;
+        set
+        {
+            _childPatronymic = value;
+            OnPropertyChanged();
+        }
+    }
+
     private string _childPhone = string.Empty;
-    public string ChildPhone { get => _childPhone; set { _childPhone = value; OnPropertyChanged(); } }
+    public string ChildPhone
+    {
+        get => _childPhone;
+        set
+        {
+            _childPhone = value;
+            OnPropertyChanged();
+        }
+    }
+
     private string _childLivingPlace = string.Empty;
-    public string ChildLivingPlace { get => _childLivingPlace; set { _childLivingPlace = value; OnPropertyChanged(); } }
+    public string ChildLivingPlace
+    {
+        get => _childLivingPlace;
+        set
+        {
+            _childLivingPlace = value;
+            OnPropertyChanged();
+        }
+    }
+
     private DateTime? _childBirthDate;
-    public DateTime? ChildBirthDate { get => _childBirthDate; set { _childBirthDate = value; OnPropertyChanged(); } }
+    public DateTime? ChildBirthDate
+    {
+        get => _childBirthDate;
+        set
+        {
+            _childBirthDate = value;
+            OnPropertyChanged();
+        }
+    }
 
     private string _parentName = string.Empty;
-    public string ParentName { get => _parentName; set { _parentName = value; OnPropertyChanged(); } }
+    public string ParentName
+    {
+        get => _parentName;
+        set
+        {
+            _parentName = value;
+            OnPropertyChanged();
+        }
+    }
+
     private string _parentSurname = string.Empty;
-    public string ParentSurname { get => _parentSurname; set { _parentSurname = value; OnPropertyChanged(); } }
+    public string ParentSurname
+    {
+        get => _parentSurname;
+        set
+        {
+            _parentSurname = value;
+            OnPropertyChanged();
+        }
+    }
+
     private string _parentPatronymic = string.Empty;
-    public string ParentPatronymic { get => _parentPatronymic; set { _parentPatronymic = value; OnPropertyChanged(); } }
+    public string ParentPatronymic
+    {
+        get => _parentPatronymic;
+        set
+        {
+            _parentPatronymic = value;
+            OnPropertyChanged();
+        }
+    }
+
     private string _parentPhone = string.Empty;
-    public string ParentPhone { get => _parentPhone; set { _parentPhone = value; OnPropertyChanged(); } }
+    public string ParentPhone
+    {
+        get => _parentPhone;
+        set
+        {
+            _parentPhone = value;
+            OnPropertyChanged();
+        }
+    }
+
     private string _parentLivingPlace = string.Empty;
-    public string ParentLivingPlace { get => _parentLivingPlace; set { _parentLivingPlace = value; OnPropertyChanged(); } }
+    public string ParentLivingPlace
+    {
+        get => _parentLivingPlace;
+        set
+        {
+            _parentLivingPlace = value;
+            OnPropertyChanged();
+        }
+    }
+
     private string _parentEmail = string.Empty;
-    public string ParentEmail { get => _parentEmail; set { _parentEmail = value; OnPropertyChanged(); } }
+    public string ParentEmail
+    {
+        get => _parentEmail;
+        set
+        {
+            _parentEmail = value;
+            OnPropertyChanged();
+        }
+    }
+
     private DateTime? _parentBirthDate;
-    public DateTime? ParentBirthDate { get => _parentBirthDate; set { _parentBirthDate = value; OnPropertyChanged(); } }
+    public DateTime? ParentBirthDate
+    {
+        get => _parentBirthDate;
+        set
+        {
+            _parentBirthDate = value;
+            OnPropertyChanged();
+        }
+    }
 
     private DocumentTypeChoice? _selectedDocumentType;
-    public DocumentTypeChoice? SelectedDocumentType { get => _selectedDocumentType; set { _selectedDocumentType = value; OnPropertyChanged(); } }
+    public DocumentTypeChoice? SelectedDocumentType
+    {
+        get => _selectedDocumentType;
+        set
+        {
+            _selectedDocumentType = value;
+            OnPropertyChanged();
+        }
+    }
+
     private PendingDocument? _selectedPendingDocument;
-    public PendingDocument? SelectedPendingDocument { get => _selectedPendingDocument; set { _selectedPendingDocument = value; OnPropertyChanged(); } }
+    public PendingDocument? SelectedPendingDocument
+    {
+        get => _selectedPendingDocument;
+        set
+        {
+            _selectedPendingDocument = value;
+            OnPropertyChanged();
+        }
+    }
+
     private string _statusMessage = string.Empty;
-    public string StatusMessage { get => _statusMessage; private set { _statusMessage = value; OnPropertyChanged(); } }
+    public string StatusMessage
+    {
+        get => _statusMessage;
+        private set
+        {
+            _statusMessage = value;
+            OnPropertyChanged();
+        }
+    }
 
     public ICommand SaveCommand { get; }
     public ICommand CancelCommand { get; }
     public ICommand SelectDocumentsCommand { get; }
     public ICommand RemoveDocumentCommand { get; }
 
-    public AddFamilyViewModel(IChildService childService, IParentService parentService, IDocumentService documentService, IApplicationSettingsService settings)
+    public AddFamilyViewModel(
+        IChildService childService,
+        IParentService parentService,
+        IDocumentService documentService,
+        IApplicationSettingsService settings)
     {
         _childService = childService;
         _parentService = parentService;
@@ -161,10 +306,16 @@ public class AddFamilyViewModel : BaseViewModel
             }
             else
             {
-                if (_selectedParent is null) throw new InvalidOperationException("Выберите родителя или законного представителя.");
+                if (_selectedParent is null)
+                    throw new InvalidOperationException("Выберите родителя или законного представителя.");
                 var child = _childService.AddChild(new ChildDTO(
-                    ChildName, ChildSurname, ChildPatronymic, ChildPhone, ChildLivingPlace,
-                    RequireDate(ChildBirthDate, "ребёнка"), [_selectedParent.Id]));
+                    ChildName,
+                    ChildSurname,
+                    ChildPatronymic,
+                    ChildPhone,
+                    ChildLivingPlace,
+                    RequireDate(ChildBirthDate, "ребёнка"),
+                    [_selectedParent.Id]));
                 SaveDocuments(DocumentOwnerType.Child, child.Id);
                 StatusMessage = "Ребёнок сохранён.";
             }
@@ -176,21 +327,32 @@ public class AddFamilyViewModel : BaseViewModel
         }
     }
 
-    private ParentDTO CreateParent() => new(ParentName, ParentSurname, ParentPatronymic,
-        ParentPhone, ParentLivingPlace, RequireDate(ParentBirthDate, "родителя"), ParentEmail);
+    private ParentDTO CreateParent() => new(
+        ParentName,
+        ParentSurname,
+        ParentPatronymic,
+        ParentPhone,
+        ParentLivingPlace,
+        RequireDate(ParentBirthDate, "родителя"),
+        ParentEmail);
 
     private static DateTime RequireDate(DateTime? date, string person) =>
         date ?? throw new ArgumentException($"Укажите дату рождения {person}.");
 
     private void SelectDocuments()
     {
-        if (SelectedDocumentType is null) { StatusMessage = "Выберите тип документа."; return; }
+        if (SelectedDocumentType is null)
+        {
+            StatusMessage = "Выберите тип документа.";
+            return;
+        }
         var dialog = new OpenFileDialog
         {
             Title = "Выберите документы",
             Multiselect = true
         };
-        if (dialog.ShowDialog() != true) return;
+        if (dialog.ShowDialog() != true)
+            return;
 
         var added = AddPendingDocuments(dialog.FileNames, SelectedDocumentType.Value);
         StatusMessage = added > 0 ? $"Добавлено файлов: {added}." : "Файл не найден";
@@ -202,7 +364,8 @@ public class AddFamilyViewModel : BaseViewModel
         foreach (var path in paths.Where(File.Exists))
         {
             if (PendingDocuments.Any(document =>
-                    string.Equals(document.Path, path, StringComparison.OrdinalIgnoreCase))) continue;
+                    string.Equals(document.Path, path, StringComparison.OrdinalIgnoreCase)))
+                continue;
 
             PendingDocuments.Add(new PendingDocument { Type = type, Path = path });
             added++;
@@ -212,7 +375,8 @@ public class AddFamilyViewModel : BaseViewModel
 
     private void RemoveDocument()
     {
-        if (SelectedPendingDocument is not null) PendingDocuments.Remove(SelectedPendingDocument);
+        if (SelectedPendingDocument is not null)
+            PendingDocuments.Remove(SelectedPendingDocument);
     }
 
     private void SaveDocuments(DocumentOwnerType ownerType, Guid ownerId)
@@ -231,7 +395,9 @@ public class AddFamilyViewModel : BaseViewModel
         var number = 2;
         while (File.Exists(destination))
         {
-            destination = Path.Combine(_settings.DocumentsDirectory, $"{Path.GetFileNameWithoutExtension(name)} ({number++}){Path.GetExtension(name)}");
+            destination = Path.Combine(
+                _settings.DocumentsDirectory,
+                $"{Path.GetFileNameWithoutExtension(name)} ({number++}){Path.GetExtension(name)}");
         }
         File.Copy(sourcePath, destination);
         return destination;

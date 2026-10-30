@@ -1,5 +1,6 @@
 ﻿using KidsOrganizationApp.Domain;
 using KidsOrganizationApp.Repository.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace KidsOrganizationApp.Repository
 {
@@ -18,14 +19,30 @@ namespace KidsOrganizationApp.Repository
             _context.SaveChanges();
         }
 
+        public async Task AddAsync(Document document, CancellationToken cancellationToken = default)
+        {
+            _context.Documents.Add(document);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
         public List<Document> GetAll()
         {
             return _context.Documents.ToList();
         }
 
+        public async Task<List<Document>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.Documents.ToListAsync(cancellationToken);
+        }
+
         public Document GetById(Guid id)
         {
             return _context.Documents.Find(id);
+        }
+
+        public async Task<Document?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _context.Documents.FindAsync([id], cancellationToken);
         }
 
         public void Update(Document document)
@@ -37,14 +54,33 @@ namespace KidsOrganizationApp.Repository
             _context.SaveChanges();
         }
 
+        public async Task UpdateAsync(Document document, CancellationToken cancellationToken = default)
+        {
+            if (document == null)
+                throw new NullReferenceException(nameof(document));
+
+            _context.Documents.Update(document);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
         public void Remove(Guid id)
         {
             var doc = GetById(id);
             if (doc == null)
                 throw new NullReferenceException(nameof(doc));
-            
-            _context.Remove(doc.Id);
+
+            _context.Remove(doc);
             _context.SaveChanges();
+        }
+
+        public async Task RemoveAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            var doc = await GetByIdAsync(id, cancellationToken);
+            if (doc == null)
+                throw new NullReferenceException(nameof(doc));
+
+            _context.Remove(doc);
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

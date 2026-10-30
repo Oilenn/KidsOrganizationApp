@@ -60,7 +60,8 @@ namespace KidsOrganizationApp.Domain
 
         public bool Equals(Contact? other)
         {
-            if (other is null) return false;
+            if (other is null)
+                return false;
 
             return MobileNumber == other.MobileNumber &&
                    LivingPlace == other.LivingPlace &&

@@ -22,10 +22,11 @@ namespace KidsOrganizationApp.Domain
 
         protected Parent() { }
 
-        public Parent(FullName fullName,
-                      Contact contact,
-                      DateTime dateBirth,
-                      List<Document> documents)
+        public Parent(
+            FullName fullName,
+            Contact contact,
+            DateTime dateBirth,
+            List<Document> documents)
         {
             FullName = fullName;
             Contact = contact;
@@ -50,7 +51,7 @@ namespace KidsOrganizationApp.Domain
 
         public void AddDocuments(List<Document> documents)
         {
-            foreach(Document document in documents)
+            foreach (Document document in documents)
             {
                 AddDocument(document);
             }

@@ -77,7 +77,15 @@ public class FamilyViewModel : BaseViewModel
     public ICommand ShowInExplorerCommand { get; }
 
     private string _documentStatusMessage = string.Empty;
-    public string DocumentStatusMessage { get => _documentStatusMessage; private set { _documentStatusMessage = value; OnPropertyChanged(); } }
+    public string DocumentStatusMessage
+    {
+        get => _documentStatusMessage;
+        private set
+        {
+            _documentStatusMessage = value;
+            OnPropertyChanged();
+        }
+    }
 
     public FamilyViewModel(
         IChildService childService,
@@ -107,7 +115,8 @@ public class FamilyViewModel : BaseViewModel
         var parentId = SelectedParent?.Id;
         var childId = SelectedChild?.Id;
         Parents.Clear();
-        foreach (var parent in _parentService.GetAllParents()) Parents.Add(parent);
+        foreach (var parent in _parentService.GetAllParents())
+            Parents.Add(parent);
         SelectedParent = parentId is null ? null : Parents.FirstOrDefault(parent => parent.Id == parentId);
         if (SelectedParent is not null && childId is not null)
         {
@@ -120,7 +129,8 @@ public class FamilyViewModel : BaseViewModel
         var selectedChildId = SelectedChild?.Id;
         Children.Clear();
         SelectedChild = null;
-        if (SelectedParent is null) return;
+        if (SelectedParent is null)
+            return;
         foreach (var child in _childService.GetAllChildren().Where(child => child.ParentIds.Contains(SelectedParent.Id)))
         {
             Children.Add(child);
@@ -137,7 +147,8 @@ public class FamilyViewModel : BaseViewModel
         DocumentStatusMessage = string.Empty;
         if (SelectedParent is not null)
         {
-            foreach (var document in _documentService.GetByIds(SelectedParent.DocumentIds)) ParentDocuments.Add(document);
+            foreach (var document in _documentService.GetByIds(SelectedParent.DocumentIds))
+                ParentDocuments.Add(document);
         }
         OnPropertyChanged(nameof(ParentDocumentsEmptyVisibility));
         OnPropertyChanged(nameof(ParentDocumentsEmptyMessage));
@@ -149,7 +160,8 @@ public class FamilyViewModel : BaseViewModel
         DocumentStatusMessage = string.Empty;
         if (SelectedChild is not null)
         {
-            foreach (var document in _documentService.GetByIds(SelectedChild.DocumentIds)) ChildDocuments.Add(document);
+            foreach (var document in _documentService.GetByIds(SelectedChild.DocumentIds))
+                ChildDocuments.Add(document);
         }
         OnPropertyChanged(nameof(ChildDocumentsEmptyVisibility));
         OnPropertyChanged(nameof(ChildDocumentsEmptyMessage));
@@ -157,13 +169,15 @@ public class FamilyViewModel : BaseViewModel
 
     private void OpenDocument(DocumentDTO? document)
     {
-        if (document is null) return;
+        if (document is null)
+            return;
         DocumentStatusMessage = _documentFiles.Open(document) ?? string.Empty;
     }
 
     private void ShowInExplorer(DocumentDTO? document)
     {
-        if (document is null) return;
+        if (document is null)
+            return;
         DocumentStatusMessage = _documentFiles.ShowInExplorer(document) ?? string.Empty;
     }
 }

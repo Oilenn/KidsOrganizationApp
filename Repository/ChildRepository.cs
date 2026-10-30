@@ -25,14 +25,42 @@ namespace KidsOrganizationApp.Repository
             _context.SaveChanges();
         }
 
+        public async Task AddAsync(Child child, CancellationToken cancellationToken = default)
+        {
+            _context.Children.Add(child);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
         public List<Child> GetAll()
         {
-            return _context.Children.Include(child => child.Parents).Include(child => child.Documents).ToList();
+            return _context.Children
+                .Include(child => child.Parents)
+                .Include(child => child.Documents)
+                .ToList();
+        }
+
+        public async Task<List<Child>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.Children
+                .Include(child => child.Parents)
+                .Include(child => child.Documents)
+                .ToListAsync(cancellationToken);
         }
 
         public Child GetById(Guid id)
         {
-            return _context.Children.Include(child => child.Parents).Include(child => child.Documents).FirstOrDefault(child => child.Id == id);
+            return _context.Children
+                .Include(child => child.Parents)
+                .Include(child => child.Documents)
+                .FirstOrDefault(child => child.Id == id);
+        }
+
+        public async Task<Child?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _context.Children
+                .Include(child => child.Parents)
+                .Include(child => child.Documents)
+                .FirstOrDefaultAsync(child => child.Id == id, cancellationToken);
         }
 
         public List<Child> GetByName(string name)
@@ -41,11 +69,26 @@ namespace KidsOrganizationApp.Repository
                 .Where(c => c.FullName.Name == name)
                 .ToList();
         }
+
+        public async Task<List<Child>> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+        {
+            return await _context.Children
+                .Where(c => c.FullName.Name == name)
+                .ToListAsync(cancellationToken);
+        }
+
         public List<Child> GetBySurname(string surname)
         {
             return _context.Children
                 .Where(c => c.FullName.Surname == surname)
                 .ToList();
+        }
+
+        public async Task<List<Child>> GetBySurnameAsync(string surname, CancellationToken cancellationToken = default)
+        {
+            return await _context.Children
+                .Where(c => c.FullName.Surname == surname)
+                .ToListAsync(cancellationToken);
         }
 
         public List<Child> GetByPatronymic(string patronymic)
@@ -55,23 +98,49 @@ namespace KidsOrganizationApp.Repository
                 .ToList();
         }
 
+        public async Task<List<Child>> GetByPatronymicAsync(string patronymic, CancellationToken cancellationToken = default)
+        {
+            return await _context.Children
+                .Where(c => c.FullName.Patronymic == patronymic)
+                .ToListAsync(cancellationToken);
+        }
+
         public void Remove(Guid id)
         {
             var child = GetById(id);
             if (child == null)
                 throw new NullReferenceException(nameof(id));
 
-            _context.Remove(child.Id);
+            _context.Remove(child);
             _context.SaveChanges();
+        }
+
+        public async Task RemoveAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            var child = await GetByIdAsync(id, cancellationToken);
+            if (child == null)
+                throw new NullReferenceException(nameof(id));
+
+            _context.Remove(child);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
         public void Update(Child child)
         {
-            if(child == null)
+            if (child == null)
                 throw new NullReferenceException(nameof(child));
 
             _context.Children.Update(child);
             _context.SaveChanges();
+        }
+
+        public async Task UpdateAsync(Child child, CancellationToken cancellationToken = default)
+        {
+            if (child == null)
+                throw new NullReferenceException(nameof(child));
+
+            _context.Children.Update(child);
+            await _context.SaveChangesAsync(cancellationToken);
         }
     }
 }

@@ -32,7 +32,8 @@ namespace KidsOrganizationApp.Domain
 
         public bool Equals(FullName? other)
         {
-            if (other is null) return false;
+            if (other is null)
+                return false;
 
             return Name == other.Name &&
                    Surname == other.Surname &&

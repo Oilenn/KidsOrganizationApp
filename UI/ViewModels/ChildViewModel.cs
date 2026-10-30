@@ -24,4 +24,3 @@ namespace KidsOrganizationApp.UI.ViewModels
         }
     }
 }
-

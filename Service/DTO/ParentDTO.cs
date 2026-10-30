@@ -26,7 +26,8 @@ namespace KidsOrganizationApp.Service.DTO
 
         public ParentDTO() { }
 
-        public ParentDTO(Guid id,
+        public ParentDTO(
+            Guid id,
             string name,
             string surname,
             string patronymic,

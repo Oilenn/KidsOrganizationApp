@@ -58,8 +58,7 @@ namespace KidsOrganizationApp.Service.Mapper
             domain.FullName = new FullName(dto.Name, dto.Surname, dto.Patronymic);
 
             domain.ChangeDateBirth(dto.DateBirth);
-            domain.MembershipStatus = (MembershipStatus) dto.MembershipStatus;
+            domain.MembershipStatus = (MembershipStatus)dto.MembershipStatus;
         }
     }
 }
-    

@@ -16,7 +16,8 @@ public sealed class DocumentFileService : IDocumentFileService
     public string? Open(DocumentDTO document)
     {
         var validationError = Validate(document);
-        if (validationError is not null) return validationError;
+        if (validationError is not null)
+            return validationError;
 
         try
         {

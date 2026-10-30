@@ -2,7 +2,12 @@ using System.Windows;
 using System.Windows.Media;
 
 namespace KidsOrganizationApp.Service;
-public interface IThemeService { void Apply(bool isDarkTheme); }
+
+public interface IThemeService
+{
+    void Apply(bool isDarkTheme);
+}
+
 public class ThemeService : IThemeService
 {
     public void Apply(bool dark)
@@ -16,5 +21,6 @@ public class ThemeService : IThemeService
         Application.Current.Resources["ControlBorder"] = Brush(dark ? "#4B5563" : "#C9D2E1");
         Application.Current.Resources["SuccessText"] = Brush(dark ? "#6CE9A6" : "#027A48");
     }
+
     private static SolidColorBrush Brush(string color) => new((Color)ColorConverter.ConvertFromString(color)!);
 }

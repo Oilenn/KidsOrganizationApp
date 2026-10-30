@@ -83,7 +83,8 @@
                         <TextBlock Text="Телефон" Style="{StaticResource FieldLabel}" />
                         <TextBlock Text="{Binding SelectedParent.MobileNumber}" Style="{StaticResource FieldValue}" />
                         <TextBlock Text="Дата рождения" Style="{StaticResource FieldLabel}" />
-                        <TextBlock Text="{Binding SelectedParent.DateBirth, StringFormat={}{0:dd.MM.yyyy}}" Style="{StaticResource FieldValue}" />
+                                <TextBlock Text="{Binding SelectedParent.DateBirth, StringFormat={}{0:dd.MM.yyyy}}"
+                                           Style="{StaticResource FieldValue}" />
                         <TextBlock Text="Место жительства" Style="{StaticResource FieldLabel}" />
                         <TextBlock Text="{Binding SelectedParent.LivingPlace}" Style="{StaticResource FieldValue}" />
                         <TextBlock Text="Электронная почта" Style="{StaticResource FieldLabel}" />
@@ -98,7 +99,9 @@
                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                                      ItemTemplate="{StaticResource DocumentIconTemplate}">
                                 <ListBox.ItemsPanel>
-                                    <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
                                 </ListBox.ItemsPanel>
                             </ListBox>
                             <TextBlock Text="{Binding ParentDocumentsEmptyMessage}"
@@ -123,7 +126,8 @@
                         <TextBlock Text="Телефон" Style="{StaticResource FieldLabel}" />
                         <TextBlock Text="{Binding SelectedChild.MobileNumber}" Style="{StaticResource FieldValue}" />
                         <TextBlock Text="Дата рождения" Style="{StaticResource FieldLabel}" />
-                        <TextBlock Text="{Binding SelectedChild.DateBirth, StringFormat={}{0:dd.MM.yyyy}}" Style="{StaticResource FieldValue}" />
+                                <TextBlock Text="{Binding SelectedChild.DateBirth, StringFormat={}{0:dd.MM.yyyy}}"
+                                           Style="{StaticResource FieldValue}" />
                         <TextBlock Text="Документы ребёнка" FontSize="14" FontWeight="SemiBold"
                                    Foreground="{DynamicResource AccentText}" Margin="0,8,0,6" />
                         <Grid Height="108">
@@ -133,7 +137,9 @@
                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                                      ItemTemplate="{StaticResource DocumentIconTemplate}">
                                 <ListBox.ItemsPanel>
-                                    <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
                                 </ListBox.ItemsPanel>
                             </ListBox>
                             <TextBlock Text="{Binding ChildDocumentsEmptyMessage}"

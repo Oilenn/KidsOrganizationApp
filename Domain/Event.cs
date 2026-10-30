@@ -8,7 +8,7 @@ namespace KidsOrganizationApp.Domain
 {
     public class Event : IDomain
     {
-        public Guid Id { get; private set; }    
+        public Guid Id { get; private set; }
         public string Name { get; private set; } = string.Empty;
         public DateTime Date { get; private set; } = DateTime.MinValue;
         public List<Document> Documents { get; private set; } = new List<Document>();
@@ -53,6 +53,5 @@ namespace KidsOrganizationApp.Domain
 
             Name = name;
         }
-
     }
 }

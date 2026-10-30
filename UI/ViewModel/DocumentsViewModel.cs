@@ -44,17 +44,73 @@ public class DocumentsViewModel : BaseViewModel
     public ObservableCollection<OwnerTypeChoice> OwnerTypes { get; } = new();
 
     private DocumentTypeChoice? _selectedDocumentType;
-    public DocumentTypeChoice? SelectedDocumentType { get => _selectedDocumentType; set { _selectedDocumentType = value; OnPropertyChanged(); } }
+    public DocumentTypeChoice? SelectedDocumentType
+    {
+        get => _selectedDocumentType;
+        set
+        {
+            _selectedDocumentType = value;
+            OnPropertyChanged();
+        }
+    }
+
     private OwnerTypeChoice? _selectedOwnerType;
-    public OwnerTypeChoice? SelectedOwnerType { get => _selectedOwnerType; set { _selectedOwnerType = value; OnPropertyChanged(); LoadOwners(); } }
+    public OwnerTypeChoice? SelectedOwnerType
+    {
+        get => _selectedOwnerType;
+        set
+        {
+            _selectedOwnerType = value;
+            OnPropertyChanged();
+            LoadOwners();
+        }
+    }
+
     private OwnerChoice? _selectedOwner;
-    public OwnerChoice? SelectedOwner { get => _selectedOwner; set { _selectedOwner = value; OnPropertyChanged(); } }
+    public OwnerChoice? SelectedOwner
+    {
+        get => _selectedOwner;
+        set
+        {
+            _selectedOwner = value;
+            OnPropertyChanged();
+        }
+    }
+
     private string _documentPath = string.Empty;
-    public string DocumentPath { get => _documentPath; set { _documentPath = value; OnPropertyChanged(); } }
+    public string DocumentPath
+    {
+        get => _documentPath;
+        set
+        {
+            _documentPath = value;
+            OnPropertyChanged();
+        }
+    }
+
     private string _statusMessage = string.Empty;
-    public string StatusMessage { get => _statusMessage; set { _statusMessage = value; OnPropertyChanged(); } }
+    public string StatusMessage
+    {
+        get => _statusMessage;
+        set
+        {
+            _statusMessage = value;
+            OnPropertyChanged();
+        }
+    }
+
     private bool _isSuccessMessage;
-    public bool IsSuccessMessage { get => _isSuccessMessage; private set { _isSuccessMessage = value; OnPropertyChanged(); OnPropertyChanged(nameof(StatusBrush)); } }
+    public bool IsSuccessMessage
+    {
+        get => _isSuccessMessage;
+        private set
+        {
+            _isSuccessMessage = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(StatusBrush));
+        }
+    }
+
     public Brush StatusBrush => IsSuccessMessage
         ? (Brush)Application.Current.Resources["SuccessText"]
         : (Brush)Application.Current.Resources["ErrorText"];
@@ -127,14 +183,16 @@ public class DocumentsViewModel : BaseViewModel
     private void LoadDocuments()
     {
         Documents.Clear();
-        foreach (var document in _documentService.GetAll()) Documents.Add(document);
+        foreach (var document in _documentService.GetAll())
+            Documents.Add(document);
         OnPropertyChanged(nameof(DocumentsEmptyVisibility));
     }
 
     private void LoadOwners()
     {
         Owners.Clear();
-        if (SelectedOwnerType is null) return;
+        if (SelectedOwnerType is null)
+            return;
         IEnumerable<OwnerChoice> owners = SelectedOwnerType.Value switch
         {
             DocumentOwnerType.Child => _childService.GetAllChildren().Select(child =>
@@ -145,7 +203,8 @@ public class DocumentsViewModel : BaseViewModel
                 new OwnerChoice { Id = item.Id, Name = $"Мероприятие: {item.Name}" }),
             _ => []
         };
-        foreach (var owner in owners) Owners.Add(owner);
+        foreach (var owner in owners)
+            Owners.Add(owner);
         SelectedOwner = Owners.FirstOrDefault();
     }
 
@@ -153,9 +212,12 @@ public class DocumentsViewModel : BaseViewModel
     {
         try
         {
-            if (SelectedOwner is null) throw new ArgumentException("Выберите владельца документа.");
-            if (SelectedDocumentType is null || SelectedOwnerType is null) throw new ArgumentException("Выберите тип и владельца документа.");
-            if (string.IsNullOrWhiteSpace(DocumentPath) || !File.Exists(DocumentPath)) throw new FileNotFoundException("Файл не найден");
+            if (SelectedOwner is null)
+                throw new ArgumentException("Выберите владельца документа.");
+            if (SelectedDocumentType is null || SelectedOwnerType is null)
+                throw new ArgumentException("Выберите тип и владельца документа.");
+            if (string.IsNullOrWhiteSpace(DocumentPath) || !File.Exists(DocumentPath))
+                throw new FileNotFoundException("Файл не найден");
 
             var copiedFilePath = CopyToDocumentsDirectory(DocumentPath);
             _documentService.AddToOwner(
@@ -180,7 +242,8 @@ public class DocumentsViewModel : BaseViewModel
     private void SelectFile()
     {
         var dialog = new OpenFileDialog { Title = "Выберите документ" };
-        if (dialog.ShowDialog() == true) DocumentPath = dialog.FileName;
+        if (dialog.ShowDialog() == true)
+            DocumentPath = dialog.FileName;
     }
 
     private string CopyToDocumentsDirectory(string sourcePath)
@@ -200,25 +263,33 @@ public class DocumentsViewModel : BaseViewModel
 
     private void OpenDocument(DocumentDTO? document)
     {
-        if (document is null) return;
+        if (document is null)
+            return;
         var error = _documentFiles.Open(document);
-        if (error is not null) SetError(error);
-        else StatusMessage = string.Empty;
+        if (error is not null)
+            SetError(error);
+        else
+            StatusMessage = string.Empty;
     }
 
     private void ShowInExplorer(DocumentDTO? document)
     {
-        if (document is null) return;
+        if (document is null)
+            return;
         var error = _documentFiles.ShowInExplorer(document);
-        if (error is not null) SetError(error);
-        else StatusMessage = string.Empty;
+        if (error is not null)
+            SetError(error);
+        else
+            StatusMessage = string.Empty;
     }
 
     private void OpenDocumentsFolder()
     {
         var error = _documentFiles.OpenFolder(_settings.DocumentsDirectory);
-        if (error is not null) SetError(error);
-        else StatusMessage = string.Empty;
+        if (error is not null)
+            SetError(error);
+        else
+            StatusMessage = string.Empty;
     }
 
     private void SetError(string message)

@@ -10,7 +10,13 @@
         public List<ParentDTO> Parents { get; set; } = [];
 
         public ChildShowDTO() { }
-        public ChildShowDTO(string name, string surname, string patronymic, DateTime dateBirth, List<ParentDTO> parents)
+
+        public ChildShowDTO(
+            string name,
+            string surname,
+            string patronymic,
+            DateTime dateBirth,
+            List<ParentDTO> parents)
         {
             Name = name;
             Surname = surname;

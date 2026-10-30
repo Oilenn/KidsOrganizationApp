@@ -13,8 +13,37 @@ public class ChildDTO
     public int MembershipStatus { get; set; }
     public List<Guid> ParentIds { get; set; } = new();
     public List<Guid> DocumentIds { get; set; } = new();
-    public ChildDTO(Guid id, string name, string surname, string patronymic, string mobileNumber, string livingPlace, DateTime dateBirth, List<Guid> parents, string? email = null)
-    { Id = id; Name = name; Surname = surname; Patronymic = patronymic; MobileNumber = mobileNumber; LivingPlace = livingPlace; DateBirth = dateBirth; ParentIds = parents; Email = email; }
-    public ChildDTO(string name, string surname, string patronymic, string mobileNumber, string livingPlace, DateTime dateBirth, List<Guid> parents, string? email = null)
+
+    public ChildDTO(
+        Guid id,
+        string name,
+        string surname,
+        string patronymic,
+        string mobileNumber,
+        string livingPlace,
+        DateTime dateBirth,
+        List<Guid> parents,
+        string? email = null)
+    {
+        Id = id;
+        Name = name;
+        Surname = surname;
+        Patronymic = patronymic;
+        MobileNumber = mobileNumber;
+        LivingPlace = livingPlace;
+        DateBirth = dateBirth;
+        ParentIds = parents;
+        Email = email;
+    }
+
+    public ChildDTO(
+        string name,
+        string surname,
+        string patronymic,
+        string mobileNumber,
+        string livingPlace,
+        DateTime dateBirth,
+        List<Guid> parents,
+        string? email = null)
         : this(Guid.Empty, name, surname, patronymic, mobileNumber, livingPlace, dateBirth, parents, email) { }
 }

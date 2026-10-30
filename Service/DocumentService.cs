@@ -5,7 +5,12 @@ using KidsOrganizationApp.Service.Mapper;
 
 namespace KidsOrganizationApp.Service;
 
-public enum DocumentOwnerType { Child, Parent, Event }
+public enum DocumentOwnerType
+{
+    Child,
+    Parent,
+    Event
+}
 
 public interface IDocumentService
 {
@@ -26,9 +31,18 @@ public class DocumentService : IDocumentService
     private readonly IEventRepository _events;
     private readonly IMapper<DocumentDTO, Document> _mapper;
 
-    public DocumentService(IDocumentRepository documents, IChildRepository children, IParentRepository parents, IEventRepository events, DocumentMapper mapper)
+    public DocumentService(
+        IDocumentRepository documents,
+        IChildRepository children,
+        IParentRepository parents,
+        IEventRepository events,
+        DocumentMapper mapper)
     {
-        _documents = documents; _children = children; _parents = parents; _events = events; _mapper = mapper;
+        _documents = documents;
+        _children = children;
+        _parents = parents;
+        _events = events;
+        _mapper = mapper;
     }
 
     public DocumentDTO Add(DocumentDTO dto)
@@ -64,8 +78,21 @@ public class DocumentService : IDocumentService
     }
 
     public List<DocumentDTO> GetAll() => _mapper.ToDTO(_documents.GetAll());
-    public List<DocumentDTO> GetByIds(IEnumerable<Guid> ids) => ids.Distinct().Select(GetById).Where(document => document is not null).ToList();
+
+    public List<DocumentDTO> GetByIds(IEnumerable<Guid> ids) => ids
+        .Distinct()
+        .Select(GetById)
+        .Where(document => document is not null)
+        .ToList();
+
     public DocumentDTO GetById(Guid id) => _mapper.ToDTO(_documents.GetById(id));
-    public void Update(DocumentDTO dto) { var document = _documents.GetById(dto.Id); _mapper.UpdateDomain(document, dto); _documents.Update(document); }
+
+    public void Update(DocumentDTO dto)
+    {
+        var document = _documents.GetById(dto.Id);
+        _mapper.UpdateDomain(document, dto);
+        _documents.Update(document);
+    }
+
     public void Delete(Guid id) => _documents.Remove(id);
 }

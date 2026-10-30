@@ -47,7 +47,9 @@
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                          ItemTemplate="{StaticResource DocumentIconTemplate}">
                     <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
                 </ListBox>
                 <TextBlock Text="{Binding EventDocumentsEmptyMessage}"

@@ -18,8 +18,9 @@ namespace KidsOrganizationApp.Service
         private readonly IChildService _childService;
         private readonly IParentService _parentService;
 
-        public FamilyService(IChildService childService,
-                            IParentService parentService) 
+        public FamilyService(
+            IChildService childService,
+            IParentService parentService)
         {
             _childService = childService;
             _parentService = parentService;

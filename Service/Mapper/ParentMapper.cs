@@ -12,15 +12,14 @@ namespace KidsOrganizationApp.Service.Mapper
         public ParentDTO ToDTO(Parent parent)
         {
             var dto = new ParentDTO(
-                    parent.Id,
-                    parent.FullName.Name,
-                    parent.FullName.Surname,
-                    parent.FullName.Patronymic,
-                    parent.Contact.MobileNumber,
-                    parent.Contact.LivingPlace,
-                    parent.DateBirth,
-                    parent.Contact.Email
-                );
+                parent.Id,
+                parent.FullName.Name,
+                parent.FullName.Surname,
+                parent.FullName.Patronymic,
+                parent.Contact.MobileNumber,
+                parent.Contact.LivingPlace,
+                parent.DateBirth,
+                parent.Contact.Email);
             dto.DocumentIds = parent.Documents.Select(document => document.Id).ToList();
             return dto;
         }
@@ -52,7 +51,7 @@ namespace KidsOrganizationApp.Service.Mapper
             domain.FullName = new FullName(dto.Name, dto.Surname, dto.Patronymic);
 
             domain.ChangeDateBirth(dto.DateBirth);
-            domain.MembershipStatus = (MembershipStatus) dto.MembershipStatus;
+            domain.MembershipStatus = (MembershipStatus)dto.MembershipStatus;
         }
     }
 }

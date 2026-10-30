@@ -38,7 +38,7 @@ namespace KidsOrganizationApp.Domain
             Passport = 1,
             SNILS = 2,
             Diagnosis = 3,
-            
+
             Letter = 4,
             Order = 5
         }
