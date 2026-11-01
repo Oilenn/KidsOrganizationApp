@@ -27,6 +27,8 @@ namespace KidsOrganizationApp.Repository
 
         public async Task AddAsync(Child child, CancellationToken cancellationToken = default)
         {
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
+
             _context.Children.Add(child);
             await _context.SaveChangesAsync(cancellationToken);
         }
@@ -41,6 +43,8 @@ namespace KidsOrganizationApp.Repository
 
         public async Task<List<Child>> GetAllAsync(CancellationToken cancellationToken = default)
         {
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
+
             return await _context.Children
                 .Include(child => child.Parents)
                 .Include(child => child.Documents)
@@ -57,6 +61,8 @@ namespace KidsOrganizationApp.Repository
 
         public async Task<Child?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
+
             return await _context.Children
                 .Include(child => child.Parents)
                 .Include(child => child.Documents)
@@ -72,6 +78,8 @@ namespace KidsOrganizationApp.Repository
 
         public async Task<List<Child>> GetByNameAsync(string name, CancellationToken cancellationToken = default)
         {
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
+
             return await _context.Children
                 .Where(c => c.FullName.Name == name)
                 .ToListAsync(cancellationToken);
@@ -86,6 +94,8 @@ namespace KidsOrganizationApp.Repository
 
         public async Task<List<Child>> GetBySurnameAsync(string surname, CancellationToken cancellationToken = default)
         {
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
+
             return await _context.Children
                 .Where(c => c.FullName.Surname == surname)
                 .ToListAsync(cancellationToken);
@@ -100,6 +110,8 @@ namespace KidsOrganizationApp.Repository
 
         public async Task<List<Child>> GetByPatronymicAsync(string patronymic, CancellationToken cancellationToken = default)
         {
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
+
             return await _context.Children
                 .Where(c => c.FullName.Patronymic == patronymic)
                 .ToListAsync(cancellationToken);
@@ -118,6 +130,7 @@ namespace KidsOrganizationApp.Repository
         public async Task RemoveAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var child = await GetByIdAsync(id, cancellationToken);
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
             if (child == null)
                 throw new NullReferenceException(nameof(id));
 
@@ -136,6 +149,8 @@ namespace KidsOrganizationApp.Repository
 
         public async Task UpdateAsync(Child child, CancellationToken cancellationToken = default)
         {
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
+
             if (child == null)
                 throw new NullReferenceException(nameof(child));
 

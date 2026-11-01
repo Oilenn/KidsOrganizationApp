@@ -22,6 +22,8 @@ namespace KidsOrganizationApp.Repository
 
         public async Task AddAsync(Event eventEntity, CancellationToken cancellationToken = default)
         {
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
+
             _context.Events.Add(eventEntity);
             await _context.SaveChangesAsync(cancellationToken);
         }
@@ -35,6 +37,8 @@ namespace KidsOrganizationApp.Repository
 
         public async Task<List<Event>> GetAllAsync(CancellationToken cancellationToken = default)
         {
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
+
             return await _context.Events
                 .Include(e => e.Documents)
                 .ToListAsync(cancellationToken);
@@ -49,6 +53,8 @@ namespace KidsOrganizationApp.Repository
 
         public async Task<Event?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
+
             return await _context.Events
                 .Include(e => e.Documents)
                 .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
@@ -65,6 +71,8 @@ namespace KidsOrganizationApp.Repository
 
         public async Task UpdateAsync(Event eventEntity, CancellationToken cancellationToken = default)
         {
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
+
             if (eventEntity == null)
                 throw new NullReferenceException(nameof(eventEntity));
 
@@ -85,6 +93,7 @@ namespace KidsOrganizationApp.Repository
         public async Task RemoveAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var eventEntity = await GetByIdAsync(id, cancellationToken);
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
             if (eventEntity == null)
                 throw new NullReferenceException(nameof(eventEntity));
 

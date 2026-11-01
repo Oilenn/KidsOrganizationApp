@@ -21,6 +21,8 @@ namespace KidsOrganizationApp.Repository
 
         public async Task AddAsync(Document document, CancellationToken cancellationToken = default)
         {
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
+
             _context.Documents.Add(document);
             await _context.SaveChangesAsync(cancellationToken);
         }
@@ -32,6 +34,8 @@ namespace KidsOrganizationApp.Repository
 
         public async Task<List<Document>> GetAllAsync(CancellationToken cancellationToken = default)
         {
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
+
             return await _context.Documents.ToListAsync(cancellationToken);
         }
 
@@ -42,6 +46,8 @@ namespace KidsOrganizationApp.Repository
 
         public async Task<Document?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
+
             return await _context.Documents.FindAsync([id], cancellationToken);
         }
 
@@ -56,6 +62,8 @@ namespace KidsOrganizationApp.Repository
 
         public async Task UpdateAsync(Document document, CancellationToken cancellationToken = default)
         {
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
+
             if (document == null)
                 throw new NullReferenceException(nameof(document));
 
@@ -76,6 +84,7 @@ namespace KidsOrganizationApp.Repository
         public async Task RemoveAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var doc = await GetByIdAsync(id, cancellationToken);
+            using var operation = await _context.EnterOperationAsync(cancellationToken);
             if (doc == null)
                 throw new NullReferenceException(nameof(doc));
 
