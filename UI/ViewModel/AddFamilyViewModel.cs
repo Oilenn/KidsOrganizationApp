@@ -41,11 +41,12 @@ public class AddFamilyViewModel : BaseViewModel
     private readonly IParentService _parentService;
     private readonly IDocumentService _documentService;
     private readonly IApplicationSettingsService _settings;
+    private readonly IDocumentFileService _documentFiles;
     private ParentDTO? _selectedParent;
     private bool _isParentForm;
 
-    public event Action? Saved;
-    public event Action? Cancelled;
+    public event Func<Task>? Saved;
+    public event Func<Task>? Cancelled;
 
     public ObservableCollection<DocumentTypeChoice> DocumentTypes { get; } = new();
     public ObservableCollection<PendingDocument> PendingDocuments { get; } = new();
@@ -241,20 +242,22 @@ public class AddFamilyViewModel : BaseViewModel
         IChildService childService,
         IParentService parentService,
         IDocumentService documentService,
-        IApplicationSettingsService settings)
+        IApplicationSettingsService settings,
+        IDocumentFileService documentFiles)
     {
         _childService = childService;
         _parentService = parentService;
         _documentService = documentService;
         _settings = settings;
+        _documentFiles = documentFiles;
         DocumentTypes.Add(new() { Value = Document.DocumentType.Passport, Name = "Паспорт" });
         DocumentTypes.Add(new() { Value = Document.DocumentType.SNILS, Name = "СНИЛС" });
         DocumentTypes.Add(new() { Value = Document.DocumentType.Diagnosis, Name = "Диагноз" });
         DocumentTypes.Add(new() { Value = Document.DocumentType.Letter, Name = "Письмо" });
         DocumentTypes.Add(new() { Value = Document.DocumentType.Order, Name = "Приказ" });
         SelectedDocumentType = DocumentTypes.First();
-        SaveCommand = new RelayCommand(Save);
-        CancelCommand = new RelayCommand(() => Cancelled?.Invoke());
+        SaveCommand = new AsyncRelayCommand(SaveAsync);
+        CancelCommand = new AsyncRelayCommand(CancelAsync);
         SelectDocumentsCommand = new RelayCommand(SelectDocuments);
         RemoveDocumentCommand = new RelayCommand(RemoveDocument);
     }
@@ -294,21 +297,23 @@ public class AddFamilyViewModel : BaseViewModel
         OnPropertyChanged(nameof(ParentFieldsVisibility));
     }
 
-    private void Save()
+    private async Task SaveAsync()
     {
         try
         {
+            var documents = PendingDocuments.ToList();
+            var documentsDirectory = _settings.DocumentsDirectory;
             if (_isParentForm)
             {
-                var parent = _parentService.Add(CreateParent());
-                SaveDocuments(DocumentOwnerType.Parent, parent.Id);
+                var parent = await _parentService.AddAsync(CreateParent());
+                await SaveDocumentsAsync(documents, documentsDirectory, DocumentOwnerType.Parent, parent.Id);
                 StatusMessage = "Родитель или законный представитель сохранён.";
             }
             else
             {
                 if (_selectedParent is null)
                     throw new InvalidOperationException("Выберите родителя или законного представителя.");
-                var child = _childService.AddChild(new ChildDTO(
+                var child = await _childService.AddChildAsync(new ChildDTO(
                     ChildName,
                     ChildSurname,
                     ChildPatronymic,
@@ -316,14 +321,27 @@ public class AddFamilyViewModel : BaseViewModel
                     ChildLivingPlace,
                     RequireDate(ChildBirthDate, "ребёнка"),
                     [_selectedParent.Id]));
-                SaveDocuments(DocumentOwnerType.Child, child.Id);
+                await SaveDocumentsAsync(documents, documentsDirectory, DocumentOwnerType.Child, child.Id);
                 StatusMessage = "Ребёнок сохранён.";
             }
-            Saved?.Invoke();
+            if (Saved is not null)
+            {
+                foreach (Func<Task> handler in Saved.GetInvocationList())
+                    await handler();
+            }
         }
         catch (Exception ex)
         {
             StatusMessage = ex.Message;
+        }
+    }
+
+    private async Task CancelAsync()
+    {
+        if (Cancelled is not null)
+        {
+            foreach (Func<Task> handler in Cancelled.GetInvocationList())
+                await handler();
         }
     }
 
@@ -379,28 +397,17 @@ public class AddFamilyViewModel : BaseViewModel
             PendingDocuments.Remove(SelectedPendingDocument);
     }
 
-    private void SaveDocuments(DocumentOwnerType ownerType, Guid ownerId)
+    private async Task SaveDocumentsAsync(
+        List<PendingDocument> documents,
+        string documentsDirectory,
+        DocumentOwnerType ownerType,
+        Guid ownerId)
     {
-        foreach (var document in PendingDocuments)
+        foreach (var document in documents)
         {
-            var destination = CopyToDocumentsDirectory(document.Path);
-            _documentService.AddToOwner(new DocumentDTO(Guid.Empty, document.Type, destination), ownerType, ownerId);
+            var destination = await _documentFiles.CopyToDirectoryAsync(document.Path, documentsDirectory);
+            await _documentService.AddToOwnerAsync(new DocumentDTO(Guid.Empty, document.Type, destination), ownerType, ownerId);
         }
-    }
-
-    private string CopyToDocumentsDirectory(string sourcePath)
-    {
-        var name = Path.GetFileName(sourcePath);
-        var destination = Path.Combine(_settings.DocumentsDirectory, name);
-        var number = 2;
-        while (File.Exists(destination))
-        {
-            destination = Path.Combine(
-                _settings.DocumentsDirectory,
-                $"{Path.GetFileNameWithoutExtension(name)} ({number++}){Path.GetExtension(name)}");
-        }
-        File.Copy(sourcePath, destination);
-        return destination;
     }
 
     private void ClearForm()

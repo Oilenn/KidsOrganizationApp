@@ -2,6 +2,7 @@ using KidsOrganizationApp.Repository;
 using KidsOrganizationApp.Repository.Interface;
 using KidsOrganizationApp.Service;
 using KidsOrganizationApp.Service.Mapper;
+using KidsOrganizationApp.UI.View;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 
@@ -11,10 +12,10 @@ public partial class App : Application
 {
     public static IServiceProvider Provider { get; private set; } = null!;
 
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
-        using var db = new AppDbContext();
-        db.Database.EnsureCreated();
+        await using var db = new AppDbContext();
+        await db.Database.EnsureCreatedAsync();
 
         var services = new ServiceCollection();
         services.AddDbContext<AppDbContext>();
@@ -42,7 +43,13 @@ public partial class App : Application
         services.AddTransient<EventsViewModel>();
         services.AddTransient<SettingsViewModel>();
         Provider = services.BuildServiceProvider();
-        Provider.GetRequiredService<IThemeService>().Apply(Provider.GetRequiredService<IApplicationSettingsService>().IsDarkTheme);
+        var settings = Provider.GetRequiredService<IApplicationSettingsService>();
+        await settings.InitializeAsync();
+        Provider.GetRequiredService<IThemeService>().Apply(settings.IsDarkTheme);
         base.OnStartup(e);
+
+        var mainWindow = new MainWindow();
+        await ((MainViewModel)mainWindow.DataContext).InitializeAsync();
+        mainWindow.Show();
     }
 }

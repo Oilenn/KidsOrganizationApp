@@ -14,12 +14,14 @@ public class FamilyViewModel : BaseViewModel
     private readonly IDocumentService _documentService;
     private readonly IDocumentFileService _documentFiles;
     private readonly RelayCommand _addChildCommand;
-    private readonly RelayCommand _addParentDocumentCommand;
-    private readonly RelayCommand _addChildDocumentCommand;
+    private readonly AsyncRelayCommand _addParentDocumentCommand;
+    private readonly AsyncRelayCommand _addChildDocumentCommand;
+    private readonly AsyncRelayCommand _loadParentCommand;
+    private readonly AsyncRelayCommand _loadChildDocumentsCommand;
 
     public event Action<ParentDTO>? AddChildRequested;
     public event Action? AddParentRequested;
-    public event Action<DocumentOwnerType, Guid>? DocumentAddRequested;
+    public event Func<DocumentOwnerType, Guid, Task>? DocumentAddRequested;
 
     public ObservableCollection<ParentDTO> Parents { get; } = new();
     public ObservableCollection<ChildDTO> Children { get; } = new();
@@ -32,13 +34,10 @@ public class FamilyViewModel : BaseViewModel
         get => _selectedParent;
         set
         {
-            _selectedParent = value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(SelectedParentVisibility));
-            _addChildCommand.NotifyCanExecuteChanged();
-            _addParentDocumentCommand.NotifyCanExecuteChanged();
-            LoadChildren();
-            LoadParentDocuments();
+            if (_selectedParent == value)
+                return;
+            UpdateSelectedParent(value);
+            _loadParentCommand.Execute(null);
         }
     }
 
@@ -48,11 +47,10 @@ public class FamilyViewModel : BaseViewModel
         get => _selectedChild;
         set
         {
-            _selectedChild = value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(SelectedChildVisibility));
-            _addChildDocumentCommand.NotifyCanExecuteChanged();
-            LoadChildDocuments();
+            if (_selectedChild == value)
+                return;
+            UpdateSelectedChild(value);
+            _loadChildDocumentsCommand.Execute(null);
         }
     }
 
@@ -98,73 +96,125 @@ public class FamilyViewModel : BaseViewModel
         _documentService = documentService;
         _documentFiles = documentFiles;
         _addChildCommand = new RelayCommand(() => AddChildRequested?.Invoke(SelectedParent!), () => SelectedParent is not null);
-        _addParentDocumentCommand = new RelayCommand(
-            () => DocumentAddRequested?.Invoke(DocumentOwnerType.Parent, SelectedParent!.Id),
+        _addParentDocumentCommand = new AsyncRelayCommand(
+            () => RequestDocumentAsync(DocumentOwnerType.Parent, SelectedParent!.Id),
             () => SelectedParent is not null);
-        _addChildDocumentCommand = new RelayCommand(
-            () => DocumentAddRequested?.Invoke(DocumentOwnerType.Child, SelectedChild!.Id),
+        _addChildDocumentCommand = new AsyncRelayCommand(
+            () => RequestDocumentAsync(DocumentOwnerType.Child, SelectedChild!.Id),
             () => SelectedChild is not null);
         AddParentCommand = new RelayCommand(() => AddParentRequested?.Invoke());
         OpenDocumentCommand = new RelayCommand<DocumentDTO?>(OpenDocument);
         ShowInExplorerCommand = new RelayCommand<DocumentDTO?>(ShowInExplorer);
-        Refresh();
+        _loadParentCommand = new AsyncRelayCommand(LoadParentAsync);
+        _loadChildDocumentsCommand = new AsyncRelayCommand(LoadChildDocumentsAsync);
     }
 
-    public void Refresh()
+    public async Task RefreshAsync()
     {
+        var parents = await _parentService.GetAllParentsAsync();
         var parentId = SelectedParent?.Id;
         var childId = SelectedChild?.Id;
         Parents.Clear();
-        foreach (var parent in _parentService.GetAllParents())
+        foreach (var parent in parents)
             Parents.Add(parent);
-        SelectedParent = parentId is null ? null : Parents.FirstOrDefault(parent => parent.Id == parentId);
+        UpdateSelectedParent(parentId is null ? null : Parents.FirstOrDefault(parent => parent.Id == parentId));
+        await LoadParentAsync();
         if (SelectedParent is not null && childId is not null)
         {
-            SelectedChild = Children.FirstOrDefault(child => child.Id == childId);
+            UpdateSelectedChild(Children.FirstOrDefault(child => child.Id == childId));
+            await LoadChildDocumentsAsync();
         }
     }
 
-    private void LoadChildren()
+    private void UpdateSelectedParent(ParentDTO? parent)
     {
+        _selectedParent = parent;
+        OnPropertyChanged(nameof(SelectedParent));
+        OnPropertyChanged(nameof(SelectedParentVisibility));
+        _addChildCommand.NotifyCanExecuteChanged();
+        _addParentDocumentCommand.NotifyCanExecuteChanged();
+    }
+
+    private void UpdateSelectedChild(ChildDTO? child)
+    {
+        _selectedChild = child;
+        OnPropertyChanged(nameof(SelectedChild));
+        OnPropertyChanged(nameof(SelectedChildVisibility));
+        _addChildDocumentCommand.NotifyCanExecuteChanged();
+    }
+
+    private async Task LoadParentAsync()
+    {
+        var parent = SelectedParent;
+        await LoadChildrenAsync();
+        if (SelectedParent == parent)
+            await LoadParentDocumentsAsync();
+    }
+
+    private async Task LoadChildrenAsync()
+    {
+        var parent = SelectedParent;
         var selectedChildId = SelectedChild?.Id;
         Children.Clear();
-        SelectedChild = null;
-        if (SelectedParent is null)
+        UpdateSelectedChild(null);
+        await LoadChildDocumentsAsync();
+        if (parent is null)
             return;
-        foreach (var child in _childService.GetAllChildren().Where(child => child.ParentIds.Contains(SelectedParent.Id)))
+        var children = await _childService.GetAllChildrenAsync();
+        if (SelectedParent != parent)
+            return;
+        foreach (var child in children.Where(child => child.ParentIds.Contains(parent.Id)))
         {
             Children.Add(child);
         }
         if (selectedChildId is not null)
         {
-            SelectedChild = Children.FirstOrDefault(child => child.Id == selectedChildId);
+            UpdateSelectedChild(Children.FirstOrDefault(child => child.Id == selectedChildId));
+            await LoadChildDocumentsAsync();
         }
     }
 
-    private void LoadParentDocuments()
+    private async Task LoadParentDocumentsAsync()
     {
+        var parent = SelectedParent;
         ParentDocuments.Clear();
         DocumentStatusMessage = string.Empty;
-        if (SelectedParent is not null)
+        if (parent is not null)
         {
-            foreach (var document in _documentService.GetByIds(SelectedParent.DocumentIds))
+            var documents = await _documentService.GetByIdsAsync(parent.DocumentIds);
+            if (SelectedParent != parent)
+                return;
+            foreach (var document in documents)
                 ParentDocuments.Add(document);
         }
         OnPropertyChanged(nameof(ParentDocumentsEmptyVisibility));
         OnPropertyChanged(nameof(ParentDocumentsEmptyMessage));
     }
 
-    private void LoadChildDocuments()
+    private async Task LoadChildDocumentsAsync()
     {
+        var child = SelectedChild;
         ChildDocuments.Clear();
         DocumentStatusMessage = string.Empty;
-        if (SelectedChild is not null)
+        if (child is not null)
         {
-            foreach (var document in _documentService.GetByIds(SelectedChild.DocumentIds))
+            var documents = await _documentService.GetByIdsAsync(child.DocumentIds);
+            if (SelectedChild != child)
+                return;
+            foreach (var document in documents)
                 ChildDocuments.Add(document);
         }
         OnPropertyChanged(nameof(ChildDocumentsEmptyVisibility));
         OnPropertyChanged(nameof(ChildDocumentsEmptyMessage));
+    }
+
+    private async Task RequestDocumentAsync(DocumentOwnerType ownerType, Guid ownerId)
+    {
+        if (DocumentAddRequested is not null)
+        {
+            foreach (Func<DocumentOwnerType, Guid, Task> handler in DocumentAddRequested.GetInvocationList())
+                await handler(ownerType, ownerId);
+        }
     }
 
     private void OpenDocument(DocumentDTO? document)

@@ -12,8 +12,9 @@ public class EventsViewModel : BaseViewModel
     private readonly IEventService _eventService;
     private readonly IDocumentService _documentService;
     private readonly IDocumentFileService _documentFiles;
+    private readonly AsyncRelayCommand _loadDocumentsCommand;
 
-    public event Action<DocumentOwnerType, Guid>? DocumentAddRequested;
+    public event Func<DocumentOwnerType, Guid, Task>? DocumentAddRequested;
     public ObservableCollection<EventDTO> Events { get; } = new();
     public ObservableCollection<DocumentDTO> AttachedDocuments { get; } = new();
 
@@ -23,9 +24,11 @@ public class EventsViewModel : BaseViewModel
         get => _selectedEvent;
         set
         {
+            if (_selectedEvent == value)
+                return;
             _selectedEvent = value;
             OnPropertyChanged();
-            LoadDocuments();
+            _loadDocumentsCommand.Execute(null);
         }
     }
 
@@ -92,54 +95,67 @@ public class EventsViewModel : BaseViewModel
         _eventService = eventService;
         _documentService = documentService;
         _documentFiles = documentFiles;
-        SaveCommand = new RelayCommand(Save);
-        AddDocumentCommand = new RelayCommand(() =>
-        {
-            if (SelectedEvent is not null)
-                DocumentAddRequested?.Invoke(DocumentOwnerType.Event, SelectedEvent.Id);
-        });
+        SaveCommand = new AsyncRelayCommand(SaveAsync);
+        AddDocumentCommand = new AsyncRelayCommand(AddDocumentAsync);
         OpenDocumentCommand = new RelayCommand<DocumentDTO?>(OpenDocument);
         ShowInExplorerCommand = new RelayCommand<DocumentDTO?>(ShowInExplorer);
-        Refresh();
+        _loadDocumentsCommand = new AsyncRelayCommand(LoadDocumentsAsync);
     }
 
-    public void Refresh()
+    public async Task RefreshAsync()
     {
+        var events = await _eventService.GetAllAsync();
         var selectedId = SelectedEvent?.Id;
         Events.Clear();
-        foreach (var item in _eventService.GetAll())
+        foreach (var item in events)
             Events.Add(item);
-        SelectedEvent = selectedId is null ? null : Events.FirstOrDefault(item => item.Id == selectedId);
+        _selectedEvent = selectedId is null ? null : Events.FirstOrDefault(item => item.Id == selectedId);
+        OnPropertyChanged(nameof(SelectedEvent));
+        await LoadDocumentsAsync();
     }
 
-    private void LoadDocuments()
+    private async Task LoadDocumentsAsync()
     {
+        var selectedEvent = SelectedEvent;
         AttachedDocuments.Clear();
         DocumentStatusMessage = string.Empty;
-        if (SelectedEvent is not null)
+        if (selectedEvent is not null)
         {
-            foreach (var document in _documentService.GetByIds(SelectedEvent.Documents))
+            var documents = await _documentService.GetByIdsAsync(selectedEvent.Documents);
+            if (SelectedEvent != selectedEvent)
+                return;
+            foreach (var document in documents)
                 AttachedDocuments.Add(document);
         }
         OnPropertyChanged(nameof(EventDocumentsEmptyVisibility));
         OnPropertyChanged(nameof(EventDocumentsEmptyMessage));
     }
 
-    private void Save()
+    private async Task SaveAsync()
     {
         try
         {
             if (EventDate is null)
                 throw new ArgumentException("Укажите дату мероприятия.");
-            _eventService.Add(new EventDTO(Guid.Empty, EventName, EventDate.Value));
+            await _eventService.AddAsync(new EventDTO(Guid.Empty, EventName, EventDate.Value));
             EventName = string.Empty;
             EventDate = DateTime.Today;
             StatusMessage = "Мероприятие добавлено.";
-            Refresh();
+            await RefreshAsync();
         }
         catch (Exception ex)
         {
             StatusMessage = ex.Message;
+        }
+    }
+
+    private async Task AddDocumentAsync()
+    {
+        var selectedEvent = SelectedEvent;
+        if (selectedEvent is not null && DocumentAddRequested is not null)
+        {
+            foreach (Func<DocumentOwnerType, Guid, Task> handler in DocumentAddRequested.GetInvocationList())
+                await handler(DocumentOwnerType.Event, selectedEvent.Id);
         }
     }
 

@@ -53,27 +53,34 @@ public class MainViewModel : BaseViewModel
         _settings = settings;
         _settingsViewModel = settingsViewModel;
         _currentViewModel = familyViewModel;
-        OpenFamilyCommand = new RelayCommand(() =>
+        OpenFamilyCommand = new AsyncRelayCommand(async () =>
         {
-            _familyViewModel.Refresh();
+            await _familyViewModel.RefreshAsync();
             CurrentViewModel = _familyViewModel;
         });
         OpenDocsCommand = new RelayCommand(() => CurrentViewModel = _documentsViewModel);
-        OpenEventsCommand = new RelayCommand(() =>
+        OpenEventsCommand = new AsyncRelayCommand(async () =>
         {
-            _eventsViewModel.Refresh();
+            await _eventsViewModel.RefreshAsync();
             CurrentViewModel = _eventsViewModel;
         });
-        ExportDatabaseCommand = new RelayCommand(ExportDatabase);
-        SelectDocumentsFolderCommand = new RelayCommand(SelectDocumentsFolder);
+        ExportDatabaseCommand = new AsyncRelayCommand(ExportDatabaseAsync);
+        SelectDocumentsFolderCommand = new AsyncRelayCommand(SelectDocumentsFolderAsync);
         OpenSettingsCommand = new RelayCommand(OpenSettings);
         OpenAboutCommand = new RelayCommand(OpenAbout);
         _familyViewModel.AddChildRequested += OpenAddChild;
         _familyViewModel.AddParentRequested += OpenAddParent;
-        _familyViewModel.DocumentAddRequested += OpenDocumentsForOwner;
-        _eventsViewModel.DocumentAddRequested += OpenDocumentsForOwner;
-        _addFamilyViewModel.Saved += ReturnToFamily;
-        _addFamilyViewModel.Cancelled += ReturnToFamily;
+        _familyViewModel.DocumentAddRequested += OpenDocumentsForOwnerAsync;
+        _eventsViewModel.DocumentAddRequested += OpenDocumentsForOwnerAsync;
+        _addFamilyViewModel.Saved += ReturnToFamilyAsync;
+        _addFamilyViewModel.Cancelled += ReturnToFamilyAsync;
+    }
+
+    public async Task InitializeAsync()
+    {
+        await _familyViewModel.RefreshAsync();
+        await _documentsViewModel.InitializeAsync();
+        await _eventsViewModel.RefreshAsync();
     }
 
     private void OpenAddChild(ParentDTO parent)
@@ -88,19 +95,19 @@ public class MainViewModel : BaseViewModel
         CurrentViewModel = _addFamilyViewModel;
     }
 
-    private void ReturnToFamily()
+    private async Task ReturnToFamilyAsync()
     {
-        _familyViewModel.Refresh();
+        await _familyViewModel.RefreshAsync();
         CurrentViewModel = _familyViewModel;
     }
 
-    private void OpenDocumentsForOwner(DocumentOwnerType ownerType, Guid ownerId)
+    private async Task OpenDocumentsForOwnerAsync(DocumentOwnerType ownerType, Guid ownerId)
     {
-        _documentsViewModel.PrepareForOwner(ownerType, ownerId);
+        await _documentsViewModel.PrepareForOwnerAsync(ownerType, ownerId);
         CurrentViewModel = _documentsViewModel;
     }
 
-    private void ExportDatabase()
+    private async Task ExportDatabaseAsync()
     {
         var dialog = new SaveFileDialog
         {
@@ -112,7 +119,7 @@ public class MainViewModel : BaseViewModel
             return;
         try
         {
-            _exportService.ExportArchive(dialog.FileName);
+            await _exportService.ExportArchiveAsync(dialog.FileName);
             MessageBox.Show("Архив успешно создан.", "Выгрузка базы данных", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)
@@ -121,7 +128,7 @@ public class MainViewModel : BaseViewModel
         }
     }
 
-    private void SelectDocumentsFolder()
+    private async Task SelectDocumentsFolderAsync()
     {
         var dialog = new OpenFolderDialog
         {
@@ -129,7 +136,7 @@ public class MainViewModel : BaseViewModel
             InitialDirectory = _settings.DocumentsDirectory
         };
         if (dialog.ShowDialog() == true)
-            _settings.SetDocumentsDirectory(dialog.FolderName);
+            await _settings.SetDocumentsDirectoryAsync(dialog.FolderName);
     }
 
     private void OpenSettings()

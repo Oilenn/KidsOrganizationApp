@@ -38,13 +38,14 @@ public class SettingsViewModel : BaseViewModel
         _settings = settings;
         _themeService = themeService;
         _isDarkTheme = settings.IsDarkTheme;
-        SaveCommand = new RelayCommand(Save);
+        SaveCommand = new AsyncRelayCommand(SaveAsync);
     }
 
-    private void Save()
+    private async Task SaveAsync()
     {
-        _settings.SetDarkTheme(IsDarkTheme);
-        _themeService.Apply(IsDarkTheme);
+        var isDarkTheme = IsDarkTheme;
+        await _settings.SetDarkThemeAsync(isDarkTheme);
+        _themeService.Apply(isDarkTheme);
         Saved?.Invoke();
     }
 }
