@@ -9,10 +9,58 @@ public interface IDocumentFileService
     string? Open(DocumentDTO document);
     string? ShowInExplorer(DocumentDTO document);
     string? OpenFolder(string directoryPath);
+    Task CopyAsync(
+        string sourcePath,
+        string destinationPath,
+        bool overwrite = false,
+        CancellationToken cancellationToken = default);
+    Task<string> CopyToDirectoryAsync(
+        string sourcePath,
+        string directoryPath,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class DocumentFileService : IDocumentFileService
 {
+    private readonly SemaphoreSlim _copyLock = new(1, 1);
+
+    public Task CopyAsync(
+        string sourcePath,
+        string destinationPath,
+        bool overwrite = false,
+        CancellationToken cancellationToken = default)
+    {
+        // File.Copy сохраняет метаданные файла и не предоставляет асинхронную версию.
+        return Task.Run(() => File.Copy(sourcePath, destinationPath, overwrite), cancellationToken);
+    }
+
+    public async Task<string> CopyToDirectoryAsync(
+        string sourcePath,
+        string directoryPath,
+        CancellationToken cancellationToken = default)
+    {
+        await _copyLock.WaitAsync(cancellationToken);
+        try
+        {
+            var name = Path.GetFileName(sourcePath);
+            var destination = Path.Combine(directoryPath, name);
+            var number = 2;
+            while (File.Exists(destination))
+            {
+                destination = Path.Combine(
+                    directoryPath,
+                    $"{Path.GetFileNameWithoutExtension(name)} ({number++}){Path.GetExtension(name)}");
+            }
+
+            await CopyAsync(sourcePath, destination, cancellationToken: cancellationToken);
+            return destination;
+        }
+        finally
+        {
+            _copyLock.Release();
+        }
+    }
+
     public string? Open(DocumentDTO document)
     {
         var validationError = Validate(document);

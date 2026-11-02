@@ -30,7 +30,7 @@ namespace KidsOrganizationApp.Service.DTO
             Guid id,
             string name,
             string surname,
-            string patronymic,
+            string? patronymic,
             string mobileNumber,
             string livingPlace,
             DateTime dateBirth,
@@ -41,7 +41,7 @@ namespace KidsOrganizationApp.Service.DTO
             Surname = surname;
             MobileNumber = mobileNumber;
             LivingPlace = livingPlace;
-            Patronymic = patronymic ?? throw new ArgumentNullException(nameof(patronymic));
+            Patronymic = patronymic ?? string.Empty;
             DateBirth = dateBirth;
             Email = email ?? string.Empty;
         }
@@ -49,7 +49,7 @@ namespace KidsOrganizationApp.Service.DTO
         public ParentDTO(
             string name,
             string surname,
-            string patronymic,
+            string? patronymic,
             string mobileNumber,
             string livingPlace,
             DateTime dateBirth,
@@ -59,7 +59,7 @@ namespace KidsOrganizationApp.Service.DTO
             Surname = surname;
             MobileNumber = mobileNumber;
             LivingPlace = livingPlace;
-            Patronymic = patronymic ?? throw new ArgumentNullException(nameof(patronymic));
+            Patronymic = patronymic ?? string.Empty;
             DateBirth = dateBirth;
             Email = email ?? string.Empty;
         }

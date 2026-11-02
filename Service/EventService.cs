@@ -8,11 +8,11 @@ namespace KidsOrganizationApp.Service
 {
     public interface IEventService
     {
-        EventDTO Add(EventDTO dto);
-        EventDTO GetById(Guid id);
-        List<EventDTO> GetAll();
-        void Update(EventDTO dto);
-        void Delete(Guid id);
+        Task<EventDTO> AddAsync(EventDTO dto, CancellationToken cancellationToken = default);
+        Task<EventDTO> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<List<EventDTO>> GetAllAsync(CancellationToken cancellationToken = default);
+        Task UpdateAsync(EventDTO dto, CancellationToken cancellationToken = default);
+        Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
     }
 
     public class EventService : IEventService
@@ -26,37 +26,39 @@ namespace KidsOrganizationApp.Service
             _mapper = mapper;
         }
 
-        public EventDTO Add(EventDTO dto)
+        public async Task<EventDTO> AddAsync(EventDTO dto, CancellationToken cancellationToken = default)
         {
             var ev = _mapper.ToNewDomain(dto);
 
-            _eventRepository.Add(ev);
+            await _eventRepository.AddAsync(ev, cancellationToken);
             return _mapper.ToDTO(ev);
         }
 
-        public List<EventDTO> GetAll()
+        public async Task<List<EventDTO>> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            return _eventRepository.GetAll()
+            var events = await _eventRepository.GetAllAsync(cancellationToken);
+            return events
                 .Select(_mapper.ToDTO)
                 .ToList();
         }
 
-        public EventDTO GetById(Guid id)
+        public async Task<EventDTO> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return _mapper.ToDTO(_eventRepository.GetById(id));
+            var ev = await _eventRepository.GetByIdAsync(id, cancellationToken);
+            return _mapper.ToDTO(ev!);
         }
 
-        public void Update(EventDTO dto)
+        public async Task UpdateAsync(EventDTO dto, CancellationToken cancellationToken = default)
         {
-            var ev = _eventRepository.GetById(dto.Id);
-            _mapper.UpdateDomain(ev, dto);
+            var ev = await _eventRepository.GetByIdAsync(dto.Id, cancellationToken);
+            _mapper.UpdateDomain(ev!, dto);
 
-            _eventRepository.Update(ev);
+            await _eventRepository.UpdateAsync(ev!, cancellationToken);
         }
 
-        public void Delete(Guid id)
+        public Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            _eventRepository.Remove(id);
+            return _eventRepository.RemoveAsync(id, cancellationToken);
         }
     }
 }

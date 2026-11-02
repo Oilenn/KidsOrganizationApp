@@ -14,13 +14,17 @@ public enum DocumentOwnerType
 
 public interface IDocumentService
 {
-    DocumentDTO Add(DocumentDTO dto);
-    DocumentDTO AddToOwner(DocumentDTO dto, DocumentOwnerType ownerType, Guid ownerId);
-    List<DocumentDTO> GetAll();
-    List<DocumentDTO> GetByIds(IEnumerable<Guid> ids);
-    DocumentDTO GetById(Guid id);
-    void Update(DocumentDTO dto);
-    void Delete(Guid id);
+    Task<DocumentDTO> AddAsync(DocumentDTO dto, CancellationToken cancellationToken = default);
+    Task<DocumentDTO> AddToOwnerAsync(
+        DocumentDTO dto,
+        DocumentOwnerType ownerType,
+        Guid ownerId,
+        CancellationToken cancellationToken = default);
+    Task<List<DocumentDTO>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<List<DocumentDTO>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default);
+    Task<DocumentDTO> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task UpdateAsync(DocumentDTO dto, CancellationToken cancellationToken = default);
+    Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }
 
 public class DocumentService : IDocumentService
@@ -45,54 +49,76 @@ public class DocumentService : IDocumentService
         _mapper = mapper;
     }
 
-    public DocumentDTO Add(DocumentDTO dto)
+    public async Task<DocumentDTO> AddAsync(DocumentDTO dto, CancellationToken cancellationToken = default)
     {
         var document = _mapper.ToNewDomain(dto);
-        _documents.Add(document);
+        await _documents.AddAsync(document, cancellationToken);
         return _mapper.ToDTO(document);
     }
 
-    public DocumentDTO AddToOwner(DocumentDTO dto, DocumentOwnerType ownerType, Guid ownerId)
+    public async Task<DocumentDTO> AddToOwnerAsync(
+        DocumentDTO dto,
+        DocumentOwnerType ownerType,
+        Guid ownerId,
+        CancellationToken cancellationToken = default)
     {
         var document = _mapper.ToNewDomain(dto);
-        _documents.Add(document);
+        await _documents.AddAsync(document, cancellationToken);
         switch (ownerType)
         {
             case DocumentOwnerType.Child:
-                var child = _children.GetById(ownerId) ?? throw new KeyNotFoundException("Ребёнок не найден.");
+                var child = await _children.GetByIdAsync(ownerId, cancellationToken)
+                    ?? throw new KeyNotFoundException("Ребёнок не найден.");
                 child.Documents.Add(document);
-                _children.Update(child);
+                await _children.UpdateAsync(child, cancellationToken);
                 break;
             case DocumentOwnerType.Parent:
-                var parent = _parents.GetById(ownerId) ?? throw new KeyNotFoundException("Родитель не найден.");
+                var parent = await _parents.GetByIdAsync(ownerId, cancellationToken)
+                    ?? throw new KeyNotFoundException("Родитель не найден.");
                 parent.AddDocument(document);
-                _parents.Update(parent);
+                await _parents.UpdateAsync(parent, cancellationToken);
                 break;
             case DocumentOwnerType.Event:
-                var eventEntity = _events.GetById(ownerId) ?? throw new KeyNotFoundException("Мероприятие не найдено.");
+                var eventEntity = await _events.GetByIdAsync(ownerId, cancellationToken)
+                    ?? throw new KeyNotFoundException("Мероприятие не найдено.");
                 eventEntity.AddDocument([document]);
-                _events.Update(eventEntity);
+                await _events.UpdateAsync(eventEntity, cancellationToken);
                 break;
         }
         return _mapper.ToDTO(document);
     }
 
-    public List<DocumentDTO> GetAll() => _mapper.ToDTO(_documents.GetAll());
-
-    public List<DocumentDTO> GetByIds(IEnumerable<Guid> ids) => ids
-        .Distinct()
-        .Select(GetById)
-        .Where(document => document is not null)
-        .ToList();
-
-    public DocumentDTO GetById(Guid id) => _mapper.ToDTO(_documents.GetById(id));
-
-    public void Update(DocumentDTO dto)
+    public async Task<List<DocumentDTO>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var document = _documents.GetById(dto.Id);
-        _mapper.UpdateDomain(document, dto);
-        _documents.Update(document);
+        var documents = await _documents.GetAllAsync(cancellationToken);
+        return _mapper.ToDTO(documents);
     }
 
-    public void Delete(Guid id) => _documents.Remove(id);
+    public async Task<List<DocumentDTO>> GetByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        var documents = new List<DocumentDTO>();
+        foreach (var id in ids.Distinct())
+        {
+            var document = await GetByIdAsync(id, cancellationToken);
+            if (document is not null)
+                documents.Add(document);
+        }
+        return documents;
+    }
+
+    public async Task<DocumentDTO> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var document = await _documents.GetByIdAsync(id, cancellationToken);
+        return _mapper.ToDTO(document!);
+    }
+
+    public async Task UpdateAsync(DocumentDTO dto, CancellationToken cancellationToken = default)
+    {
+        var document = await _documents.GetByIdAsync(dto.Id, cancellationToken);
+        _mapper.UpdateDomain(document!, dto);
+        await _documents.UpdateAsync(document!, cancellationToken);
+    }
+
+    public Task DeleteAsync(Guid id, CancellationToken cancellationToken = default) =>
+        _documents.RemoveAsync(id, cancellationToken);
 }

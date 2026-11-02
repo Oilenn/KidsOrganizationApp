@@ -7,16 +7,16 @@ namespace KidsOrganizationApp.Service;
 
 public interface IChildService
 {
-    ChildDTO AddChild(ChildDTO dto);
-    ChildDTO GetChildById(Guid id);
-    void DeleteChild(Guid id);
-    void UpdateChild(ChildDTO dto);
-    List<ChildDTO> GetAllChildren();
-    List<ChildDTO> GetChildrenByName(string name);
-    List<ChildDTO> GetChildrenBySurname(string surname);
-    List<ChildDTO> GetChildrenByPatronymic(string patronymic);
-    List<ParentDTO> GetParents(ChildDTO dto);
-    void AddParent(ParentDTO parent, ChildDTO dto);
+    Task<ChildDTO> AddChildAsync(ChildDTO dto, CancellationToken cancellationToken = default);
+    Task<ChildDTO> GetChildByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task DeleteChildAsync(Guid id, CancellationToken cancellationToken = default);
+    Task UpdateChildAsync(ChildDTO dto, CancellationToken cancellationToken = default);
+    Task<List<ChildDTO>> GetAllChildrenAsync(CancellationToken cancellationToken = default);
+    Task<List<ChildDTO>> GetChildrenByNameAsync(string name, CancellationToken cancellationToken = default);
+    Task<List<ChildDTO>> GetChildrenBySurnameAsync(string surname, CancellationToken cancellationToken = default);
+    Task<List<ChildDTO>> GetChildrenByPatronymicAsync(string patronymic, CancellationToken cancellationToken = default);
+    Task<List<ParentDTO>> GetParentsAsync(ChildDTO dto, CancellationToken cancellationToken = default);
+    Task AddParentAsync(ParentDTO parent, ChildDTO dto, CancellationToken cancellationToken = default);
 }
 
 public class ChildService : IChildService
@@ -38,41 +38,70 @@ public class ChildService : IChildService
         _mapper = mapper;
     }
 
-    public ChildDTO AddChild(ChildDTO dto)
+    public async Task<ChildDTO> AddChildAsync(ChildDTO dto, CancellationToken cancellationToken = default)
     {
         var child = _mapper.ToNewDomain(dto);
         foreach (var parentId in dto.ParentIds)
-            child.AddParent(_parents.GetById(parentId));
-        _children.Add(child);
+            child.AddParent((await _parents.GetByIdAsync(parentId, cancellationToken))!);
+        await _children.AddAsync(child, cancellationToken);
         return _mapper.ToDTO(child);
     }
 
-    public ChildDTO GetChildById(Guid id) => _mapper.ToDTO(_children.GetById(id));
-
-    public List<ChildDTO> GetAllChildren() => _mapper.ToDTO(_children.GetAll());
-
-    public List<ChildDTO> GetChildrenByName(string name) => _mapper.ToDTO(_children.GetByName(name));
-
-    public List<ChildDTO> GetChildrenBySurname(string surname) => _mapper.ToDTO(_children.GetBySurname(surname));
-
-    public List<ChildDTO> GetChildrenByPatronymic(string patronymic) => _mapper.ToDTO(_children.GetByPatronymic(patronymic));
-
-    public void DeleteChild(Guid id) => _children.Remove(id);
-
-    public void UpdateChild(ChildDTO dto)
+    public async Task<ChildDTO> GetChildByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var child = _children.GetById(dto.Id);
-        _mapper.UpdateDomain(child, dto);
-        _children.Update(child);
+        var child = await _children.GetByIdAsync(id, cancellationToken);
+        return _mapper.ToDTO(child!);
     }
 
-    public void AddParent(ParentDTO parent, ChildDTO dto)
+    public async Task<List<ChildDTO>> GetAllChildrenAsync(CancellationToken cancellationToken = default)
     {
-        var child = _children.GetById(dto.Id);
-        var savedParent = _parentService.Add(parent);
-        child.AddParent(_parents.GetById(savedParent.Id));
-        _children.Update(child);
+        var children = await _children.GetAllAsync(cancellationToken);
+        return _mapper.ToDTO(children);
     }
 
-    public List<ParentDTO> GetParents(ChildDTO dto) => dto.ParentIds.Select(_parentService.GetParentById).ToList();
+    public async Task<List<ChildDTO>> GetChildrenByNameAsync(string name, CancellationToken cancellationToken = default)
+    {
+        var children = await _children.GetByNameAsync(name, cancellationToken);
+        return _mapper.ToDTO(children);
+    }
+
+    public async Task<List<ChildDTO>> GetChildrenBySurnameAsync(string surname, CancellationToken cancellationToken = default)
+    {
+        var children = await _children.GetBySurnameAsync(surname, cancellationToken);
+        return _mapper.ToDTO(children);
+    }
+
+    public async Task<List<ChildDTO>> GetChildrenByPatronymicAsync(
+        string patronymic,
+        CancellationToken cancellationToken = default)
+    {
+        var children = await _children.GetByPatronymicAsync(patronymic, cancellationToken);
+        return _mapper.ToDTO(children);
+    }
+
+    public Task DeleteChildAsync(Guid id, CancellationToken cancellationToken = default) =>
+        _children.RemoveAsync(id, cancellationToken);
+
+    public async Task UpdateChildAsync(ChildDTO dto, CancellationToken cancellationToken = default)
+    {
+        var child = await _children.GetByIdAsync(dto.Id, cancellationToken);
+        _mapper.UpdateDomain(child!, dto);
+        await _children.UpdateAsync(child!, cancellationToken);
+    }
+
+    public async Task AddParentAsync(ParentDTO parent, ChildDTO dto, CancellationToken cancellationToken = default)
+    {
+        var child = await _children.GetByIdAsync(dto.Id, cancellationToken);
+        var savedParent = await _parentService.AddAsync(parent, cancellationToken);
+        child!.AddParent((await _parents.GetByIdAsync(savedParent.Id, cancellationToken))!);
+        await _children.UpdateAsync(child, cancellationToken);
+    }
+
+    public async Task<List<ParentDTO>> GetParentsAsync(ChildDTO dto, CancellationToken cancellationToken = default)
+    {
+        var parents = new List<ParentDTO>();
+        foreach (var parentId in dto.ParentIds)
+            parents.Add(await _parentService.GetParentByIdAsync(parentId, cancellationToken));
+        return parents;
+    }
 }

@@ -7,7 +7,7 @@ namespace KidsOrganizationApp.Service;
 
 public interface IExportService
 {
-    void ExportArchive(string archivePath);
+    Task ExportArchiveAsync(string archivePath, CancellationToken cancellationToken = default);
 }
 
 public class ExportService : IExportService
@@ -16,40 +16,50 @@ public class ExportService : IExportService
     private readonly IParentService _parents;
     private readonly IEventService _events;
     private readonly IDocumentService _documents;
+    private readonly IDocumentFileService _documentFiles;
 
     public ExportService(
         IChildService children,
         IParentService parents,
         IEventService events,
-        IDocumentService documents)
+        IDocumentService documents,
+        IDocumentFileService documentFiles)
     {
         _children = children;
         _parents = parents;
         _events = events;
         _documents = documents;
+        _documentFiles = documentFiles;
     }
 
-    public void ExportArchive(string archivePath)
+    public async Task ExportArchiveAsync(string archivePath, CancellationToken cancellationToken = default)
     {
         var directory = Path.Combine(Path.GetTempPath(), $"kids-export-{Guid.NewGuid():N}");
         Directory.CreateDirectory(directory);
         try
         {
-            Participants(Path.Combine(directory, "Участники.xlsx"));
-            Events(Path.Combine(directory, "Мероприятия.xlsx"));
-            CopyDocuments(Path.Combine(directory, "Документы"));
+            await ParticipantsAsync(Path.Combine(directory, "Участники.xlsx"), cancellationToken);
+            await EventsAsync(Path.Combine(directory, "Мероприятия.xlsx"), cancellationToken);
+            await CopyDocumentsAsync(Path.Combine(directory, "Документы"), cancellationToken);
             if (File.Exists(archivePath))
                 File.Delete(archivePath);
-            ZipFile.CreateFromDirectory(directory, archivePath);
+            await ZipFile.CreateFromDirectoryAsync(directory, archivePath, cancellationToken);
         }
         finally
         {
             if (Directory.Exists(directory))
-                Directory.Delete(directory, true);
+                await Task.Run(() => Directory.Delete(directory, true));
         }
     }
 
-    private void Participants(string path)
+    private async Task ParticipantsAsync(string path, CancellationToken cancellationToken)
+    {
+        var children = await _children.GetAllChildrenAsync(cancellationToken);
+        var parents = await _parents.GetAllParentsAsync(cancellationToken);
+        await Task.Run(() => SaveParticipants(path, children, parents), cancellationToken);
+    }
+
+    private static void SaveParticipants(string path, List<ChildDTO> children, List<ParentDTO> parents)
     {
         using var book = new XLWorkbook();
         var sheet = book.AddWorksheet("Участники");
@@ -57,7 +67,7 @@ public class ExportService : IExportService
         for (var i = 0; i < headers.Length; i++)
             sheet.Cell(1, i + 1).Value = headers[i];
         var row = 2;
-        foreach (var c in _children.GetAllChildren())
+        foreach (var c in children)
             Write(
                 sheet,
                 row++,
@@ -69,7 +79,7 @@ public class ExportService : IExportService
                 c.MobileNumber,
                 c.LivingPlace,
                 c.Email);
-        foreach (var p in _parents.GetAllParents())
+        foreach (var p in parents)
             Write(
                 sheet,
                 row++,
@@ -85,14 +95,20 @@ public class ExportService : IExportService
         book.SaveAs(path);
     }
 
-    private void Events(string path)
+    private async Task EventsAsync(string path, CancellationToken cancellationToken)
+    {
+        var events = await _events.GetAllAsync(cancellationToken);
+        await Task.Run(() => SaveEvents(path, events), cancellationToken);
+    }
+
+    private static void SaveEvents(string path, List<EventDTO> events)
     {
         using var book = new XLWorkbook();
         var sheet = book.AddWorksheet("Мероприятия");
         sheet.Cell(1, 1).Value = "Название";
         sheet.Cell(1, 2).Value = "Дата";
         var row = 2;
-        foreach (var e in _events.GetAll())
+        foreach (var e in events)
         {
             sheet.Cell(row, 1).Value = e.Name;
             sheet.Cell(row++, 2).Value = e.Date;
@@ -134,19 +150,23 @@ public class ExportService : IExportService
         s.Columns().AdjustToContents();
     }
 
-    private void CopyDocuments(string directory)
+    private async Task CopyDocumentsAsync(string directory, CancellationToken cancellationToken)
     {
         Directory.CreateDirectory(directory);
         var missing = new List<string>();
-        foreach (var doc in _documents.GetAll())
+        foreach (var doc in await _documents.GetAllAsync(cancellationToken))
         {
             if (File.Exists(doc.Path))
-                File.Copy(doc.Path, Path.Combine(directory, Path.GetFileName(doc.Path)), true);
+                await _documentFiles.CopyAsync(
+                    doc.Path,
+                    Path.Combine(directory, Path.GetFileName(doc.Path)),
+                    overwrite: true,
+                    cancellationToken);
             else
                 missing.Add($"{doc.TypeName}: {doc.Path}");
         }
 
         if (missing.Count > 0)
-            File.WriteAllLines(Path.Combine(directory, "Не найдено.txt"), missing);
+            await File.WriteAllLinesAsync(Path.Combine(directory, "Не найдено.txt"), missing, cancellationToken);
     }
 }

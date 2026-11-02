@@ -9,8 +9,8 @@ namespace KidsOrganizationApp.Service
 {
     public interface IFamilyService
     {
-        void AddParentAndChild(ChildDTO child, ParentDTO parent);
-        void DeleteChildWithParents(Guid child);
+        Task AddParentAndChildAsync(ChildDTO child, ParentDTO parent, CancellationToken cancellationToken = default);
+        Task DeleteChildWithParentsAsync(Guid child, CancellationToken cancellationToken = default);
     }
 
     public class FamilyService : IFamilyService
@@ -26,22 +26,26 @@ namespace KidsOrganizationApp.Service
             _parentService = parentService;
         }
 
-        public void AddParentAndChild(ChildDTO child, ParentDTO parent)
+        public async Task AddParentAndChildAsync(
+            ChildDTO child,
+            ParentDTO parent,
+            CancellationToken cancellationToken = default)
         {
-            _childService.AddChild(child);
-            _childService.AddParent(parent, child);
+            await _childService.AddChildAsync(child, cancellationToken);
+            await _childService.AddParentAsync(parent, child, cancellationToken);
         }
 
-        public void DeleteChildWithParents(Guid childId)
+        public async Task DeleteChildWithParentsAsync(Guid childId, CancellationToken cancellationToken = default)
         {
-            List<ParentDTO> parents = _childService.GetParents(_childService.GetChildById(childId));
+            var child = await _childService.GetChildByIdAsync(childId, cancellationToken);
+            List<ParentDTO> parents = await _childService.GetParentsAsync(child, cancellationToken);
 
             foreach (ParentDTO parent in parents)
             {
-                _parentService.Delete(parent.Id);
+                await _parentService.DeleteAsync(parent.Id, cancellationToken);
             }
 
-            _childService.DeleteChild(childId);
+            await _childService.DeleteChildAsync(childId, cancellationToken);
         }
     }
 }

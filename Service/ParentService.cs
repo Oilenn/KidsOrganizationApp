@@ -8,16 +8,16 @@ namespace KidsOrganizationApp.Service
 {
     public interface IParentService
     {
-        ParentDTO Add(ParentDTO dto);
-        void Update(ParentDTO dto);
-        void Delete(Guid id);
+        Task<ParentDTO> AddAsync(ParentDTO dto, CancellationToken cancellationToken = default);
+        Task UpdateAsync(ParentDTO dto, CancellationToken cancellationToken = default);
+        Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
-        ParentDTO GetParentById(Guid id);
-        List<ParentDTO> GetAllParents();
+        Task<ParentDTO> GetParentByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<List<ParentDTO>> GetAllParentsAsync(CancellationToken cancellationToken = default);
 
-        List<ParentDTO> GetParentsByName(string name);
-        List<ParentDTO> GetParentsBySurname(string surname);
-        List<ParentDTO> GetParentsByPatronymic(string patronymic);
+        Task<List<ParentDTO>> GetParentsByNameAsync(string name, CancellationToken cancellationToken = default);
+        Task<List<ParentDTO>> GetParentsBySurnameAsync(string surname, CancellationToken cancellationToken = default);
+        Task<List<ParentDTO>> GetParentsByPatronymicAsync(string patronymic, CancellationToken cancellationToken = default);
     }
     public class ParentService : IParentService
     {
@@ -30,51 +30,59 @@ namespace KidsOrganizationApp.Service
             _mapper = mapper;
         }
 
-        public ParentDTO Add(ParentDTO dto)
+        public async Task<ParentDTO> AddAsync(ParentDTO dto, CancellationToken cancellationToken = default)
         {
             Parent parent = _mapper.ToNewDomain(dto);
-            _parentRepository.Add(parent);
+            await _parentRepository.AddAsync(parent, cancellationToken);
 
             return _mapper.ToDTO(parent);
         }
 
-        public void Update(ParentDTO dto)
+        public async Task UpdateAsync(ParentDTO dto, CancellationToken cancellationToken = default)
         {
-            var parent = _parentRepository.GetById(dto.Id);
-            _mapper.UpdateDomain(parent, dto);
+            var parent = await _parentRepository.GetByIdAsync(dto.Id, cancellationToken);
+            _mapper.UpdateDomain(parent!, dto);
 
-            _parentRepository.Update(parent);
+            await _parentRepository.UpdateAsync(parent!, cancellationToken);
         }
 
-        public void Delete(Guid id)
+        public Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            _parentRepository.Remove(id);
+            return _parentRepository.RemoveAsync(id, cancellationToken);
         }
 
-        public ParentDTO GetParentById(Guid id)
+        public async Task<ParentDTO> GetParentByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            Parent parent = _parentRepository.GetById(id);
-            return _mapper.ToDTO(parent);
+            var parent = await _parentRepository.GetByIdAsync(id, cancellationToken);
+            return _mapper.ToDTO(parent!);
         }
 
-        public List<ParentDTO> GetAllParents()
+        public async Task<List<ParentDTO>> GetAllParentsAsync(CancellationToken cancellationToken = default)
         {
-            return _mapper.ToDTO(_parentRepository.GetAll());
+            var parents = await _parentRepository.GetAllAsync(cancellationToken);
+            return _mapper.ToDTO(parents);
         }
 
-        public List<ParentDTO> GetParentsByName(string name)
+        public async Task<List<ParentDTO>> GetParentsByNameAsync(string name, CancellationToken cancellationToken = default)
         {
-            return _mapper.ToDTO(_parentRepository.GetByName(name));
+            var parents = await _parentRepository.GetByNameAsync(name, cancellationToken);
+            return _mapper.ToDTO(parents);
         }
 
-        public List<ParentDTO> GetParentsBySurname(string surname)
+        public async Task<List<ParentDTO>> GetParentsBySurnameAsync(
+            string surname,
+            CancellationToken cancellationToken = default)
         {
-            return _mapper.ToDTO(_parentRepository.GetBySurname(surname));
+            var parents = await _parentRepository.GetBySurnameAsync(surname, cancellationToken);
+            return _mapper.ToDTO(parents);
         }
 
-        public List<ParentDTO> GetParentsByPatronymic(string patronymic)
+        public async Task<List<ParentDTO>> GetParentsByPatronymicAsync(
+            string patronymic,
+            CancellationToken cancellationToken = default)
         {
-            return _mapper.ToDTO(_parentRepository.GetByPatronymic(patronymic));
+            var parents = await _parentRepository.GetByPatronymicAsync(patronymic, cancellationToken);
+            return _mapper.ToDTO(parents);
         }
     }
 }
